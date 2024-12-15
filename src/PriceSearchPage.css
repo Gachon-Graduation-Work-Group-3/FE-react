@@ -1,0 +1,154 @@
+.price-search-container {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+.search-content {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.search-title {
+  text-align: center;
+  font-size: 2.5rem;
+  color: #333;
+  margin-bottom: 40px;
+  font-weight: 600;
+}
+
+.search-box {
+  background: white;
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.search-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  margin-bottom: 40px;
+}
+
+.search-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.search-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.search-field label {
+  font-size: 0.9rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.search-field select,
+.search-field input {
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  background-color: white;
+  transition: all 0.2s ease;
+}
+
+.search-field select:focus,
+.search-field input:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.search-button {
+  width: 100%;
+  padding: 18px;
+  font-size: 1.2rem;
+  background: linear-gradient(45deg, #007bff, #0056b3);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.search-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+}
+
+.search-button:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+  .search-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .search-box {
+    padding: 20px;
+  }
+  
+  .search-title {
+    font-size: 2rem;
+  }
+}
+
+.filter-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 300px;
+  overflow-y: auto;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+.filter-option {
+  padding: 12px 20px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+  color: #495057;
+  border: 1px solid transparent;
+  position: relative;
+  top: 0;
+}
+
+.filter-option:hover {
+  background: #e9ecef;
+  top: -3px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.filter-option.selected {
+  background: #007bff;
+  color: white;
+  border-color: #0056b3;
+  font-weight: 500;
+}
+
+.filter-option.selected:hover {
+  background: #0056b3;
+}
+.logo {
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+  }
+  
+  .logo:hover {
+    color: #007bff;
+  }

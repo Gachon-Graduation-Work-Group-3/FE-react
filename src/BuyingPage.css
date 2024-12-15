@@ -1,0 +1,251 @@
+/* BuyingPage.css */
+.buying-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.content-wrapper {
+  display: flex;
+  padding: 20px;
+  gap: 20px;
+}
+
+.filter-sidebar {
+  width: 300px;
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.filter-section {
+  background: white;
+  border-radius: 15px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.filter-section h3 {
+  color: #333;
+  font-size: 1rem;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.filter-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.filter-input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  background: #f8f9fa;
+}
+.filter-input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+  background: white;
+}
+
+.filter-separator {
+  display: none;
+}
+.filter-search-button {
+  width: 100%;
+  padding: 15px;
+  background: linear-gradient(45deg, #007bff, #0056b3);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 20px;
+  text-align: center;
+}
+.filter-search-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 123, 255, 0.2);
+}
+
+.filter-search-button:active {
+  transform: translateY(0);
+}
+
+/* 숫자 입력 필드의 화살표 제거 */
+.filter-input::-webkit-outer-spin-button,
+.filter-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.filter-input[type=number] {
+  -webkit-appearance: textfield;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+.filter-options {
+  display: flex;
+  gap: 10px;
+}
+
+.filter-options button {
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #fff;
+}
+
+.main-content {
+  flex: 1;
+}
+
+.search-header {
+  margin-bottom: 20px;
+}
+
+.search-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.tab {
+  padding: 10px 20px;
+  border: none;
+  background: #f5f5f5;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.tab.active {
+  background: #000;
+  color: white;
+}
+
+.car-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 25px;
+  padding: 20px 0;
+}
+
+.car-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease;
+}
+
+.car-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.car-image {
+  width: 100%;
+  height: 180px;
+  background-color: #f0f0f0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.car-info {
+  padding: 15px;
+  background: #f8f9fa;
+}
+
+.car-info h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.car-info p {
+  margin: 0;
+  font-size: 14px;
+  color: #666;
+  line-height: 1.4;
+}
+
+.car-info .price {
+  margin-top: 8px;
+  font-weight: bold;
+  color: #007bff;
+  font-size: 16px;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+}
+
+.pagination button {
+  width: 30px;
+  height: 30px;
+  border: 1px solid #ddd;
+  background: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.pagination button.active {
+  background: #000;
+  color: white;
+  border-color: #000;
+}
+
+.menu-item {
+    position: relative;
+    cursor: pointer;
+    padding: 20px 15px;
+    text-decoration: none;
+    color: inherit;
+  }
+  
+  .menu-item.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: #007bff;
+  }
+  
+  /* Link 컴포넌트에 대한 스타일 */
+  .menu-items a {
+    text-decoration: none;
+    color: inherit;
+  }
+
+.menu-items {
+  display: flex;
+  gap: 3rem;
+  align-items: center;
+  margin: 0 auto;
+}
+.logo {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.logo:hover {
+  color: #007bff;
+}
