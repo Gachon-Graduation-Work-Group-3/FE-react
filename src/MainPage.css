@@ -259,12 +259,12 @@ a:hover {
 }
 
 .car-list-section {
-  padding: 40px 20px;
+  padding: 2rem 2rem;
 }
 
 .section-title {
-  font-size: 24px;
-  font-weight: 600;
+  font-size: 3rem;
+  font-weight: 800;
   margin-bottom: 20px;
   color: #333;
 }
@@ -324,7 +324,7 @@ a:hover {
 }
 
 .popular-cars-section {
-  padding: 2rem 0;
+  padding: 2rem 2rem;
 }
 
 .table-container {
@@ -417,4 +417,111 @@ a:hover {
     max-width: 900px;
     margin: 0 auto;
   }
+  
+.recommendations {
+    padding: 2rem 4rem;
+}
+
+.section-title {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 2rem;
+    color: #333;
+}
+
+.cards-container {
+    width: 100%;
+}
+
+.cards-grid {
+    display: flex;
+    overflow-x: auto;
+    gap: 2rem;
+    padding: 1rem 0;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+}
+
+.car-card {
+    flex: 0 0 300px;
+    scroll-snap-align: start;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+}
+
+.car-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+}
+
+.car-image-wrapper {
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+}
+
+.car-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.car-card:hover .car-image {
+    transform: scale(1.05);
+}
+
+.car-details {
+    padding: 1.5rem;
+}
+
+.car-name {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.car-info {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.car-price {
+    color: #007bff;
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+.loading-state,
+.error-state,
+.empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+    font-size: 1.1rem;
+}
+
+.cards-grid::-webkit-scrollbar {
+    height: 8px;
+}
+
+.cards-grid::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.cards-grid::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+.cards-grid::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
   

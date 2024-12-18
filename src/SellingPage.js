@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import './SellingPage.css';
 import { Link } from 'react-router-dom';
+import carDataJson from './data/transformed_carData.json';
+
 function SellingPage() {
   const [carInfo, setCarInfo] = useState({
     licensePlate: '',
@@ -15,7 +17,12 @@ function SellingPage() {
     images: []
   });
 
+  const [selectedManufacturer, setSelectedManufacturer] = useState(null);
+  const [selectedModel, setSelectedModel] = useState(null);
+  const [selectedSubModel, setSelectedSubModel] = useState(null);
+  const [selectedGrade, setSelectedGrade] = useState(null);
   const [previewImages, setPreviewImages] = useState([]);
+  const [carData] = useState(carDataJson);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -43,6 +50,54 @@ function SellingPage() {
     e.preventDefault();
     // 여기에 서버로 데이터를 전송하는 로직 추가
     console.log('제출된 차량 정보:', carInfo);
+  };
+
+  const handleManufacturerSelect = (e) => {
+    const manufacturer = carData.find(m => m.name === e.target.value);
+    setSelectedManufacturer(manufacturer);
+    setSelectedModel(null);
+    setSelectedSubModel(null);
+    setSelectedGrade(null);
+    setCarInfo(prev => ({
+      ...prev,
+      manufacturer: e.target.value,
+      model: '',
+      subModel: '',
+      grade: ''
+    }));
+  };
+
+  const handleModelSelect = (e) => {
+    const model = selectedManufacturer?.models.find(m => m.name === e.target.value);
+    setSelectedModel(model);
+    setSelectedSubModel(null);
+    setSelectedGrade(null);
+    setCarInfo(prev => ({
+      ...prev,
+      model: e.target.value,
+      subModel: '',
+      grade: ''
+    }));
+  };
+
+  const handleSubModelSelect = (e) => {
+    const subModel = selectedModel?.subModels.find(sm => sm.name === e.target.value);
+    setSelectedSubModel(subModel);
+    setSelectedGrade(null);
+    setCarInfo(prev => ({
+      ...prev,
+      subModel: e.target.value,
+      grade: ''
+    }));
+  };
+
+  const handleGradeSelect = (e) => {
+    const grade = selectedSubModel?.grades.find(g => g.name === e.target.value);
+    setSelectedGrade(grade);
+    setCarInfo(prev => ({
+      ...prev,
+      grade: e.target.value
+    }));
   };
 
   return (
@@ -96,55 +151,72 @@ function SellingPage() {
           <div className="info-grid">
             <div className="form-group">
               <label className="form-label">제조사</label>
-              <select 
-                name="manufacturer" 
+              <select
+                name="manufacturer"
                 className="form-select"
                 value={carInfo.manufacturer}
-                onChange={handleInputChange}
+                onChange={handleManufacturerSelect}
               >
-                <option value="">선택하세요</option>
-                <option value="hyundai">현대</option>
-                <option value="kia">기아</option>
-                <option value="genesis">제네시스</option>
+                <option value="">제조사 선택</option>
+                {carData.map(manufacturer => (
+                  <option key={manufacturer.id} value={manufacturer.name}>
+                    {manufacturer.name}
+                  </option>
+                ))}
               </select>
             </div>
 
             <div className="form-group">
               <label className="form-label">모델</label>
-              <select 
-                name="model" 
+              <select
+                name="model"
                 className="form-select"
                 value={carInfo.model}
-                onChange={handleInputChange}
+                onChange={handleModelSelect}
+                disabled={!selectedManufacturer}
               >
-                <option value="">선택하세요</option>
-                {/* 제조사에 따른 모델 옵션 */}
+                <option value="">모델 선택</option>
+                {selectedManufacturer?.models.map(model => (
+                  <option key={model.id} value={model.name}>
+                    {model.name}
+                  </option>
+                ))}
               </select>
             </div>
 
             <div className="form-group">
               <label className="form-label">세부모델</label>
-              <select 
-                name="subModel" 
+              <select
+                name="subModel"
                 className="form-select"
                 value={carInfo.subModel}
-                onChange={handleInputChange}
+                onChange={handleSubModelSelect}
+                disabled={!selectedModel}
               >
-                <option value="">선택하세요</option>
-                {/* 모델에 따른 세부모델 옵션 */}
+                <option value="">세부모델 선택</option>
+                {selectedModel?.subModels.map(subModel => (
+                  <option key={subModel.id} value={subModel.name}>
+                    {subModel.name}
+                  </option>
+                ))}
               </select>
             </div>
 
             <div className="form-group">
               <label className="form-label">등급</label>
-              <select 
-                name="grade" 
+              <select
+                name="grade"
                 className="form-select"
                 value={carInfo.grade}
-                onChange={handleInputChange}
+                onChange={handleGradeSelect}
+                disabled={!selectedSubModel}
               >
-                <option value="">선택하세요</option>
-                {/* 세부모델에 따른 등급 옵션 */}
+                <option value="">등급 선택</option>
+                {selectedSubModel?.grades.map(grade => (
+                  <option key={grade.id} value={grade.name}>
+                    {grade.name}
+                  </option>
+                ))}
               </select>
             </div>
           </div>

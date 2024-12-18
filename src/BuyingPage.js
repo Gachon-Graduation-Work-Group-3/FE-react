@@ -4,6 +4,9 @@ import g70Image from './img/g70.png';
 import { Link } from 'react-router-dom';
 import carDataJson from './data/transformed_carData.json';
 import axios from 'axios';
+import { fetchCar } from './remote/searchcar';
+import { formatDateToYearMonth } from './util/formatDateToYearMonth';
+import { handlePageChange } from './event/changevalue';
 
 function BuyingPage() {
   const [filteredCars, setFilteredCars] = useState([]);
@@ -17,6 +20,14 @@ function BuyingPage() {
   subModel: null,
   grade: null
 });
+const [response, setResponse] = useState({ data: [] }); // 초기값을 빈 배열로 설정
+const [error, setError] = useState(null); // 에러 메시지 저장
+const [loading, setLoading] = useState(true); // 로딩 상태 추가
+const [priceRange, setPriceRange] = useState([0, 10000]); // 가격 범위 상태
+const [mileageRange, setMileageRange] = useState([0, 300000]); // 주행 거리 범위 상태
+const [selectedColors, setSelectedColors] = useState([]); // 선택된 색상 상태
+const [currentPage, setCurrentPage] = useState(1); // 현재 페이지 상태
+const [totalPages, setTotalPages] = useState(1); // 전체 페이지 수
 const [selectedManufacturer, setSelectedManufacturer] = useState(null);
 const [selectedModel, setSelectedModel] = useState(null);
 const [selectedSubModel, setSelectedSubModel] = useState(null);
@@ -27,30 +38,9 @@ const [cars, setCars] = useState([]);
 const initialCarData = carDataJson;
 const [carData] = useState(initialCarData);
 
-// 서버에 데이터를 요청하는 함수
-const fetchCarData = async (filters) => {
-  try {
-    const response = await axios.post('/api/cars/search', {
-      manufacturer: selectedManufacturer?.id,
-      model: selectedModel?.id,
-      subModel: selectedSubModel?.id,
-      grade: selectedGrade?.id,
-      year: filters.year,
-      mileage: filters.mileage,
-      price: filters.price,
-      color: filters.color.min
-    });
-    
-    setCars(response.data);
-  } catch (error) {
-    console.error('차량 데이터 조회 실패:', error);
-  }
-};
 
-// 검색 핸들러
-const handleSearch = async () => {
-  await fetchCarData(filters);
-};
+
+
 
 // 제조사 선택 핸들러
 const handleManufacturerSelect = async (manufacturer) => {
@@ -66,11 +56,7 @@ const handleManufacturerSelect = async (manufacturer) => {
     setSelectedGrade(null);
   }
   
-  // 선택 변경 후 즉시 데이터 요청
-  await fetchCarData({
-    ...filters,
-    manufacturer: manufacturer?.id
-  });
+
 };
 
 // 모델 선택 핸들러
@@ -85,10 +71,7 @@ const handleModelSelect = async (model) => {
     setSelectedGrade(null);
   }
 
-  await fetchCarData({
-    ...filters,
-    model: model?.id
-  });
+
 };
 
 // 세부모델 선택 핸들러
@@ -101,10 +84,7 @@ const handleSubModelSelect = async (subModel) => {
     setSelectedGrade(null);
   }
 
-  await fetchCarData({
-    ...filters,
-    subModel: subModel?.id
-  });
+
 };
 
 // 등급 선택 핸들러
@@ -115,10 +95,6 @@ const handleGradeSelect = async (grade) => {
     setSelectedGrade(grade);
   }
 
-  await fetchCarData({
-    ...filters,
-    grade: grade?.id
-  });
 };
 
 const handleFilterChange = (category, type, value) => {
@@ -133,8 +109,22 @@ const handleFilterChange = (category, type, value) => {
 
 // 컴포넌트 마운트 시 초기 데이터 로드
 useEffect(() => {
-  fetchCarData(filters);
-}, []);
+
+  fetchCar(
+    currentPage - 1,
+    12,
+    setResponse,
+    setError,
+    setLoading,
+    priceRange,
+    mileageRange,
+    selectedColors,
+    setCurrentPage,
+    setTotalPages
+);
+
+
+}, [currentPage]);
 
 // 선택된 항목들을 표시하는 함수
 const getSelectedPath = () => {
@@ -244,7 +234,7 @@ const getSelectedPath = () => {
               </select>
             </div>
           </div>
-          <button className="filter-search-button" onClick={handleSearch}>
+          <button className="filter-search-button" >
             검색하기
           </button>
         </div>
@@ -258,11 +248,10 @@ const getSelectedPath = () => {
         onMouseLeave={() => setIsSearchContentHovered(false)}
       >
         {isSearchContentHovered ? (
-          // 호버 시 전체 검색 옵션 표시
           <div className="buying-search-box">
             <div className="filter-grid">
               <div className="filter-column">
-                <h3>제조사</h3>
+                <h3 className="filter-title">제조사</h3>
                 <div className="filter-options">
                   {carData.map(manufacturer => (
                     <div
@@ -277,7 +266,7 @@ const getSelectedPath = () => {
               </div>
 
               <div className="filter-column">
-                <h3>모델</h3>
+                <h3 className="filter-title">모델</h3>
                 <div className="filter-options">
                   {selectedManufacturer?.models.map(model => (
                     <div
@@ -292,7 +281,7 @@ const getSelectedPath = () => {
               </div>
 
               <div className="filter-column">
-                <h3>세부모델</h3>
+                <h3 className="filter-title">세부모델</h3>
                 <div className="filter-options">
                   {selectedModel?.subModels.map(subModel => (
                     <div
@@ -307,7 +296,7 @@ const getSelectedPath = () => {
               </div>
 
               <div className="filter-column">
-                <h3>등급</h3>
+                <h3 className="filter-title">등급</h3>
                 <div className="filter-options">
                   {selectedSubModel?.grades.map(grade => (
                     <div
@@ -323,40 +312,98 @@ const getSelectedPath = () => {
             </div>
           </div>
         ) : (
-          // 호버하지 않았을 때는 선택된 경로만 표시
-          <div className="selected-path">
-            {getSelectedPath() || '차량을 선택하세요'}
+          <div className="selected-path-container">
+            <div className="selected-path-content">
+              <span className="selected-path-text">
+                {getSelectedPath() || '차량을 선택하세요'}
+              </span>
+            </div>
           </div>
         )}
       </div>
             
           </div>
 
-          <div className="car-grid">
-            {cars.map((car, index) => (
-              <div key={car.id || index} className="car-card">
-                <div className="car-image-container">
-                  <img 
-                    src={car.image || g70Image} 
-                    alt={car.name} 
-                    className="car-image"
-                  />
+          <div className="search-cards-container">
+            {loading ? (
+                <div className="loading-state">
+                    <p>데이터를 불러오는 중입니다...</p>
                 </div>
-                <div className="car-info">
-                  <h3>{car.name}</h3>
-                  <p>{car.year}년/{car.mileage}</p>
-                  <p className="price">{car.price}</p>
+            ) : error ? (
+                <div className="error-state">
+                    <p>{error}</p>
                 </div>
-              </div>
-            ))}
-          </div>
+            ) : response.content.length > 0 ? (
+                <div className="search-cards-grid">
+                    {response.content.map((car, i) => (
+                        <div key={i} className="search-card">
+                            <div className="card-image-wrapper">
+                                <img
+                                    src={car.image}
+                                    alt={`${car.name}`}
+                                    className="search-car-image"
+                                />
+                            </div>
+                            <div className="card-content">
+                                <h3 className="car-title">{car.name}</h3>
+                                <div className="car-specs">
+                                    <span className="car-year">{formatDateToYearMonth(car.age)}</span>
+                                    <span className="separator">•</span>
+                                    <span className="car-mileage">{car.mileage.toLocaleString()}km</span>
+                                </div>
+                                <div className="car-price">
+                                    <strong>{car.price.toLocaleString()}</strong>
+                                    <span className="price-unit">만원</span>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            ) : (
+                <div className="empty-state">
+                    <p>추천 차량이 없습니다.</p>
+                </div>
+            )}
+        </div>
 
           <div className="pagination">
-            {[1,2,3,4,5,6,7,8,9,10].map(num => (
-              <button key={num} className={num === 1 ? 'active' : ''}>
-                {num}
-              </button>
-            ))}
+          <button
+                    className="page-button-prev-next"
+                    onClick={() => handlePageChange(currentPage - 1, totalPages, currentPage - 1)}
+                    disabled={currentPage <= 1}
+                >
+                    Prev
+                </button>
+
+                {
+                    (() => {
+                        const startPage = Math.max(1, currentPage - 2);
+                        const endPage = Math.min(totalPages, startPage + 4);
+
+                        const pages = [];
+                        for (let page = startPage; page <= endPage; page++) {
+                            pages.push(page);
+                        }
+
+                        return pages.map(page => (
+                            <button
+                                className={`page-button ${currentPage === page ? 'active' : ''}`}
+                                key={page}
+                                onClick={() => handlePageChange(setCurrentPage, totalPages, page)}
+                            >
+                                {page}
+                            </button>
+                        ));
+                    })()
+                }
+
+                <button
+                    className="page-button-prev-next"
+                    onClick={() => handlePageChange(setCurrentPage, totalPages, currentPage + 1)}
+                    disabled={currentPage >= totalPages}
+                >
+                    Next
+                </button>
           </div>
         </div>
       </div>

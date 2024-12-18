@@ -4,7 +4,7 @@
 }
 
 .result-content {
-  max-width: 1200px;
+  min-width: 1200px;
   margin: 0 auto;
   padding: 40px 20px;
 }
@@ -248,7 +248,7 @@
   }
   
   .spec-item span {
-    font-size: 1.1rem;
+    font-size: 2rem;
     font-weight: 500;
     color: #333;
   }
@@ -329,13 +329,15 @@
   
   .spec-label {
     color: #666;
-    font-size: 0.9rem;
+    font-size: 1.2rem;
     margin-bottom: 5px;
+    font-weight: 600;
   }
   
   .spec-value {
     color: #333;
-    font-size: 1rem;
+    font-size: 1.2rem;
+    font-weight: 600;
   }
   
   @media (max-width: 768px) {

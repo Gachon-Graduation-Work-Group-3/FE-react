@@ -274,3 +274,201 @@
   z-index: 1000;
   border-radius: 4px;
 }
+
+.search-cards-container {
+    padding: 2rem;
+    width: 100%;
+}
+
+.search-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.search-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+}
+
+.search-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.card-image-wrapper {
+    position: relative;
+    width: 100%;
+    padding-top: 66.67%; /* 3:2 비율 */
+    overflow: hidden;
+}
+
+.search-car-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.search-card:hover .search-car-image {
+    transform: scale(1.05);
+}
+
+.card-content {
+    padding: 1.5rem;
+}
+
+.car-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.75rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.car-specs {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.separator {
+    color: #ccc;
+}
+
+.car-price {
+    font-size: 1.2rem;
+    color: #2563eb;
+    display: flex;
+    align-items: baseline;
+    gap: 0.25rem;
+}
+
+.price-unit {
+    font-size: 0.9rem;
+}
+
+.buying-search-content {
+    background: white;
+    border-radius: 12px;
+    margin: 2rem auto;
+    max-width: 1200px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid #f0f0f0;
+}
+
+.buying-search-content:hover {
+    border-color: #2563eb;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+}
+
+.selected-path-container {
+    padding: 1.5rem 2rem;
+}
+
+.selected-path-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.selected-path-text {
+    font-size: 1.1rem;
+    color: #333;
+    text-align: center;
+}
+
+.hover-hint {
+    font-size: 0.9rem;
+    color: #2563eb;
+    background: rgba(37, 99, 235, 0.1);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+}
+
+.buying-search-box {
+    padding: 2rem;
+    background: white;
+    border-radius: 12px;
+}
+
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+}
+
+.filter-column {
+    min-width: 0;
+}
+
+.filter-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.filter-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.filter-option {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.95rem;
+    color: #555;
+}
+
+.filter-option:hover {
+    background: rgba(37, 99, 235, 0.05);
+    color: #2563eb;
+}
+
+.filter-option.selected {
+    background: #2563eb;
+    color: white;
+}
+
+/* 스크롤바 스타일링 */
+.filter-options::-webkit-scrollbar {
+    width: 6px;
+}
+
+.filter-options::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.filter-options::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 3px;
+}
+
+.filter-options::-webkit-scrollbar-thumb:hover {
+    background: #999;
+}

@@ -5,9 +5,10 @@ import BuyingPage from './BuyingPage';
 import SellingPage from './SellingPage';
 import SearchPage from './SearchPage';
 import PriceSearchPage from './PriceSearchPage';
-import PriceResultPage from './PriceResultPage';
+import Description from './Description';
 import LoginPage from './LoginPage';
 import './App.css';
+
 
 function App() {
   return (
@@ -19,8 +20,9 @@ function App() {
           <Route path="/selling" element={<SellingPage />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/price-search" element={<PriceSearchPage />} />
-          <Route path="/price-result" element={<PriceResultPage />} />
+          <Route path="/price-result" element={<Description />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/description" element={<Description />} />
         </Routes>
       </Router>
     </div>

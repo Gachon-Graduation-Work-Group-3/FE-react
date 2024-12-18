@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './PriceSearchPage.css';
 import { Link } from 'react-router-dom';
+import carDataJson from './data/transformed_carData.json';
 
 function PriceSearchPage() {
   const navigate = useNavigate();
@@ -14,94 +15,61 @@ function PriceSearchPage() {
     mileage: ''
   });
 
-  const carData = [
-    {
-      id: 1,
-      name: "현대",
-      models: [
-        {
-          id: 1,
-          name: "아반떼",
-          subModels: [
-            {
-              id: 1,
-              name: "CN7",
-              grades: [
-                { id: 1, name: "모던" },
-                { id: 2, name: "프리미엄" },
-                { id: 3, name: "인스퍼레이션" }
-              ]
-            },
-            {
-              id: 2,
-              name: "MD",
-              grades: [
-                { id: 4, name: "스타일" },
-                { id: 5, name: "프리미엄" }
-              ]
-            }
-          ]
-        },
-        {
-          id: 2,
-          name: "소나타",
-          subModels: [
-            {
-              id: 3,
-              name: "DN8",
-              grades: [
-                { id: 6, name: "프리미엄" },
-                { id: 7, name: "익스클루시브" }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      id: 2,
-      name: "기아",
-      models: [
-        {
-          id: 3,
-          name: "K5",
-          subModels: [
-            {
-              id: 4,
-              name: "DL3",
-              grades: [
-                { id: 8, name: "트렌디" },
-                { id: 9, name: "프레스티지" },
-                { id: 10, name: "노블레스" }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      id: 3,
-      name: "제네시스",
-      models: [
-        {
-          id: 4,
-          name: "G70",
-          subModels: [
-            {
-              id: 5,
-              name: "RG2",
-              grades: [
-                { id: 11, name: "스포츠" },
-                { id: 12, name: "럭셔리" }
-              ]
-            }
-          ]
-        }
-      ]
-    }
-  ];
+  const [selectedManufacturer, setSelectedManufacturer] = useState(null);
+  const [selectedModel, setSelectedModel] = useState(null);
+  const [selectedSubModel, setSelectedSubModel] = useState(null);
+  const [selectedGrade, setSelectedGrade] = useState(null);
+  const [carData] = useState(carDataJson);
+
+  const handleManufacturerSelect = (e) => {
+    const manufacturer = carData.find(m => m.name === e.target.value);
+    setSelectedManufacturer(manufacturer);
+    setSelectedModel(null);
+    setSelectedSubModel(null);
+    setSelectedGrade(null);
+    setSearchParams(prev => ({
+      ...prev,
+      manufacturer: e.target.value,
+      model: '',
+      subModel: '',
+      grade: ''
+    }));
+  };
+
+  const handleModelSelect = (e) => {
+    const model = selectedManufacturer?.models.find(m => m.name === e.target.value);
+    setSelectedModel(model);
+    setSelectedSubModel(null);
+    setSelectedGrade(null);
+    setSearchParams(prev => ({
+      ...prev,
+      model: e.target.value,
+      subModel: '',
+      grade: ''
+    }));
+  };
+
+  const handleSubModelSelect = (e) => {
+    const subModel = selectedModel?.subModels.find(sm => sm.name === e.target.value);
+    setSelectedSubModel(subModel);
+    setSelectedGrade(null);
+    setSearchParams(prev => ({
+      ...prev,
+      subModel: e.target.value,
+      grade: ''
+    }));
+  };
+
+  const handleGradeSelect = (e) => {
+    const grade = selectedSubModel?.grades.find(g => g.name === e.target.value);
+    setSelectedGrade(grade);
+    setSearchParams(prev => ({
+      ...prev,
+      grade: e.target.value
+    }));
+  };
+
   const handleSearch = () => {
-    // 검색 조건을 state로 전달하면서 결과 페이지로 이동
     navigate('/price-result', { state: searchParams });
   };
 
@@ -130,22 +98,29 @@ function PriceSearchPage() {
                 <label>제조사</label>
                 <select 
                   value={searchParams.manufacturer}
-                  onChange={(e) => setSearchParams({...searchParams, manufacturer: e.target.value})}
+                  onChange={handleManufacturerSelect}
                 >
                   <option value="">선택하세요</option>
-                  <option value="hyundai">현대</option>
-                  <option value="kia">기아</option>
-                  <option value="genesis">제네시스</option>
+                  {carData.map(manufacturer => (
+                    <option key={manufacturer.id} value={manufacturer.name}>
+                      {manufacturer.name}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div className="search-field">
                 <label>모델</label>
                 <select 
                   value={searchParams.model}
-                  onChange={(e) => setSearchParams({...searchParams, model: e.target.value})}
+                  onChange={handleModelSelect}
+                  disabled={!selectedManufacturer}
                 >
                   <option value="">선택하세요</option>
-                  {/* 제조사에 따른 모델 옵션 */}
+                  {selectedManufacturer?.models.map(model => (
+                    <option key={model.id} value={model.name}>
+                      {model.name}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -155,20 +130,30 @@ function PriceSearchPage() {
                 <label>세부모델</label>
                 <select 
                   value={searchParams.subModel}
-                  onChange={(e) => setSearchParams({...searchParams, subModel: e.target.value})}
+                  onChange={handleSubModelSelect}
+                  disabled={!selectedModel}
                 >
                   <option value="">선택하세요</option>
-                  {/* 모델에 따른 세부모델 옵션 */}
+                  {selectedModel?.subModels.map(subModel => (
+                    <option key={subModel.id} value={subModel.name}>
+                      {subModel.name}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div className="search-field">
                 <label>등급</label>
                 <select 
                   value={searchParams.grade}
-                  onChange={(e) => setSearchParams({...searchParams, grade: e.target.value})}
+                  onChange={handleGradeSelect}
+                  disabled={!selectedSubModel}
                 >
                   <option value="">선택하세요</option>
-                  {/* 세부모델에 따른 등급 옵션 */}
+                  {selectedSubModel?.grades.map(grade => (
+                    <option key={grade.id} value={grade.name}>
+                      {grade.name}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>

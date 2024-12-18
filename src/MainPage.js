@@ -7,9 +7,9 @@ import g70Image from './img/g70.png';
 import { RiMoneyDollarCircleLine } from 'react-icons/ri'; // 가격 아이콘
 import { BiBrain } from 'react-icons/bi';  // 머신러닝 아이콘
 import { IoInformationCircleOutline } from 'react-icons/io5'; // 정보 아이콘
-import { Link } from 'react-router-dom';
-
-
+import { Link, useNavigate } from 'react-router-dom';
+import { fetchCar } from './remote/searchcar';
+import { formatDateToYearMonth } from './util/formatDateToYearMonth';
 // 슬라이더에 사용할 이미지 배열
 const sliderImages = [
   {
@@ -74,6 +74,28 @@ const ImageSlider = () => {
 };
 
 function MainPage() {
+  const [response, setResponse] = useState({ data: [] }); // 초기값을 빈 배열로 설정
+    const [error, setError] = useState(null); // 에러 메시지 저장
+    const [loading, setLoading] = useState(true); // 로딩 상태 추가
+    const navigate = useNavigate();
+
+    const movetoDescription = (carId) => {
+      console.log("Moving to description with carId:", carId); // 디버깅용
+      navigate('/description', { 
+        state: { 
+          carId: carId 
+        } 
+      });
+    };
+
+    useEffect(() => {
+      fetchCar(0, 5,setResponse, setError, setLoading,null,null).then((data) => {
+          console.log('Car description:', data);
+      })
+          .catch((error) => {
+              console.error('Car description을 가져오는 중 에러 발생:', error);
+          });
+  }, []);
   return (
     <div className="container">
       <nav className="nav-bar">
@@ -130,22 +152,42 @@ function MainPage() {
         </div>
         </section>
 
-        <section className="car-list-section">
-          <h2 className="section-title">얼마일카 추천</h2>
-          <div className="car-grid">
-            {[1, 2, 3, 4, 5].map((index) => (
-              <div key={index} className="car-card">
-                <div className="main-car-image">
-                  <img src={g70Image} alt="제네시스 G70" />
-                </div>
-                <div className="car-info">
-                  <h3 className="car-name">제네시스 G70</h3>
-                  <div className="car-details">2021년/13,044km</div>
-                  <div className="car-price">4,320만원</div>
-                </div>
-              </div>
-            ))}
-          </div>
+        <section className="recommendations">
+            <h2 className="section-title">얼마Car 추천</h2>
+            <div className="cards-container">
+                {loading ? (
+                    <div className="loading-state">데이터를 불러오는 중입니다...</div>
+                ) : error ? (
+                    <div className="error-state">{error}</div>
+                ) : response.content.length > 0 ? (
+                    <div className="cards-grid">
+                        {response.content.map((car, i) => (
+                            <div 
+                                key={i} 
+                                className="car-card" 
+                                onClick={() => movetoDescription(car.carId)}
+                            >
+                                <div className="car-image-wrapper">
+                                    <img
+                                        src={car.image}
+                                        alt={`${car.name}`}
+                                        className="car-image"
+                                    />
+                                </div>
+                                <div className="car-details">
+                                    <h3 className="car-name">{car.name}</h3>
+                                    <p className="car-info">{formatDateToYearMonth(car.age)} / {car.mileage}km</p>
+                                    <p className="car-price">
+                                        <strong>{car.price}만원</strong>
+                                    </p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="empty-state">추천 차량이 없습니다.</div>
+                )}
+            </div>
         </section>
 
       <section className="popular-cars-section">
