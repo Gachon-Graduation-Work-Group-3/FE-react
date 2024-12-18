@@ -1,99 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';  
 import './SearchPage.css';
 import { Link } from 'react-router-dom';
+import carDataJson from './data/transformed_carData.json';
+
 
 function SearchPage() {
+  
   const [selectedManufacturer, setSelectedManufacturer] = useState(null);
   const [selectedModel, setSelectedModel] = useState(null);
   const [selectedSubModel, setSelectedSubModel] = useState(null);
   const [selectedGrade, setSelectedGrade] = useState(null);
 
-  const carData = [
-    {
-      id: 1,
-      name: "현대",
-      models: [
-        {
-          id: 1,
-          name: "아반떼",
-          subModels: [
-            {
-              id: 1,
-              name: "CN7",
-              grades: [
-                { id: 1, name: "모던" },
-                { id: 2, name: "프리미엄" },
-                { id: 3, name: "인스퍼레이션" }
-              ]
-            },
-            {
-              id: 2,
-              name: "MD",
-              grades: [
-                { id: 4, name: "스타일" },
-                { id: 5, name: "프리미엄" }
-              ]
-            }
-          ]
-        },
-        {
-          id: 2,
-          name: "소나타",
-          subModels: [
-            {
-              id: 3,
-              name: "DN8",
-              grades: [
-                { id: 6, name: "프리미엄" },
-                { id: 7, name: "익스클루시브" }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      id: 2,
-      name: "기아",
-      models: [
-        {
-          id: 3,
-          name: "K5",
-          subModels: [
-            {
-              id: 4,
-              name: "DL3",
-              grades: [
-                { id: 8, name: "트렌디" },
-                { id: 9, name: "프레스티지" },
-                { id: 10, name: "노블레스" }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      id: 3,
-      name: "제네시스",
-      models: [
-        {
-          id: 4,
-          name: "G70",
-          subModels: [
-            {
-              id: 5,
-              name: "RG2",
-              grades: [
-                { id: 11, name: "스포츠" },
-                { id: 12, name: "럭셔리" }
-              ]
-            }
-          ]
-        }
-      ]
-    }
-  ];
+  const initialCarData = carDataJson;
+  const [carData] = useState(initialCarData);
+
 
   const handleSearch = () => {
     console.log("검색:", {
@@ -113,7 +33,7 @@ function SearchPage() {
       setSelectedSubModel(null);
       setSelectedGrade(null);
     } else {
-      // 다른 제조사 선택시 하위 선택 초기화
+      // 다른 ��조사 선택시 하위 선택 초기화
       setSelectedManufacturer(manufacturer);
       setSelectedModel(null);
       setSelectedSubModel(null);
@@ -160,7 +80,7 @@ function SearchPage() {
   };
 
   return (
-    <div className="search-container">
+    <div className="container">
       <nav className="nav-bar">
         <Link to="/" className="logo">얼마일카</Link>
         <div className="menu-items">
@@ -175,8 +95,10 @@ function SearchPage() {
         </div>
       </nav>
 
+
+
+      <h1 className="search-title">차량 모델 검색</h1>
       <div className="search-content">
-        <h1 className="search-title">차량 모델 검색</h1>
         <div className="search-box">
           <div className="filter-grid">
             <div className="filter-column">

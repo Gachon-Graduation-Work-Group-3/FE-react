@@ -106,7 +106,7 @@ function PriceSearchPage() {
   };
 
   return (
-    <div className="price-search-container">
+    <div className="container">
       <nav className="nav-bar">
         <Link to="/" className="logo">얼마일카</Link>
         <div className="menu-items">

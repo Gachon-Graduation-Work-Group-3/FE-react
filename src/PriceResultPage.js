@@ -62,7 +62,7 @@ function PriceResultPage() {
   };
 
   return (
-    <div className="price-result-container">
+    <div className="container">
       <nav className="nav-bar">
         <Link to="/" className="logo">얼마일카</Link>
         <div className="menu-items">

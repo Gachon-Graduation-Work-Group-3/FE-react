@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './BuyingPage.css';
 import g70Image from './img/g70.png';
 import { Link } from 'react-router-dom';
-import FilterTree from './FilterTree';
+import carDataJson from './data/transformed_carData.json';
+import axios from 'axios';
 
 function BuyingPage() {
   const [filteredCars, setFilteredCars] = useState([]);
@@ -16,193 +17,135 @@ function BuyingPage() {
   subModel: null,
   grade: null
 });
-  // 검색 핸들러
-  // 검색 핸들러
-const handleSearch = () => {
-  const filtered = cars.filter(car => {
-    let matches = true;
+const [selectedManufacturer, setSelectedManufacturer] = useState(null);
+const [selectedModel, setSelectedModel] = useState(null);
+const [selectedSubModel, setSelectedSubModel] = useState(null);
+const [selectedGrade, setSelectedGrade] = useState(null);
+const [isSearchContentHovered, setIsSearchContentHovered] = useState(false);
+const [cars, setCars] = useState([]);
 
-    // 제조사, 모델, 서브모델, 등급 필터링
-    if (filters.manufacturer) {
-      matches = matches && car.manufacturer === filters.manufacturer.id;
-    }
-    if (filters.model) {
-      matches = matches && car.model === filters.model.id;
-    }
-    if (filters.subModel) {
-      matches = matches && car.subModel === filters.subModel.id;
-    }
-    if (filters.grade) {
-      matches = matches && car.grade === filters.grade.id;
-    }
+const initialCarData = carDataJson;
+const [carData] = useState(initialCarData);
 
-    // 연식 필터링
-    if (filters.year.min) {
-      matches = matches && car.year >= parseInt(filters.year.min);
-    }
-    if (filters.year.max) {
-      matches = matches && car.year <= parseInt(filters.year.max);
-    }
-
-    // 주행거리 필터링
-    if (filters.mileage.min) {
-      matches = matches && parseInt(car.mileage) >= parseInt(filters.mileage.min);
-    }
-    if (filters.mileage.max) {
-      matches = matches && parseInt(car.mileage) <= parseInt(filters.mileage.max);
-    }
-
-    // 가격 필터링
-    if (filters.price.min) {
-      matches = matches && parseInt(car.price) >= parseInt(filters.price.min);
-    }
-    if (filters.price.max) {
-      matches = matches && parseInt(car.price) <= parseInt(filters.price.max);
-    }
-
-    // 색상 필터링
-    if (filters.color.min) {
-      matches = matches && car.color === filters.color.min;
-    }
-
-    return matches;
-  });
-
-  setFilteredCars(filtered);
-  console.log('필터링된 결과:', filtered);
+// 서버에 데이터를 요청하는 함수
+const fetchCarData = async (filters) => {
+  try {
+    const response = await axios.post('/api/cars/search', {
+      manufacturer: selectedManufacturer?.id,
+      model: selectedModel?.id,
+      subModel: selectedSubModel?.id,
+      grade: selectedGrade?.id,
+      year: filters.year,
+      mileage: filters.mileage,
+      price: filters.price,
+      color: filters.color.min
+    });
+    
+    setCars(response.data);
+  } catch (error) {
+    console.error('차량 데이터 조회 실패:', error);
+  }
 };
-  const handleFilterChange = (category, type, value) => {
-    setFilters(prev => ({
-      ...prev,
-      [category]: {
-        ...prev[category],
-        [type]: value
-      }
-    }));
-  };
-  
-  const cars = [
-    {
-      id: 1,
-      manufacturer: 1,
-      model: 1,
-      name: "제네시스 G70",
-      year: "2021",
-      mileage: "3044km",
-      price: "4320만원",
-      image: g70Image
-    },
-    {
-      id: 2,
-      manufacturer: 1,
-      model: 2,
-      name: "아반떼 CN7",
-      year: "2022",
-      mileage: "15000km",
-      price: "2580만원",
-      image: g70Image
-    },
-    {
-      id: 3,
-      manufacturer: 2,
-      model: 3,
-      name: "기아 K5",
-      year: "2023",
-      mileage: "5000km",
-      price: "3150만원",
-      image: g70Image
-    }
-    // 필요한 만큼 더 추가 가능
-  ];
-  const carData = [
-    {
-      id: 1,
-      name: "현대",
-      models: [
-        {
-          id: 1,
-          name: "아반떼",
-          subModels: [
-            {
-              id: 1,
-              name: "CN7",
-              grades: [
-                { id: 1, name: "모던" },
-                { id: 2, name: "프리미엄" },
-                { id: 3, name: "인스퍼레이션" }
-              ]
-            },
-            {
-              id: 2,
-              name: "MD",
-              grades: [
-                { id: 4, name: "스타일" },
-                { id: 5, name: "프리미엄" }
-              ]
-            }
-          ]
-        },
-        {
-          id: 2,
-          name: "소나타",
-          subModels: [
-            {
-              id: 3,
-              name: "DN8",
-              grades: [
-                { id: 6, name: "프리미엄" },
-                { id: 7, name: "익스클루시브" }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      id: 2,
-      name: "기아",
-      models: [
-        {
-          id: 3,
-          name: "K5",
-          subModels: [
-            {
-              id: 4,
-              name: "DL3",
-              grades: [
-                { id: 8, name: "트렌디" },
-                { id: 9, name: "프레스티지" },
-                { id: 10, name: "노블레스" }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      id: 3,
-      name: "제네시스",
-      models: [
-        {
-          id: 4,
-          name: "G70",
-          subModels: [
-            {
-              id: 5,
-              name: "RG2",
-              grades: [
-                { id: 11, name: "스포츠" },
-                { id: 12, name: "럭셔리" }
-              ]
-            }
-          ]
-        }
-      ]
-    }
-  ];
-  
 
+// 검색 핸들러
+const handleSearch = async () => {
+  await fetchCarData(filters);
+};
+
+// 제조사 선택 핸들러
+const handleManufacturerSelect = async (manufacturer) => {
+  if (selectedManufacturer?.id === manufacturer.id) {
+    setSelectedManufacturer(null);
+    setSelectedModel(null);
+    setSelectedSubModel(null);
+    setSelectedGrade(null);
+  } else {
+    setSelectedManufacturer(manufacturer);
+    setSelectedModel(null);
+    setSelectedSubModel(null);
+    setSelectedGrade(null);
+  }
   
+  // 선택 변경 후 즉시 데이터 요청
+  await fetchCarData({
+    ...filters,
+    manufacturer: manufacturer?.id
+  });
+};
+
+// 모델 선택 핸들러
+const handleModelSelect = async (model) => {
+  if (selectedModel?.id === model.id) {
+    setSelectedModel(null);
+    setSelectedSubModel(null);
+    setSelectedGrade(null);
+  } else {
+    setSelectedModel(model);
+    setSelectedSubModel(null);
+    setSelectedGrade(null);
+  }
+
+  await fetchCarData({
+    ...filters,
+    model: model?.id
+  });
+};
+
+// 세부모델 선택 핸들러
+const handleSubModelSelect = async (subModel) => {
+  if (selectedSubModel?.id === subModel.id) {
+    setSelectedSubModel(null);
+    setSelectedGrade(null);
+  } else {
+    setSelectedSubModel(subModel);
+    setSelectedGrade(null);
+  }
+
+  await fetchCarData({
+    ...filters,
+    subModel: subModel?.id
+  });
+};
+
+// 등급 선택 핸들러
+const handleGradeSelect = async (grade) => {
+  if (selectedGrade?.id === grade.id) {
+    setSelectedGrade(null);
+  } else {
+    setSelectedGrade(grade);
+  }
+
+  await fetchCarData({
+    ...filters,
+    grade: grade?.id
+  });
+};
+
+const handleFilterChange = (category, type, value) => {
+  setFilters(prev => ({
+    ...prev,
+    [category]: {
+      ...prev[category],
+      [type]: value
+    }
+  }));
+};
+
+// 컴포넌트 마운트 시 초기 데이터 로드
+useEffect(() => {
+  fetchCarData(filters);
+}, []);
+
+// 선택된 항목들을 표시하는 함수
+const getSelectedPath = () => {
+  const parts = [];
+  if (selectedManufacturer) parts.push(selectedManufacturer.name);
+  if (selectedModel) parts.push(selectedModel.name);
+  if (selectedSubModel) parts.push(selectedSubModel.name);
+  if (selectedGrade) parts.push(selectedGrade.name);
+  return parts.join(' > ');
+};
+
   return (
     <div className="buying-container">
       <nav className="nav-bar">
@@ -309,27 +252,100 @@ const handleSearch = () => {
         <div className="main-content">
           <div className="search-header">
             <div className="search-tabs">
-            <FilterTree 
-            data={carData} 
-            onFilterChange={handleFilterChange}
-          />
-            <h2>Used Cars for Sale</h2>
+            
+      <div className="buying-search-content"
+        onMouseEnter={() => setIsSearchContentHovered(true)}
+        onMouseLeave={() => setIsSearchContentHovered(false)}
+      >
+        {isSearchContentHovered ? (
+          // 호버 시 전체 검색 옵션 표시
+          <div className="buying-search-box">
+            <div className="filter-grid">
+              <div className="filter-column">
+                <h3>제조사</h3>
+                <div className="filter-options">
+                  {carData.map(manufacturer => (
+                    <div
+                      key={manufacturer.id}
+                      className={`filter-option ${selectedManufacturer?.id === manufacturer.id ? 'selected' : ''}`}
+                      onClick={() => handleManufacturerSelect(manufacturer)}
+                    >
+                      {manufacturer.name}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="filter-column">
+                <h3>모델</h3>
+                <div className="filter-options">
+                  {selectedManufacturer?.models.map(model => (
+                    <div
+                      key={model.id}
+                      className={`filter-option ${selectedModel?.id === model.id ? 'selected' : ''}`}
+                      onClick={() => handleModelSelect(model)}
+                    >
+                      {model.name}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="filter-column">
+                <h3>세부모델</h3>
+                <div className="filter-options">
+                  {selectedModel?.subModels.map(subModel => (
+                    <div
+                      key={subModel.id}
+                      className={`filter-option ${selectedSubModel?.id === subModel.id ? 'selected' : ''}`}
+                      onClick={() => handleSubModelSelect(subModel)}
+                    >
+                      {subModel.name}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="filter-column">
+                <h3>등급</h3>
+                <div className="filter-options">
+                  {selectedSubModel?.grades.map(grade => (
+                    <div
+                      key={grade.id}
+                      className={`filter-option ${selectedGrade?.id === grade.id ? 'selected' : ''}`}
+                      onClick={() => handleGradeSelect(grade)}
+                    >
+                      {grade.name}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          // 호버하지 않았을 때는 선택된 경로만 표시
+          <div className="selected-path">
+            {getSelectedPath() || '차량을 선택하세요'}
+          </div>
+        )}
+      </div>
+            
           </div>
 
           <div className="car-grid">
-            {Array(12).fill().map((_, index) => (
-              <div key={index} className="car-card">
+            {cars.map((car, index) => (
+              <div key={car.id || index} className="car-card">
                 <div className="car-image-container">
                   <img 
-                    src={g70Image} 
-                    alt="제네시스 G70" 
+                    src={car.image || g70Image} 
+                    alt={car.name} 
                     className="car-image"
                   />
                 </div>
                 <div className="car-info">
-                  <h3>제네시스 G70</h3>
-                  <p>2021년/13,044km</p>
-                  <p className="price">4,320만원</p>
+                  <h3>{car.name}</h3>
+                  <p>{car.year}년/{car.mileage}</p>
+                  <p className="price">{car.price}</p>
                 </div>
               </div>
             ))}

@@ -360,3 +360,7 @@
   .logo:hover {
     color: #007bff;
   }
+
+  .container::-webkit-scrollbar {
+    display: none;
+  }

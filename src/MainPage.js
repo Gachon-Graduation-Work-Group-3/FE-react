@@ -43,6 +43,7 @@ const ImageSlider = () => {
   }, []);
 
   return (
+    
     <div className="slider-container">
       {sliderImages.map((slide, index) => (
         <div
@@ -84,14 +85,14 @@ function MainPage() {
           <Link to="/price-search" className="menu-item">시세 검색</Link>
         </div>
         <div className="icon-container">
-          <div className="icon">♡</div>
-          <div className="icon">👤</div>
+          <div className="like-icon">♡</div>
+          <div className="user-icon">
+            <Link to="/login" className="login">로그인</Link></div>
         </div>
       </nav>
-      
       <ImageSlider />
       
-      <section className="features-section">
+      <section className="main-features-section">
         <div className="feature-container">
             <div className="feature-item">
             <div className="feature-icon">
@@ -99,11 +100,9 @@ function MainPage() {
             </div>
             <h3 className="feature-title">최고의 가격</h3>
             <p className="feature-description">
-            Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
-             Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque
-              penatibus et magnis dis parturient montes, nascetur ridiculus mus.
-               Donec quam felis, ultricies nec, pellentesque eu, pretium quis,
-            </p>
+            차량의 연식, 주행 거리, 모델 등 다양한 요소를 분석하여,
+             다른 차량들과 비교한 최적의 가격을 예측합니다. 
+             이를 통해 구매자가 합리적인 가격에 차량을 구입할 수 있도록 돕습니다.</p>
             </div>
 
             <div className="feature-item">
@@ -112,10 +111,9 @@ function MainPage() {
             </div>
             <h3 className="feature-title">머신러닝 기반</h3>
             <p className="feature-description">
-            Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
-             Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque
-              penatibus et magnis dis parturient montes, nascetur ridiculus mus.
-               Donec quam felis, ultricies nec, pellentesque eu, pretium quis,
+            과거 데이터를 학습하여 차량 가격을 예측하며, 
+            예측 정확도를 높이기 위해 지속적으로 모델을 개선합니다. 
+            복잡한 패턴을 분석해 더 신뢰성 있는 가격 예측을 제공합니다.
             </p>
             </div>
 
@@ -125,10 +123,8 @@ function MainPage() {
             </div>
             <h3 className="feature-title">다양한 정보</h3>
             <p className="feature-description">
-            Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
-             Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque
-              penatibus et magnis dis parturient montes, nascetur ridiculus mus.
-               Donec quam felis, ultricies nec, pellentesque eu, pretium quis,
+            제조사, 사고 이력, 차량 상태 등의 정보를 종합적으로 반영하여 
+            보다 정확한 가격 예측을 지원합니다. 다양한 변수를 고려해 세밀한 가격 예측을 제공합니다.
             </p>
             </div>
         </div>

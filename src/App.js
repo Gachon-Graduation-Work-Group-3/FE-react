@@ -6,6 +6,7 @@ import SellingPage from './SellingPage';
 import SearchPage from './SearchPage';
 import PriceSearchPage from './PriceSearchPage';
 import PriceResultPage from './PriceResultPage';
+import LoginPage from './LoginPage';
 import './App.css';
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
           <Route path="/search" element={<SearchPage />} />
           <Route path="/price-search" element={<PriceSearchPage />} />
           <Route path="/price-result" element={<PriceResultPage />} />
+          <Route path="/login" element={<LoginPage />} />
         </Routes>
       </Router>
     </div>
