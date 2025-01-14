@@ -29,7 +29,7 @@ async function fetchCarPrediction(searchData) {
     });
 
     console.log('Response:', response.data); // 응답 데이터 로깅
-
+    
     // 응답 데이터 반환
     return {
       success: true,
