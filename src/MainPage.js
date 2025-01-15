@@ -10,6 +10,7 @@ import { IoInformationCircleOutline } from 'react-icons/io5'; // 정보 아이�
 import { Link, useNavigate } from 'react-router-dom';
 import { fetchCar } from './remote/searchcar';
 import { formatDateToYearMonth } from './util/formatDateToYearMonth';
+import { IoIosArrowBack, IoIosArrowForward } from 'react-icons/io';
 // 슬라이더에 사용할 이미지 배열
 const sliderImages = [
   {
@@ -78,7 +79,20 @@ function MainPage() {
     const [error, setError] = useState(null); // 에러 메시지 저장
     const [loading, setLoading] = useState(true); // 로딩 상태 추가
     const navigate = useNavigate();
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const carsPerPage = 3; // 한 번에 보여줄 차량 수
 
+    const nextCars = () => {
+      if (currentIndex + carsPerPage < response.content?.length) {
+          setCurrentIndex(prev => prev + carsPerPage); // 한 번에 3개씩 이동하도록 수정
+      }
+  };
+
+  const prevCars = () => {
+      if (currentIndex > 0) {
+          setCurrentIndex(prev => Math.max(0, prev - carsPerPage)); // 한 번에 3개씩 이동하도록 수정
+      }
+  };
     const movetoDescription = (carId) => {
       console.log("Moving to description with carId:", carId); // 디버깅용
       navigate('/description', { 
@@ -123,8 +137,8 @@ function MainPage() {
             <h3 className="feature-title">최고의 가격</h3>
             <p className="feature-description">
             차량의 연식, 주행 거리, 모델 등 다양한 요소를 분석하여,
-             다른 차량들과 비교한 최적의 가격을 예측합니다. 
-             이를 통해 구매자가 합리적인 가격에 차량을 구입할 수 있도록 돕습니다.</p>
+            다른 차량들과 비교한 최적의 가격을 예측합니다. 
+            이를 통해 구매자가 합리적인 가격에 차량을 구입할 수 있도록 돕습니다.</p>
             </div>
 
             <div className="feature-item">
@@ -158,9 +172,16 @@ function MainPage() {
                 {loading ? (
                     <div className="loading-state">데이터를 불러오는 중입니다...</div>
                 ) : error ? (
-                    <div className="error-state">{error}</div>
-                ) : response.content.length > 0 ? (
-                    <div className="cards-grid">
+                    <div className="error-state">{error}
+                    <div className="cards-slider-container">
+                        <button 
+                                className="slider-button prev" 
+                                onClick={prevCars}
+                                disabled={currentIndex === 0}
+                            >
+                                <IoIosArrowBack />
+                            </button>
+                          <div className="cards-grid">
                         {response.content.map((car, i) => (
                             <div 
                                 key={i} 
@@ -183,6 +204,55 @@ function MainPage() {
                                 </div>
                             </div>
                         ))}
+                    </div>
+                    <button 
+                        className="slider-button next" 
+                        onClick={nextCars}
+                        disabled={currentIndex + carsPerPage >= response.content.length}
+                    >
+                        <IoIosArrowForward />
+                    </button>
+                    </div></div>
+                ) : response.content.length > 0 ? (
+                    <div className="cards-slider-container">
+                        <button 
+                                className="slider-button prev" 
+                                onClick={prevCars}
+                                disabled={currentIndex === 0}
+                            >
+                                <IoIosArrowBack />
+                            </button>
+                          <div className="cards-grid">
+                        {response.content.map((car, i) => (
+                            <div 
+                                key={i} 
+                                className="car-card" 
+                                onClick={() => movetoDescription(car.carId)}
+                            >
+                                <div className="car-image-wrapper">
+                                    <img
+                                        src={car.image}
+                                        alt={`${car.name}`}
+                                        className="car-image"
+                                    />
+                                </div>
+                                <div className="car-details">
+                                    <h3 className="car-name">{car.name}</h3>
+                                    <p className="car-info">{formatDateToYearMonth(car.age)} / {car.mileage}km</p>
+                                    <p className="car-price">
+                                        <strong>{car.price}만원</strong>
+                                    </p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                    <button 
+                        className="slider-button next" 
+                        onClick={nextCars}
+                        disabled={currentIndex + carsPerPage >= response.content.length}
+                    >
+                        <IoIosArrowForward />
+                    </button>
                     </div>
                 ) : (
                     <div className="empty-state">추천 차량이 없습니다.</div>
