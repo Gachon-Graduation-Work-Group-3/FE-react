@@ -1,6 +1,7 @@
 import React,{useState,useEffect} from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import {fetchCarDescription} from './remote/SearchCarDescription';
+import ChatWidget from './components/ChatWidget';
 import './PriceResultPage.css';
 import './Description.css';
 import {
@@ -308,6 +309,12 @@ function Description() {
               </div>
             </div>
           </div>
+
+        <ChatWidget 
+          initialMessage={`${carData.result?.car?.name || '차량'} 관련 문의사항이 있으신가요?`}
+          context="car-description"
+          source={carData.result?.car?.source}
+        />
 
         <Link to="/price-search" className="back-button">
           다시 검색하기
