@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './MainPage.css';
 import car1 from './img/car1.jpg';
 import car2 from './img/car2.jpg';
@@ -75,41 +75,102 @@ const ImageSlider = () => {
 };
 
 function MainPage() {
-  const [response, setResponse] = useState({ data: [] }); // 초기값을 빈 배열로 설정
-    const [error, setError] = useState(null); // 에러 메시지 저장
-    const [loading, setLoading] = useState(true); // 로딩 상태 추가
-    const navigate = useNavigate();
-    const [currentIndex, setCurrentIndex] = useState(0);
-    const carsPerPage = 3; // 한 번에 보여줄 차량 수
+  const [response, setResponse] = useState(null);
+  const [error, setError] = useState(null); // 에러 메시지 저장
+  const [loading, setLoading] = useState(true); // 로딩 상태 추가
+  const navigate = useNavigate();
 
-    const nextCars = () => {
-      if (currentIndex + carsPerPage < response.content?.length) {
-          setCurrentIndex(prev => prev + carsPerPage); // 한 번에 3개씩 이동하도록 수정
-      }
-  };
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const carsPerPage = 3; // 한 번에 보여줄 차량 수
+  const cardsRef = useRef(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
 
-  const prevCars = () => {
-      if (currentIndex > 0) {
-          setCurrentIndex(prev => Math.max(0, prev - carsPerPage)); // 한 번에 3개씩 이동하도록 수정
-      }
-  };
-    const movetoDescription = (carId) => {
-      console.log("Moving to description with carId:", carId); // 디버깅용
-      navigate('/description', { 
-        state: { 
-          carId: carId 
-        } 
+  // checkScroll 함수 수정
+  const checkScroll = useCallback(() => {
+    if (cardsRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = cardsRef.current;
+      // 스크롤 위치 디버깅
+      console.log('Scroll position:', {
+        scrollLeft,
+        scrollWidth,
+        clientWidth,
+        canScrollLeft: scrollLeft > 0,
+        canScrollRight: scrollLeft < (scrollWidth - clientWidth)
       });
-    };
-
-    useEffect(() => {
-      fetchCar(0, 5,setResponse, setError, setLoading,null,null).then((data) => {
-          console.log('Car description:', data);
-      })
-          .catch((error) => {
-              console.error('Car description을 가져오는 중 에러 발생:', error);
-          });
+      
+      setCanScrollLeft(scrollLeft > 0);
+      setCanScrollRight(scrollLeft < (scrollWidth - clientWidth));
+    }
   }, []);
+
+  // 스크롤 이벤트 리스너
+  useEffect(() => {
+    const currentRef = cardsRef.current;
+    if (currentRef) {
+      currentRef.addEventListener('scroll', checkScroll);
+      // 초기 상태 체크
+      checkScroll();
+    }
+    return () => {
+      if (currentRef) {
+        currentRef.removeEventListener('scroll', checkScroll);
+      }
+    };
+  }, [checkScroll]);
+
+  // 이전/다음 버튼 핸들러 수정
+  const prevCars = useCallback(() => {
+    if (cardsRef.current) {
+      const cardWidth = cardsRef.current.children[0].offsetWidth;
+      const gap = 32; // gap: 2rem = 32px
+      const scrollAmount = -(cardWidth + gap);
+      
+      cardsRef.current.scrollBy({
+        left: scrollAmount,
+        behavior: 'smooth'
+      });
+
+      // 스크롤 후 상태 업데이트를 위한 setTimeout
+      setTimeout(checkScroll, 500); // 스크롤 애니메이션 완료 후 체크
+    }
+  }, [checkScroll]);
+
+  const nextCars = useCallback(() => {
+    if (cardsRef.current) {
+      const cardWidth = cardsRef.current.children[0].offsetWidth;
+      const gap = 32;
+      const scrollAmount = cardWidth + gap;
+      
+      cardsRef.current.scrollBy({
+        left: scrollAmount,
+        behavior: 'smooth'
+      });
+
+      setTimeout(checkScroll, 500);
+    }
+  }, [checkScroll]);
+
+  const movetoDescription = (carId) => {
+    console.log("Moving to description with carId:", carId); // 디버깅용
+    navigate('/description', { 
+      state: { 
+        carId: carId 
+      } 
+    });
+  };
+
+  useEffect(() => {
+    fetchCar(0, 5, setResponse, setError, setLoading, null, null).then((data) => {
+      console.log('Car description:', data);
+    })
+      .catch((error) => {
+        console.error('Car description을 가져오는 중 에러 발생:', error);
+      });
+  }, []);
+
+
+
   return (
     <div className="container">
       <nav className="nav-bar">
@@ -137,8 +198,8 @@ function MainPage() {
             <h3 className="feature-title">최고의 가격</h3>
             <p className="feature-description">
             차량의 연식, 주행 거리, 모델 등 다양한 요소를 분석하여,
-            다른 차량들과 비교한 최적의 가격을 예측합니다. 
-            이를 통해 구매자가 합리적인 가격에 차량을 구입할 수 있도록 돕습니다.</p>
+             다른 차량들과 비교한 최적의 가격을 예측합니다. 
+             이를 통해 구매자가 합리적인 가격에 차량을 구입할 수 있도록 돕습니다.</p>
             </div>
 
             <div className="feature-item">
@@ -172,17 +233,19 @@ function MainPage() {
                 {loading ? (
                     <div className="loading-state">데이터를 불러오는 중입니다...</div>
                 ) : error ? (
+                  
                     <div className="error-state">{error}
                     <div className="cards-slider-container">
-                        <button 
+                    <button 
                                 className="slider-button prev" 
                                 onClick={prevCars}
-                                disabled={currentIndex === 0}
+                                disabled={!canScrollLeft}
                             >
                                 <IoIosArrowBack />
                             </button>
-                          <div className="cards-grid">
-                        {response.content.map((car, i) => (
+                          <div className="cards-grid" ref={cardsRef}>
+                    
+                          {response.content.map((car, i) => (
                             <div 
                                 key={i} 
                                 className="car-card" 
@@ -204,25 +267,17 @@ function MainPage() {
                                 </div>
                             </div>
                         ))}
-                    </div>
-                    <button 
+                        </div>
+                        <button 
                         className="slider-button next" 
                         onClick={nextCars}
-                        disabled={currentIndex + carsPerPage >= response.content.length}
+                        disabled={!canScrollRight}
                     >
                         <IoIosArrowForward />
                     </button>
                     </div></div>
                 ) : response.content.length > 0 ? (
-                    <div className="cards-slider-container">
-                        <button 
-                                className="slider-button prev" 
-                                onClick={prevCars}
-                                disabled={currentIndex === 0}
-                            >
-                                <IoIosArrowBack />
-                            </button>
-                          <div className="cards-grid">
+                    <div className="cards-grid">
                         {response.content.map((car, i) => (
                             <div 
                                 key={i} 
@@ -245,14 +300,6 @@ function MainPage() {
                                 </div>
                             </div>
                         ))}
-                    </div>
-                    <button 
-                        className="slider-button next" 
-                        onClick={nextCars}
-                        disabled={currentIndex + carsPerPage >= response.content.length}
-                    >
-                        <IoIosArrowForward />
-                    </button>
                     </div>
                 ) : (
                     <div className="empty-state">추천 차량이 없습니다.</div>

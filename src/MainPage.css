@@ -435,17 +435,23 @@ a:hover {
 
 .cards-grid {
     display: flex;
-    gap: 20px;
-    overflow: hidden;
-    width: 100%;
-    transition: all 0.3s ease;
-    transform: translateX(calc(-100% * ${currentIndex} / 3));
+    overflow-x: auto;
+    gap: 2rem;
+    padding: 1rem 0;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
 }
 
 .car-card {
-    flex: 0 0 calc(33.333% - 14px);
-    min-width: calc(33.333% - 14px); /* 최소 너비 추가 */
-    transition: transform 0.3s ease;
+    flex: 0 0 300px;
+    scroll-snap-align: start;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+    scroll-snap-align: start;
 }
 
 .car-card:hover {
@@ -519,54 +525,65 @@ a:hover {
 .cards-grid::-webkit-scrollbar-thumb:hover {
     background: #555;
 }
-
+  
 .cards-slider-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    width: 100%;
-    padding: 0 40px;
-    overflow: hidden; /* 넘치는 부분 숨기기 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+  padding: 0 40px;
+  overflow: hidden; /* 넘치는 부분 숨기기 */
+  border: 1px solid red;
 }
-
 .slider-button {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(0, 0, 0, 0.5);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 2;
-    transition: all 0.3s ease;
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2;
+  transition: all 0.3s ease;
 }
-
 .slider-button:hover {
-    background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.7);
 }
 
 .slider-button:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
+  opacity: 0.3;
+  cursor: not-allowed;
 }
 
 .slider-button.prev {
-    left: 10px;
+  left: 10px;
 }
 
 .slider-button.next {
-    right: 10px;
+  right: 10px;
+}
+.cards-grid::-webkit-scrollbar {
+  display: none;
 }
 
-.car-card {
-    flex: 0 0 calc(33.333% - 14px);
-    /* 나머지 기존 스타일 유지 */
+.cards-grid::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
 }
-  
+
+.cards-grid::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.cards-grid::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}

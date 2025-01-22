@@ -7,6 +7,7 @@ import SearchPage from './SearchPage';
 import PriceSearchPage from './PriceSearchPage';
 import Description from './Description';
 import LoginPage from './LoginPage';
+import ChatWidget from './components/ChatWidget';
 import './App.css';
 
 
@@ -25,6 +26,7 @@ function App() {
           <Route path="/description" element={<Description />} />
         </Routes>
       </Router>
+      <ChatWidget />
     </div>
   );
 }
