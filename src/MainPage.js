@@ -1,38 +1,44 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useLayoutEffect } from 'react';
 import './MainPage.css';
 import car1 from './img/car1.jpg';
 import car2 from './img/car2.jpg';
 import car5 from './img/car5.jpg';
-import g70Image from './img/g70.png';
-import { RiMoneyDollarCircleLine } from 'react-icons/ri'; // 가격 아이콘
-import { BiBrain } from 'react-icons/bi';  // 머신러닝 아이콘
-import { IoInformationCircleOutline } from 'react-icons/io5'; // 정보 아이콘
 import { Link, useNavigate } from 'react-router-dom';
 import { fetchCar } from './remote/searchcar';
 import { formatDateToYearMonth } from './util/formatDateToYearMonth';
 import { IoIosArrowBack, IoIosArrowForward } from 'react-icons/io';
 // 슬라이더에 사용할 이미지 배열
+
 const sliderImages = [
   {
     url: car1,
     title: "안전한 중고차 거래의 시작",
-    subtitle: "신뢰할 수 있는 파트너"
+    subtitle: "신뢰할 수 있는 파트너",
+    buttonText: "가입하기",
+    buttonLink: "/login",
+    buttonStyle: "black"
   },
   {
     url: car2,
     title: "최고의 중고차를 최저가로",
-    subtitle: "머신러닝 기반 시세 분석"
+    subtitle: "머신러닝 기반 시세 분석",
+    buttonText: "시세 검색하기",
+    buttonLink: "/price-search",
+    buttonStyle: "black"
   },
   {
     url: car5,
     title: "검증된 차량만 엄선하여",
-    subtitle: "믿을 수 있는 차량 정보"
+    subtitle: "믿을 수 있는 차량 정보",
+    buttonText: "내차 사기",
+    buttonLink: "/Buying",
+    buttonStyle: "black"
   }
 ];
 
 const ImageSlider = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
-
+  const navigate = useNavigate();
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => 
@@ -56,8 +62,16 @@ const ImageSlider = () => {
           }}
         >
           <div className="text-overlay">
+            <div className="text-overlay-content">
             <h2 className="slide-title">{slide.title}</h2>
             <p className="slide-subtitle">{slide.subtitle}</p>
+            <Link 
+              to={slide.buttonLink}
+              className={`slide-button ${slide.buttonStyle}`}
+            >
+              {slide.buttonText}
+            </Link>
+            </div>
           </div>
         </div>
       ))}
@@ -79,12 +93,43 @@ function MainPage() {
   const [error, setError] = useState(null); // 에러 메시지 저장
   const [loading, setLoading] = useState(true); // 로딩 상태 추가
   const navigate = useNavigate();
-
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const carsPerPage = 3; // 한 번에 보여줄 차량 수
+  
   const cardsRef = useRef(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const navbarRef = useRef(null);
+
+
+
+  
+
+  useEffect(() => {
+    const navscroll = () => {
+      if (navbarRef.current) {
+        console.log("navscroll called");
+        const scrollY = window.scrollY;  // window.scrollY 사용
+        console.log("scrollY", scrollY);
+        
+        if (scrollY > 0) {
+          navbarRef.current.classList.add('scrolled');
+        } else {
+          navbarRef.current.classList.remove('scrolled');
+        }
+      }
+    };  // scroll state는 여기서 직접 사용하지 않으므로 의존성 불필요
+  
+    console.log("Effect mounted");
+    // window에 이벤트 리스너 추가
+    window.addEventListener('scroll', navscroll);
+    // 초기 상태 체크
+    navscroll();
+    
+    return () => {
+      console.log("Removing scroll listener");
+      window.removeEventListener('scroll', navscroll);
+    };
+  }, []); // navscroll을 의존성으로 추가
 
   // checkScroll 함수 수정
   const checkScroll = useCallback(() => {
@@ -103,7 +148,6 @@ function MainPage() {
       setCanScrollRight(scrollLeft < (scrollWidth - clientWidth));
     }
   }, []);
-
   // 스크롤 이벤트 리스너
   useEffect(() => {
     const currentRef = cardsRef.current;
@@ -168,73 +212,132 @@ function MainPage() {
         console.error('Car description을 가져오는 중 에러 발생:', error);
       });
   }, []);
+  
+  // const handleScroll = () => {
+  //   console.log("Scroll event fired");
+      
+  //     console.log("scrollY", window.scrollY);
+    
+  //     if (window.scrollY > 0) {
+  //       setScroll(true)
+  //       console.log("Added scrolled class");
+  //     } else {
+  //       setScroll(false);
+  //       console.log("Removed scrolled class");
+  //     }
+  // };
 
+  // useEffect(() => {
+  //   console.log("Effect mounted");
+  //   // 초기 상태 체크
+  //   console.log("Adding scroll listener");
+  //   window.addEventListener('scroll', handleScroll);
+    
+  //   return () => {
+  //     console.log("Removing scroll listener");
+  //     window.removeEventListener('scroll', handleScroll);
+  //   };
+  // }, [handleScroll]);
 
+  useEffect(() => {
+    const observer = new IntersectionObserver((entries) => {
+      
+      entries.forEach((entry, index) => {
+        // 이미 visible 클래스가 있으면 스킵
+        if (entry.target.classList.contains('visible')) return;
+        
+        if (entry.isIntersecting) {
+          setTimeout(() => {
+            entry.target.classList.add('visible');
+          }, index * 200);
+        }
+      });
+    }, {
+      threshold: 0.7,
+      // 한 번만 관찰하도록 설정
+      once: true
+    });
+
+    const elements = document.querySelectorAll('.feature-item');
+    
+    // 이미 observe 중인 요소는 다시 observe하지 않음
+    elements.forEach(item => {
+      if (!item.classList.contains('visible')) {
+        observer.observe(item);
+      }
+    });
+
+    // 클린업 함수
+    return () => {
+      observer.disconnect();
+    };
+  }, []); // 빈 의존성 배열
 
   return (
-    <div className="container">
-      <nav className="nav-bar">
-        <Link to="/" className="logo">얼마일카</Link>
-        <div className="menu-items">
-          <Link to="/search" className="menu-item">모델 검색</Link>
-          <Link to="/Selling" className="menu-item">내차 팔기</Link>
-          <Link to="/Buying" className="menu-item">내차 사기</Link>
-          <Link to="/price-search" className="menu-item">시세 검색</Link>
+    <div className="container" style={{ minHeight: '300vh' }}>
+      <nav className="main-nav-bar" ref={navbarRef}>
+        <div className="main-nav-bar-container">
+        <Link to="/" className="main-logo">얼마일카</Link>
+        <div className="main-menu-items">
+          <Link to="/search" className="main-menu-item">모델 검색</Link>
+          <Link to="/Selling" className="main-menu-item">내차 팔기</Link>
+          <Link to="/Buying" className="main-menu-item">내차 사기</Link>
+          <Link to="/price-search" className="main-menu-item">시세 검색</Link>
         </div>
-        <div className="icon-container">
-          <div className="like-icon">♡</div>
-          <div className="user-icon">
-            <Link to="/login" className="login">로그인</Link></div>
+        <div className="main-icon-container">
+          <div className="main-like-icon">♡</div>
+          <div className="main-user-icon">
+            <Link to="/login" className="main-login">로그인</Link></div>
+        </div>
         </div>
       </nav>
+
       <ImageSlider />
       
       <section className="main-features-section">
         <div className="feature-container">
             <div className="feature-item">
-            <div className="feature-icon">
-                <RiMoneyDollarCircleLine size={50} color="#007bff" />
-            </div>
+              <div className="feature-num">
+                01
+              </div>
+            <div className="feature-text">
             <h3 className="feature-title">최고의 가격</h3>
             <p className="feature-description">
-            차량의 연식, 주행 거리, 모델 등 다양한 요소를 분석하여,
-             다른 차량들과 비교한 최적의 가격을 예측합니다. 
-             이를 통해 구매자가 합리적인 가격에 차량을 구입할 수 있도록 돕습니다.</p>
+            다양한 요소 분석 & 다른 차량들과 비교</p>
+            </div>
+            
             </div>
 
             <div className="feature-item">
-            <div className="feature-icon">
-                <BiBrain size={50} color="#007bff" />
-            </div>
+              <div className="feature-num">02</div>
+            <div className="feature-text">
             <h3 className="feature-title">머신러닝 기반</h3>
             <p className="feature-description">
-            과거 데이터를 학습하여 차량 가격을 예측하며, 
-            예측 정확도를 높이기 위해 지속적으로 모델을 개선합니다. 
-            복잡한 패턴을 분석해 더 신뢰성 있는 가격 예측을 제공합니다.
+            과거 데이터 학습하여 차량 가격을 예측
             </p>
+            </div>
             </div>
 
             <div className="feature-item">
-            <div className="feature-icon">
-                <IoInformationCircleOutline size={50} color="#007bff" />
-            </div>
+              <div className="feature-num">03</div>
+            <div className="feature-text">
             <h3 className="feature-title">다양한 정보</h3>
             <p className="feature-description">
-            제조사, 사고 이력, 차량 상태 등의 정보를 종합적으로 반영하여 
-            보다 정확한 가격 예측을 지원합니다. 다양한 변수를 고려해 세밀한 가격 예측을 제공합니다.
+              다양한 변수를 고려해 세밀한 가격 예측을 제공
             </p>
+            </div>
             </div>
         </div>
         </section>
 
         <section className="recommendations">
-            <h2 className="section-title">얼마Car 추천</h2>
+            <h2 className="recommendation-title">얼마Car 추천</h2>
             <div className="cards-container">
                 {loading ? (
                     <div className="loading-state">데이터를 불러오는 중입니다...</div>
                 ) : error ? (
                   
-                    <div className="error-state">{error}
+                    
                     <div className="cards-slider-container">
                     <button 
                                 className="slider-button prev" 
@@ -275,7 +378,7 @@ function MainPage() {
                     >
                         <IoIosArrowForward />
                     </button>
-                    </div></div>
+                    </div>
                 ) : response.content.length > 0 ? (
                     <div className="cards-grid">
                         {response.content.map((car, i) => (
@@ -307,7 +410,7 @@ function MainPage() {
             </div>
         </section>
 
-      <section className="popular-cars-section">
+      {/* <section className="popular-cars-section">
         <h2 className="section-title">주간 인기 차량</h2>
         <div className="table-container">
           <table className="styled-table">
@@ -334,7 +437,7 @@ function MainPage() {
             </tbody>
           </table>
         </div>
-      </section>
+      </section> */}
     </div>
   );
 }

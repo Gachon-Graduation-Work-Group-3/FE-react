@@ -1,32 +1,59 @@
+body {
+  overflow-y: visible; /* 또는 auto */
+  margin: 0;
+  padding: 0;
+}
 .container {
-
-  margin: 0 auto;
+  margin-top: 80px;
   width: 100vh;
   overflow-x: hidden; 
   position: static;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #f3f3f3;
+  margin-top: 120px;
+  min-height: 100vh;
+  overflow-y: visible;
 }
-
-.nav-bar {
-  max-width: 1400px;
+.main-nav-bar-container {
+  position: relative;
+  left: 0vw;
+  width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.5rem 2rem;
-  height: 80px;
-  border-bottom: 1px solid #eee;
-  background-color: white;
-  position: relative;
-  z-index: 1;
+  padding: 3.5rem 2rem 3.5rem 15rem;
+  min-height: 60px;
+  width: 100vw;
+}
+.main-nav-bar {
+  position: fixed;
+  height: 160px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  background-color: rgba(245, 245, 245, 0.01);  /* 약간 투명한 배경 */
+  transition: all 0.3s ease;  /* 스크롤 시 애니메이션 효과 */
+}
+.main-nav-bar.scrolled {
+  background-color: black;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-.logo {
-  font-size: 1.9rem;
+.main-logo {
+  font-size: 3rem;
   font-weight: bold;
-  position: absolute;
+  position: relative;
   left: 2rem;
+  font-weight: 1000;  
+  color: white;
+  text-decoration: none;
 }
 
-.menu-items {
+.main-menu-items {
   display: flex;
   gap: 3rem;
   align-items: center;
@@ -36,54 +63,59 @@
   transform: translateX(-50%);
 }
 
-.menu-item {
+.main-menu-item {
   cursor: pointer;
-  color: #333;
-  font-size: 1.4rem;
+  color: white;
+  font-size: 1.5rem;
   position: relative;
   font-weight: 600;
+  text-decoration: none;
 }
 
-.menu-item:hover {
-  color: #007bff;
+.main-menu-item:hover {
+  color: #fff;
 }
 
-.menu-item:after {
+.main-menu-item:after {
   content: '';
   position: absolute;
   bottom: -5px;
   left: 0;
   width: 0;
   height: 2px;
-  background-color: #007bff;
   transition: width 0.3s;
+  text-decoration: none;
 }
-.login:hover {
+.main-logo:hover {
   color: inherit;  
+  text-decoration: none;
 }
-.logo:hover {
+.main-login:hover {
+  color: inherit;  
+  text-decoration: none;
+}
+.main-logo:hover {
   color: inherit;  /* 기본 색상 유지 */
-}
-a {
-  color: inherit;  /* 모든 링크의 기본 색상 상속 */
+  text-decoration: none;
 }
 
 a:hover {
   color: inherit;  /* hover 시에도 기본 색상 유지 */
+  text-decoration: none;
 }
 
 .menu-item:hover:after {
   width: 100%;
 }
 
-.icon-container {
+.main-icon-container {
   display: flex;
   gap: 1.5rem;
   position: absolute;
   right: 2rem;
 }
 
-.user-icon {
+.main-user-icon {
   cursor: pointer;
   width: 100px;
   height: 30px;
@@ -94,7 +126,7 @@ a:hover {
   text-decoration: none;
   color:inherit;
 }
-.like-icon {
+.main-like-icon {
   cursor: pointer;
   width: 30px;
   height: 30px;
@@ -103,13 +135,31 @@ a:hover {
   align-items: center;
   justify-content: center;
 }
+.main-nav-bar .main-logo,
+.main-nav-bar .main-menu-item,
+.main-nav-bar .main-login,
+.main-nav-bar .main-like-icon {
+  color: white;
+  transition: color 0.3s ease;
+}
 
+/* 스크롤 시 링크 색상 변경 */
+.main-nav-bar.scrolled .main-logo,
+.main-nav-bar.scrolled .main-menu-item,
+.main-nav-bar.scrolled .main-login,
+.main-nav-bar.scrolled .main-like-icon {
+  color: white;
+}
+.main-nav-bar.scrolled .main-menu-item:after {
+  background-color: black;  /* 밑줄 색상도 검은색으로 */
+}
 .slider-container {
   position: relative;
   width: 100%;
   height: 100vh;
-  min-height: 800px;
-  background: #f5f5f5;
+  min-height: 100vh;
+  background: #f1f1f1;
+  overflow: hidden;
 }
 
 .slide {
@@ -120,6 +170,8 @@ a:hover {
   height: 100%;
   opacity: 0;
   transition: opacity 0.5s ease-in-out;
+  background-position: center;
+  background-size: cover;
 }
 
 .slide.active {
@@ -138,37 +190,69 @@ a:hover {
   background-size: cover; /* 이미지가 컨테이너를 꽉 채우도록 설정 */
 
 }
-
+.text-overlay-content {
+  padding: 0px 100px 100px 100px;
+}
 .text-overlay {
   position: absolute;
-  bottom: 100px;
-  right: 100px;
-  text-align: right;
-  color: white;
-  padding: 2rem;
-  border-radius: 10px;
-  max-width: 400px;
-  z-index: 2;
+  top: 0;
+  left: 0;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
   background: linear-gradient(
-    to right,
-    rgba(0, 0, 0, 0.1),
-    rgba(0, 0, 0, 0.4)
+    to top,
+    rgba(0, 0, 0, 0.7),
+    rgba(0, 0, 0, 0.3),
+    transparent
   );
+  color: white;
+  text-align: left;
 }
 
 .slide-title {
-  font-size: 2.0rem;
+  font-size: 3.5rem;
   margin-bottom: 1rem;
   font-weight: bold;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .slide-subtitle {
-  font-size: 1.2rem;
-  line-height: 1.5;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  font-size: 1.8rem;
+  margin-bottom: 2rem;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+.slide-button {
+  display: flex;           /* Flexbox 사용 */
+  justify-content: center; /* 수평 중앙 정렬 */
+  align-items: center;     /* 수직 중앙 정렬 */
+  padding: 15px 40px;
+  border-radius: 30px;
+  font-size: 2rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  margin-top: 20px;
+  width: fit-content;      /* 내용에 맞게 너비 조정 */
+  min-width: 150px;       /* 최소 너비 설정 */
+  height: 50px;           /* 높이 고정 */
+
 }
 
+.slide-button.black {
+  background-color: black;
+  color: white;
+  border: 0.1px solid white;
+}
+
+
+.slide-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
 .slide-indicators {
   position: absolute;
   bottom: 20px;
@@ -194,7 +278,7 @@ a:hover {
 .main-features-section {
   height: auto;
   padding: 6rem 0;
-  background: linear-gradient(to bottom, #ffffff, #f8f9fa);
+  background: black;
   margin-top: 0;
   position: relative;
   z-index: 2;
@@ -203,59 +287,60 @@ a:hover {
 .feature-container {
   display: flex;
   justify-content: center;
+  flex-direction: column;
   gap: 4rem;
-  max-width: 1200px;
+  width: 100vw;
   margin: 0 auto;
   padding: 0 2rem;
+  background: black;
 }
 
 .feature-item {
+  background: black;
+  min-width: 100vw;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
+  flex-direction: row;
   width: 300px;
   padding: 2rem;
   border-radius: 20px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  opacity: 0;  /* 완전히 투명 */
+  transform: translateY(20px);  /* 약간 아래로 이동 */
+  transition: all 0.5s ease;  /* 부드러운 전환 효과 */
 }
 
-.feature-item:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 10px 30px rgba(0, 123, 255, 0.1);
+.feature-item.visible {
+  opacity: 1;  /* 완전히 불투명 */
+  transform: translateY(0);  /* 원래 위치로 */
 }
 
-.feature-icon {
-  width: 130px;
-  height: 130px;
-  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-  border-radius: 65px;
-  margin-bottom: 2rem;
+.feature-num {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-}
-
-.feature-icon:hover {
-  transform: rotate(5deg) scale(1.1);
-  background: linear-gradient(135deg, #e3f2fd, #bbdefb);
-}
-
-.feature-title {
-  font-size: 1.4rem;
-  margin-bottom: 1.2rem;
+  font-size: 10rem;
   font-weight: 700;
-  color: #1a73e8;
+  color: #555;
+  align-items:flex-start;
+}
+
+.feature-text {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-right: 15rem;
+}
+.feature-title {
+  font-size: 2rem;
+  margin-bottom: 1.2rem;
+  color: #555;
 }
 
 .feature-description {
-  color: #555;
-  font-size: 1rem;
+  color: #f1f1f1;
+  font-size: 5rem;
   line-height: 1.8;
   white-space: pre-line;
   opacity: 0.9;
+  font-weight: 700;
 }
 
 .car-list-section {
@@ -263,10 +348,10 @@ a:hover {
 }
 
 .section-title {
-  font-size: 3rem;
+  font-size: 5rem;
   font-weight: 800;
   margin-bottom: 20px;
-  color: #333;
+  color: white;
 }
 
 .car-grid {
@@ -324,7 +409,9 @@ a:hover {
 }
 
 .popular-cars-section {
+  width: 100vw;
   padding: 2rem 2rem;
+  background: white;
 }
 
 .table-container {
@@ -339,7 +426,7 @@ a:hover {
 }
 
 .table-row {
-  background-color: #f5f5f5;
+  background-color: #f2f2f2;
   border-radius: 15px;
   height: 60px;
 }
@@ -420,17 +507,19 @@ a:hover {
   
 .recommendations {
     padding: 2rem 4rem;
+    width: 100vw;
+    background: #f3f3f3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-.section-title {
-    font-size: 2rem;
-    font-weight: 600;
-    margin-bottom: 2rem;
-    color: #333;
-}
+
 
 .cards-container {
+    padding: 0 40px;
     width: 100%;
+    max-width: 1650px;
 }
 
 .cards-grid {
@@ -440,12 +529,13 @@ a:hover {
     padding: 1rem 0;
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
+    padding: 5px 5px 5px 5px;
 }
 
 .car-card {
     flex: 0 0 300px;
     scroll-snap-align: start;
-    background: white;
+    background: #f0f0f0;
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -532,9 +622,8 @@ a:hover {
   justify-content: center;
   position: relative;
   width: 100%;
-  padding: 0 40px;
   overflow: hidden; /* 넘치는 부분 숨기기 */
-  border: 1px solid red;
+  padding: 0 40px 0 40px;
 }
 .slider-button {
   cursor: pointer;
