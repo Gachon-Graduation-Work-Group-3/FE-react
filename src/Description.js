@@ -108,19 +108,21 @@ function Description() {
 
     return (
       <div className="container">
-        <nav className="nav-bar">
-          <Link to="/" className="logo">얼마일카</Link>
-          <div className="menu-items">
-            <Link to="/search" className="menu-item">모델 검색</Link>
-            <Link to="/selling" className="menu-item">내차 팔기</Link>
-            <Link to="/buying" className="menu-item">내차 사기</Link>
-            <Link to="/price-search" className="menu-item active">시세 검색</Link>
-          </div>
-          <div className="icon-container">
-            <div className="icon">♡</div>
-            <div className="icon">👤</div>
-          </div>
-        </nav>
+        <nav className="nav-bar" >
+        <div className="nav-bar-container">
+        <Link to="/" className="logo">얼마일카</Link>
+        <div className="menu-items">
+          <Link to="/search" className="menu-item">모델 검색</Link>
+          <Link to="/Selling" className="menu-item">내차 팔기</Link>
+          <Link to="/Buying" className="menu-item">내차 사기</Link>
+          <Link to="/price-search" className="menu-item">시세 검색</Link>
+        </div>
+        <div className="icon-container">
+          <div className="icon">♡</div>
+          <div className="icon">👤</div>
+        </div>
+        </div>
+      </nav>
 
         <div className="result-content">
           <div className="search-summary">
