@@ -100,68 +100,105 @@ function MainPage() {
 
   const navbarRef = useRef(null);
 
-
-
-  
-
-  useEffect(() => {
-    const navscroll = () => {
-      if (navbarRef.current) {
-        console.log("navscroll called");
-        const scrollY = window.scrollY;  // window.scrollY 사용
-        console.log("scrollY", scrollY);
-        
+  // 스크롤 핸들러 최적화
+  const navscroll = useCallback(() => {
+    console.log('navscroll 함수 호출됨');
+    if (navbarRef.current) {
+      const scrollY = window.scrollY;
+      requestAnimationFrame(() => {
         if (scrollY > 0) {
           navbarRef.current.classList.add('scrolled');
         } else {
           navbarRef.current.classList.remove('scrolled');
         }
-      }
-    };  // scroll state는 여기서 직접 사용하지 않으므로 의존성 불필요
-  
-    console.log("Effect mounted");
-    // window에 이벤트 리스너 추가
-    window.addEventListener('scroll', navscroll);
-    // 초기 상태 체크
-    navscroll();
-    
-    return () => {
-      console.log("Removing scroll listener");
-      window.removeEventListener('scroll', navscroll);
-    };
-  }, []); // navscroll을 의존성으로 추가
-
-  // checkScroll 함수 수정
-  const checkScroll = useCallback(() => {
-    if (cardsRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = cardsRef.current;
-      // 스크롤 위치 디버깅
-      console.log('Scroll position:', {
-        scrollLeft,
-        scrollWidth,
-        clientWidth,
-        canScrollLeft: scrollLeft > 0,
-        canScrollRight: scrollLeft < (scrollWidth - clientWidth)
       });
-      
-      setCanScrollLeft(scrollLeft > 0);
-      setCanScrollRight(scrollLeft < (scrollWidth - clientWidth));
     }
   }, []);
-  // 스크롤 이벤트 리스너
+
+  // 스크롤 이벤트 리스너 최적화
   useEffect(() => {
-    const currentRef = cardsRef.current;
-    if (currentRef) {
-      currentRef.addEventListener('scroll', checkScroll);
-      // 초기 상태 체크
-      checkScroll();
-    }
-    return () => {
-      if (currentRef) {
-        currentRef.removeEventListener('scroll', checkScroll);
+    console.log('스크롤 이벤트 리스너 등록됨');
+    let ticking = false;
+    let scrollCount = 0;
+    
+    const scrollListener = () => {
+      scrollCount++;
+      console.log(`스크롤 이벤트 발생 (${scrollCount}번째)`);
+      
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          navscroll();
+          ticking = false;
+          console.log('requestAnimationFrame 실행됨');
+        });
+        ticking = true;
       }
     };
-  }, [checkScroll]);
+
+    window.addEventListener('scroll', scrollListener, { passive: true });
+    return () => {
+      console.log('스크롤 이벤트 리스너 제거됨');
+      window.removeEventListener('scroll', scrollListener);
+    };
+  }, [navscroll]);
+
+  // IntersectionObserver 최적화
+  useEffect(() => {
+    console.log('IntersectionObserver 생성됨');
+    let observedCount = 0;
+    const maxObservations = 6;
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (observedCount < maxObservations) {
+          observedCount++;
+          console.log(`IntersectionObserver 콜백 실행 (${observedCount}번째)`);
+          console.log('관찰된 요소:', entry.target);
+          console.log('화면에 보이는지:', entry.isIntersecting);
+        
+        
+          if (entry.isIntersecting && !entry.target.classList.contains('visible')) {
+            requestAnimationFrame(() => {
+              entry.target.classList.add('visible');
+              console.log('visible 클래스 추가됨');
+            });
+            observer.unobserve(entry.target);
+          }
+        }
+      });
+    }, {
+      threshold: 0.5,
+      rootMargin: '50px',
+    });
+
+    const elements = document.querySelectorAll('.feature-item');
+    console.log(`관찰 대상 요소 수: ${elements.length}`);
+    
+    elements.forEach(item => {
+      if (!item.classList.contains('visible') && observedCount < maxObservations) {
+        observer.observe(item);
+        console.log('요소 관찰 시작됨');
+      }
+    });
+
+    return () => {
+      console.log('IntersectionObserver 해제됨');
+      observer.disconnect();
+    };
+  }, []);
+
+  // 카드 스크롤 체크 최적화
+  const checkScroll = useCallback(() => {
+    console.log('checkScroll 함수 호출됨');
+    if (cardsRef.current) {
+      requestAnimationFrame(() => {
+        const { scrollLeft, scrollWidth, clientWidth } = cardsRef.current;
+        setCanScrollLeft(scrollLeft > 0);
+        setCanScrollRight(scrollLeft < (scrollWidth - clientWidth - 1));
+        console.log('카드 스크롤 상태 업데이트됨');
+      });
+    }
+  }, []);
 
   // 이전/다음 버튼 핸들러 수정
   const prevCars = useCallback(() => {
@@ -239,42 +276,8 @@ function MainPage() {
   //   };
   // }, [handleScroll]);
 
-  useEffect(() => {
-    const observer = new IntersectionObserver((entries) => {
-      
-      entries.forEach((entry, index) => {
-        // 이미 visible 클래스가 있으면 스킵
-        if (entry.target.classList.contains('visible')) return;
-        
-        if (entry.isIntersecting) {
-          setTimeout(() => {
-            entry.target.classList.add('visible');
-          }, index * 200);
-        }
-      });
-    }, {
-      threshold: 0.7,
-      // 한 번만 관찰하도록 설정
-      once: true
-    });
-
-    const elements = document.querySelectorAll('.feature-item');
-    
-    // 이미 observe 중인 요소는 다시 observe하지 않음
-    elements.forEach(item => {
-      if (!item.classList.contains('visible')) {
-        observer.observe(item);
-      }
-    });
-
-    // 클린업 함수
-    return () => {
-      observer.disconnect();
-    };
-  }, []); // 빈 의존성 배열
-
   return (
-    <div className="container" style={{ minHeight: '300vh' }}>
+    <div className="container" style={{ minHeight: '400vh' }}>
       <nav className="main-nav-bar" ref={navbarRef}>
         <div className="main-nav-bar-container">
         <Link to="/" className="main-logo">얼마일카</Link>
@@ -284,11 +287,11 @@ function MainPage() {
           <Link to="/Buying" className="main-menu-item">내차 사기</Link>
           <Link to="/price-search" className="main-menu-item">시세 검색</Link>
         </div>
-        <div className="main-icon-container">
+        {/* <div className="main-icon-container">
           <div className="main-like-icon">♡</div>
           <div className="main-user-icon">
             <Link to="/login" className="main-login">로그인</Link></div>
-        </div>
+        </div> */}
         </div>
       </nav>
 

@@ -4,8 +4,7 @@ body {
   padding: 0;
 }
 .container {
-  margin-top: 80px;
-  width: 100vh;
+  width: 100%;
   overflow-x: hidden; 
   position: static;
   display: flex;
@@ -14,18 +13,18 @@ body {
   background-color: #f3f3f3;
   margin-top: 120px;
   min-height: 100vh;
+  height: auto;
   overflow-y: visible;
 }
 .main-nav-bar-container {
   position: relative;
-  left: 0vw;
   width: 100%;
   display: flex;
-  justify-content: space-between;
   align-items: center;
   padding: 3.5rem 2rem 3.5rem 15rem;
   min-height: 60px;
   width: 100vw;
+  border: 1px solid red;
 }
 .main-nav-bar {
   position: fixed;
@@ -44,22 +43,20 @@ body {
 }
 
 .main-logo {
+  border: 1px solid red;
   font-size: 3rem;
-  font-weight: bold;
   position: relative;
   left: 2rem;
   font-weight: 1000;  
-  color: white;
   text-decoration: none;
 }
 
 .main-menu-items {
+  border: 1px solid red;
   display: flex;
   gap: 3rem;
   align-items: center;
-  margin: 0 auto;
-  position: absolute;
-  left: 50%;
+  position: relative;
   transform: translateX(-50%);
 }
 
@@ -78,7 +75,7 @@ body {
 
 .main-menu-item:after {
   content: '';
-  position: absolute;
+  position: relative;
   bottom: -5px;
   left: 0;
   width: 0;
@@ -111,7 +108,7 @@ a:hover {
 .main-icon-container {
   display: flex;
   gap: 1.5rem;
-  position: absolute;
+  position: relative;
   right: 2rem;
 }
 
