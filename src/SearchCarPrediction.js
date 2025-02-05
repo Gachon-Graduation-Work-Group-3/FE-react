@@ -3,7 +3,7 @@ import axios from 'axios';
 async function fetchCarPrediction(searchData) {
   try {
     // API 엔드포인트 URL
-    const API_URL = 'http://152.69.233.209:12125/price/prediction';
+    const API_URL = 'https://rakunko.store/api/price/prediction';
 
     // 숫자 데이터 변환 및 쉼표 제거
     const mileage = parseInt(searchData.mileage.replace(/,/g, ''));

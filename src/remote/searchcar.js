@@ -3,7 +3,7 @@ export const fetchCar = async (page, size, setResponse, setError, setLoading,
     mileageRange,
     selectedColors,
     setCurrentPage, setTotalPages) => {
-    let url = `http://158.179.168.250:8080/api/car/search?page=${page}&size=${size}`;
+    let url = `https://rakunko.store/api/car/search?page=${page}&size=${size}`;
 
     // 가격 범위가 존재하면 쿼리 파라미터에 추가
     if (priceRange && priceRange.length === 2) {

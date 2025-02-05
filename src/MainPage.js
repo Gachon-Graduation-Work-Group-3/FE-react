@@ -7,6 +7,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { fetchCar } from './remote/searchcar';
 import { formatDateToYearMonth } from './util/formatDateToYearMonth';
 import { IoIosArrowBack, IoIosArrowForward } from 'react-icons/io';
+import { useUser } from './context/UserContext';
 // 슬라이더에 사용할 이미지 배열
 
 const sliderImages = [
@@ -100,7 +101,10 @@ function MainPage() {
 
   const navbarRef = useRef(null);
 
-
+  const { isAuthenticated } = useUser();
+  console.log('인증 상태:', isAuthenticated);
+  const {user} = useUser();
+  console.log('사용자 정보:', user);
 
   
 

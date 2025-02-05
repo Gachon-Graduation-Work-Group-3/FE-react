@@ -34,7 +34,7 @@ export const fetchCarDescription = async (carId, setCarData, setError, setLoadin
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-        const res = await fetch(`http://158.179.168.250:8080/api/car/description?carId=${carId}`, {
+        const res = await fetch(`https://rakunko.store/api/car/description?carId=${carId}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',

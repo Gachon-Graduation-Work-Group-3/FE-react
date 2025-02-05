@@ -4,6 +4,7 @@ import {fetchCarDescription} from './remote/SearchCarDescription';
 import ChatWidget from './components/ChatWidget';
 import './PriceResultPage.css';
 import './Description.css';
+import { useUser } from './context/UserContext';
 import {
   LineChart,
   Line,
@@ -48,6 +49,10 @@ function Description() {
   const [predictionData, setPredictionData] = useState(0,);
   const [predictionLoading, setPredictionLoading] = useState(false);
   const [predictionError, setPredictionError] = useState(null);
+  const { isAuthenticated } = useUser();
+  console.log('인증 상태:', isAuthenticated);
+  const {user} = useUser();
+  console.log('사용자 정보:', user);
 
   useEffect(() => {
     console.log("Description useEffect - carId:", carId);  // 디버깅
@@ -314,7 +319,7 @@ function Description() {
 
         <ChatWidget 
           initialMessage={`${carData.result?.car?.name || '차량'} 관련 문의사항이 있으신가요?`}
-          context="car-description"
+          otherUserId="temp"
           source={carData.result?.car?.source}
         />
 
