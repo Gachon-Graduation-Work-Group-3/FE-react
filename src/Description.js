@@ -1,5 +1,5 @@
 import React,{useState,useEffect} from 'react';
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
 import {fetchCarDescription} from './remote/SearchCarDescription';
 import ChatWidget from './components/ChatWidget';
 import './PriceResultPage.css';
@@ -17,6 +17,7 @@ import {
 import { fetchCarPrediction } from './remote/SearchCarprediction';
 
 function Description() {
+  const navigate = useNavigate();
   const location = useLocation();
   const { carId } = location.state || {};
   
@@ -24,6 +25,7 @@ function Description() {
   const [carData, setCarData] = useState({
     result: {
       car: {
+        carId: '',
         name: '',
         price: 0,
         mileage: 0,
@@ -49,10 +51,21 @@ function Description() {
   const [predictionData, setPredictionData] = useState(0,);
   const [predictionLoading, setPredictionLoading] = useState(false);
   const [predictionError, setPredictionError] = useState(null);
-  const { isAuthenticated } = useUser();
+
+  const { isAuthenticated, user, logout } = useUser();
   console.log('인증 상태:', isAuthenticated);
-  const {user} = useUser();
   console.log('사용자 정보:', user);
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/');
+    } catch (error) {
+      console.error('로그아웃 실패:', error);
+    }
+  };
 
   useEffect(() => {
     console.log("Description useEffect - carId:", carId);  // 디버깅
@@ -122,9 +135,45 @@ function Description() {
           <Link to="/Buying" className="menu-item">내차 사기</Link>
           <Link to="/price-search" className="menu-item">시세 검색</Link>
         </div>
-        <div className="icon-container">
-          <div className="icon">♡</div>
-          <div className="icon">👤</div>
+        <div className="user-icon">
+          {isAuthenticated ? (
+              <div className="user-menu-container">
+                <div 
+                  className="user-menu-trigger"
+                  onMouseEnter={() => setShowDropdown(true)}
+                  onMouseLeave={() => setShowDropdown(false)}
+                >
+                  <span className="welcome-text">{user.name}님</span>
+                  {showDropdown && (
+                    <div className="user-dropdown">
+                      
+                      <button 
+                        onClick={() => navigate('/mypage')} 
+                        className="dropdown-item"
+                      >
+                        내 정보
+                      </button>
+                      <button 
+                        onClick={() => navigate('/mypage/like')} 
+                        className="dropdown-item"
+                      >
+                        좋아요
+                      </button>
+                      <button 
+                        onClick={handleLogout} 
+                        className="dropdown-item"
+                      >
+                        로그아웃
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+                ) : (
+              <div className="main-user-icon">
+                <Link to="/login" className="main-login">로그인</Link>
+              </div>
+            )}
         </div>
         </div>
       </nav>
@@ -321,6 +370,7 @@ function Description() {
           initialMessage={`${carData.result?.car?.name || '차량'} 관련 문의사항이 있으신가요?`}
           otherUserId="temp"
           source={carData.result?.car?.source}
+          carId={carId}
         />
 
         <Link to="/price-search" className="back-button">

@@ -22,14 +22,18 @@ function App() {
             <Route path="/buying" element={<BuyingPage />} />
             <Route path="/selling" element={<SellingPage />} />
             <Route path="/search" element={<SearchPage />} />
-          <Route path="/price-search" element={<PriceSearchPage />} />
-          <Route path="/price-result" element={<Description />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/description" element={<Description />} />
-          <Route path="/login-success" element={<Navigate to="/" replace />} />
-        </Routes>
+            <Route path="/price-search" element={<PriceSearchPage />} />
+            <Route path="/price-result" element={<Description />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/description" element={
+              <>
+                <Description />
+                <ChatWidget />
+              </>
+            } />
+            <Route path="/login-success" element={<Navigate to="/" replace />} />
+          </Routes>
         </Router>
-        <ChatWidget />
       </div>
     </UserProvider>
   );

@@ -24,7 +24,31 @@ export function UserProvider({ children }) {
             console.log('API 응답 상태:', response.status);
 
             if (!response.ok) {
-                throw new Error('프로필 정보를 가져오는데 실패했습니다.');
+                if (response.status === 401) {
+                    try {
+                        // 토큰 갱신 요청
+                        const refreshResponse = await fetch(`https://rakunko.store/api/token/renew`, {
+                            method: 'GET',
+                            credentials: 'include'
+                        });
+
+                        if (refreshResponse.ok) {
+                            // 토큰 갱신 성공 시 원래 요청 다시 시도
+                            const retryResponse = await fetch(`https://rakunko.store/api/user/profile`, {
+                                credentials: 'include'
+                            });
+
+                            if (retryResponse.ok) {
+                                const data = await retryResponse.json();
+                                setUser(data.result);
+                                setIsAuthenticated(true);
+                                return;
+                            }
+                        }
+                    } catch (error) {
+                        console.error('토큰 갱신 실패:', error);
+                    }
+                }
             }
 
             const data = await response.json();

@@ -100,20 +100,25 @@ function MainPage() {
   const [canScrollRight, setCanScrollRight] = useState(true);
 
   const navbarRef = useRef(null);
-
-  const { isAuthenticated } = useUser();
+  const { isAuthenticated, user, logout } = useUser();
   console.log('인증 상태:', isAuthenticated);
-  const {user} = useUser();
   console.log('사용자 정보:', user);
+  const [showDropdown, setShowDropdown] = useState(false);
 
   
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/');
+    } catch (error) {
+      console.error('로그아웃 실패:', error);
+    }
+  };
 
   useEffect(() => {
     const navscroll = () => {
       if (navbarRef.current) {
-        console.log("navscroll called");
         const scrollY = window.scrollY;  // window.scrollY 사용
-        console.log("scrollY", scrollY);
         
         if (scrollY > 0) {
           navbarRef.current.classList.add('scrolled');
@@ -289,9 +294,47 @@ function MainPage() {
           <Link to="/price-search" className="main-menu-item">시세 검색</Link>
         </div>
         <div className="main-icon-container">
-          <div className="main-like-icon">♡</div>
+          
           <div className="main-user-icon">
-            <Link to="/login" className="main-login">로그인</Link></div>
+          {isAuthenticated ? (
+              <div className="user-menu-container">
+                <div 
+                  className="user-menu-trigger"
+                  onMouseEnter={() => setShowDropdown(true)}
+                  onMouseLeave={() => setShowDropdown(false)}
+                >
+                  <span className="welcome-text">{user.name}님</span>
+                  {showDropdown && (
+                    <div className="user-dropdown">
+                      
+                      <button 
+                        onClick={() => navigate('/mypage')} 
+                        className="dropdown-item"
+                      >
+                        내 정보
+                      </button>
+                      <button 
+                        onClick={() => navigate('/mypage/like')} 
+                        className="dropdown-item"
+                      >
+                        좋아요
+                      </button>
+                      <button 
+                        onClick={handleLogout} 
+                        className="dropdown-item"
+                      >
+                        로그아웃
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+                ) : (
+              <div className="main-user-icon">
+                <Link to="/login" className="main-login">로그인</Link>
+              </div>
+            )}
+        </div>
         </div>
         </div>
       </nav>
@@ -415,7 +458,7 @@ function MainPage() {
         </section>
 
       {/* <section className="popular-cars-section">
-        <h2 className="section-title">주간 인기 차량</h2>
+        <h2 className="main-section-title">주간 인기 차량</h2>
         <div className="table-container">
           <table className="styled-table">
             <tbody>

@@ -20,10 +20,10 @@ export const fetchCarPrediction = async (carData, setPredictionData, setError, s
         };
         const processedData = JSON.stringify({
             age: String(carData.age).substring(0, 7),
-            km: String(carData.mileage) || 0,
-            cc: String(carData.cc) || 0,
-            fuel_eff: String(carData.fuel_eff).slice(0,-5) || 0,
-            high_out: String(carData.high_out).slice(0,-3) || 0,
+            km: (carData.mileage) || 0,
+            cc: parseInt(carData.cc) || 0,
+            fuel_eff: parseInt(String(carData.fuel_eff).slice(0,-5)) || 0,
+            high_out: parseInt(String(carData.high_out)) || 0,
             date: carData.date.substring(2, 4)+'/'+carData.date.substring(5, 7) || new Date().toISOString(),
             view: carData.view || 0,
             new_price: parseInt(carData.new_price) || 0,

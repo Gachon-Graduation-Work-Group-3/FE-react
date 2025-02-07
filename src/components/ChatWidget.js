@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useContext } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import SockJS from 'sockjs-client';
 import { Client } from '@stomp/stompjs';
 import { useUser } from '../context/UserContext';
@@ -6,7 +6,7 @@ import './ChatWidget.css';
 
 const BASE_URL = 'https://rakunko.store';
 
-function ChatWidget({ initialMessage, otherUserId, source }) {
+function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, carId }) {
     const {user} = useUser();
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([
@@ -19,12 +19,12 @@ function ChatWidget({ initialMessage, otherUserId, source }) {
     ]);
     const [newMessage, setNewMessage] = useState('');
     const [roomId, setRoomId] = useState(null);
+    const [otherUserId, setOtherUserId] = useState(initialOtherUserId);
     const stompClient = useRef(null);
     const [connected, setConnected] = useState(false);
 
-    // 웹소켓 연결 설정
-    useEffect(() => {
-        if (isOpen && !connected) {
+    const connectWebSocket = (roomId) => {
+        if (!connected) {
             const socket = new SockJS(`${BASE_URL}/ws/chat`);
             stompClient.current = new Client({
                 webSocketFactory: () => socket,
@@ -40,66 +40,124 @@ function ChatWidget({ initialMessage, otherUserId, source }) {
                 heartbeatOutgoing: 4000
             });
 
-            stompClient.current.onConnect = () => {
-                setConnected(true);
-                console.log('웹소켓 연결 성공');
-                
-                // 개인 채팅 구독
-                stompClient.current.subscribe(`/queue/chat.user.${user.userId}`, (message) => {
-                    const receivedMessage = JSON.parse(message.body);
-                    setMessages(prev => [...prev, {
-                        id: prev.length + 1,
-                        text: receivedMessage.content,
-                        sender: "other",
-                        timestamp: new Date().toLocaleDateString()
-                    }]);
-                });
-            };
+            return new Promise((resolve, reject) => {
+                stompClient.current.onConnect = () => {
+                    setConnected(true);
+                    console.log('웹소켓 연결 성공');
+                    
+                    // 1. 개인 메시지 큐 구독 (현재 사용자)
+                    stompClient.current.subscribe(`/queue/chat.user.${user.userId}`, handleNewMessage);
+                    
+                    // 2. 개인 메시지 큐 구독 (상대방)
+                    stompClient.current.subscribe(`/queue/chat.user.${otherUserId}`, handleNewMessage);
+                    
+                    // 3. 특정 채팅방 구독
+                    stompClient.current.subscribe(`/sub/${roomId}`, handleNewMessage);
+                    
+                    console.log(`채팅방 ${roomId} 구독 완료`);
+                    resolve();
+                };
 
-            stompClient.current.onDisconnect = () => {
-                setConnected(false);
-                console.log('웹소켓 연결 해제');
-            };
+                stompClient.current.onDisconnect = () => {
+                    setConnected(false);
+                    console.log('웹소켓 연결 해제');
+                    reject(new Error('웹소켓 연결 해제'));
+                };
 
-            stompClient.current.activate();
+                stompClient.current.activate();
+            });
         }
+    };
 
-        return () => {
-            if (stompClient.current) {
-                stompClient.current.deactivate();
-            }
-        };
-    }, [isOpen]);
-
-    // 채팅방 생성
-    const createChatRoom = async () => {
+    const handleNewMessage = (message) => {
         try {
-            console.log('채팅방 생성 시도 - 판매자 ID:', otherUserId);
+            const receivedMessage = JSON.parse(message.body);
+            console.log('새 메시지 수신:', receivedMessage);
+
+            setMessages(prev => [...prev, {
+                id: prev.length + 1,
+                text: receivedMessage.content || receivedMessage.message,
+                sender: receivedMessage.senderId === user.userId ? "user" : "other",
+                timestamp: new Date().toLocaleString()
+            }]);
+        } catch (error) {
+            console.error('메시지 처리 중 오류:', error);
+        }
+    };
+
+    const loadChatHistory = async (roomId) => {
+        try {
+            const response = await fetch(
+                `${BASE_URL}/api/chat/message?roomId=${roomId}&page=0&size=50`,
+                { credentials: 'include' }
+            );
             
-            const response = await fetch(`https://rakunko.store/api/chat/${otherUserId}`, {
-                method: 'POST',
+            const data = await response.json();
+            if (data.isSuccess) {
+                setMessages(data.result.chatMessages.map(msg => ({
+                    id: msg.id,
+                    text: msg.message,
+                    sender: msg.senderId === user.userId ? 'user' : 'other',
+                    timestamp: new Date(msg.createdAt).toLocaleString()
+                })));
+            }
+        } catch (error) {
+            console.error('채팅 내역 로드 실패:', error);
+        }
+    };
+
+    const initializeChat = async () => {
+        try {
+            // 1. 채팅방 존재 여부 확인
+            const response = await fetch(`${BASE_URL}/api/chat/room/${carId}`, {
                 credentials: 'include'
             });
             
             const data = await response.json();
-            console.log('채팅방 생성 응답:', data);
             
             if (data.isSuccess) {
-                setRoomId(data.result.roomId);
-                return data.result.roomId;
+                const room = data.result;
+                setRoomId(room.roomId);
+                setOtherUserId(room.user2Id);
             } else {
-                throw new Error(data.message || '채팅방 생성 실패');
+                // 채팅방이 없는 경우, 새로운 채팅방 생성
+                const createResponse = await fetch(`${BASE_URL}/api/chat/${otherUserId}`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ carId: carId })
+                });
+                
+                const createData = await createResponse.json();
+                if (createData.isSuccess) {
+                    setRoomId(createData.result.roomId);
+                    setOtherUserId(createData.result.user2Id);
+                } else {
+                    throw new Error('채팅방 생성 실패');
+                }
+            }
+
+            // 채팅방이 있거나 생성된 경우
+            if (roomId) {
+                // 2. 먼저 웹소켓 연결 및 구독 설정
+                await connectWebSocket(roomId);
+                
+                // 3. 연결된 후 채팅 내역 로드
+                if (connected) {
+                    await loadChatHistory(roomId);
+                }
             }
         } catch (error) {
-            console.error('채팅방 생성 에러:', error);
-            throw error;
+            console.error('채팅 초기화 실패:', error);
+            alert('채팅 연결에 실패했습니다.');
         }
     };
 
-    // 메시지 전송
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (newMessage.trim() && connected) {
+        if (newMessage.trim() && connected && roomId) {
             const messageData = {
                 content: newMessage,
                 roomId: roomId,
@@ -109,50 +167,34 @@ function ChatWidget({ initialMessage, otherUserId, source }) {
             try {
                 // 메시지 발송
                 stompClient.current.publish({
-                    destination: `/pub/${roomId}`,
+                    destination: `/pub/${roomId}/${user.userId}`,
                     body: JSON.stringify(messageData)
                 });
 
-                // 로컬 메시지 목록 업데이트
-                setMessages(prev => [...prev, {
-                    id: prev.length + 1,
-                    text: newMessage,
-                    sender: "user",
-                    timestamp: new Date().toLocaleDateString()
-                }]);
-                
                 setNewMessage('');
             } catch (error) {
                 console.error('메시지 전송 실패:', error);
+                alert('메시지 전송에 실패했습니다.');
             }
         }
     };
 
-    // 채팅 위젯 토글 함수
-    const toggleChat = async () => {
-        try {
-            if (!user) {
-                alert('로그인이 필요한 서비스입니다.');
-                return;
-            }
-
-            if (!isOpen && !roomId) {
-                // 채팅방이 없을 때만 생성
-                await createChatRoom();
-            }
-            
-            setIsOpen(!isOpen);
-        } catch (error) {
-            alert('채팅방 연결에 실패했습니다.');
-            console.error('채팅 토글 에러:', error);
+    const toggleChat = () => {
+        if (!isOpen) {
+            initializeChat();
         }
+        setIsOpen(!isOpen);
     };
 
-
-
-    // if (source !== '얼마일카') {
-    //     return null;
-    // }
+    // 컴포넌트 언마운트 시 연결 해제
+    useEffect(() => {
+        return () => {
+            if (stompClient.current) {
+                stompClient.current.deactivate();
+                setConnected(false);
+            }
+        };
+    }, []);
 
     return (
         <div className="chat-widget">
