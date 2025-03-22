@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import './PriceSearchPage.css';
 import { Link } from 'react-router-dom';
 import carDataJson from './data/transformed_carData.json';
-
+import { useUser } from './context/UserContext';
 function PriceSearchPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useState({
@@ -14,13 +14,26 @@ function PriceSearchPage() {
     year: '',
     mileage: ''
   });
-
+  
   const [selectedManufacturer, setSelectedManufacturer] = useState(null);
   const [selectedModel, setSelectedModel] = useState(null);
   const [selectedSubModel, setSelectedSubModel] = useState(null);
   const [selectedGrade, setSelectedGrade] = useState(null);
   const [carData] = useState(carDataJson);
+  const { isAuthenticated, user, logout } = useUser();
+  console.log('인증 상태:', isAuthenticated);
+  console.log('사용자 정보:', user);
+  const [showDropdown, setShowDropdown] = useState(false);
 
+  
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/');
+    } catch (error) {
+      console.error('로그아웃 실패:', error);
+    }
+  };
   const handleManufacturerSelect = (e) => {
     const manufacturer = carData.find(m => m.name === e.target.value);
     setSelectedManufacturer(manufacturer);
@@ -84,9 +97,45 @@ function PriceSearchPage() {
           <Link to="/Buying" className="menu-item">내차 사기</Link>
           <Link to="/price-search" className="menu-item">시세 검색</Link>
         </div>
-        <div className="icon-container">
-          <div className="icon">♡</div>
-          <div className="icon">👤</div>
+        <div className="user-icon">
+          {isAuthenticated ? (
+              <div className="user-menu-container">
+                <div 
+                  className="user-menu-trigger"
+                  onMouseEnter={() => setShowDropdown(true)}
+                  onMouseLeave={() => setShowDropdown(false)}
+                >
+                  <span className="welcome-text">{user.name}님</span>
+                  {showDropdown && (
+                    <div className="user-dropdown">
+                      
+                      <button 
+                        onClick={() => navigate('/mypage')} 
+                        className="dropdown-item"
+                      >
+                        내 정보
+                      </button>
+                      <button 
+                        onClick={() => navigate('/mypage/like')} 
+                        className="dropdown-item"
+                      >
+                        좋아요
+                      </button>
+                      <button 
+                        onClick={handleLogout} 
+                        className="dropdown-item"
+                      >
+                        로그아웃
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+                ) : (
+              <div className="main-user-icon">
+                <Link to="/login" className="main-login">로그인</Link>
+              </div>
+            )}
         </div>
         </div>
       </nav>

@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect,useRef } from 'react';
 
 export const UserContext = createContext();
 
@@ -7,12 +7,52 @@ export function UserProvider({ children }) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+    const profileCacheRef = useRef(null);
+    const profileFetchedRef = useRef(false);
 
     // 프로필 정보 가져오기
     const fetchUserProfile = async () => {
+        // 이미 인증된 사용자 정보가 캐시되어 있으면 API 호출 스킵
+        if (profileCacheRef.current && profileFetchedRef.current) {
+            console.log('캐시된 프로필 정보 사용');
+            setUser(profileCacheRef.current);
+            setIsAuthenticated(true);
+            setLoading(false);
+            return;
+        }
+
+        if (isLoggingOut) {
+            setUser(null);
+            setIsAuthenticated(false);
+            setLoading(false);
+            return;
+        }
+
         try {
+            setLoading(true); // 로딩 상태 시작
             console.log('프로필 정보 요청 시작');
             
+            // 먼저 토큰 갱신 시도
+            if(isAuthenticated){
+            try {
+                const refreshResponse = await fetch(`https://rakunko.store/api/token/renew`, {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                
+                if (refreshResponse.ok) {
+                    console.log('토큰 갱신 성공');
+                } else {
+                    console.log('토큰 갱신 실패');
+                }
+            } catch (error) {
+                console.error('토큰 갱신 중 에러:', error);
+                }
+            }
+
+            // 갱신 시도 후 프로필 정보 요청
             const response = await fetch('https://rakunko.store/api/user/profile', {
                 method: 'GET',
                 credentials: 'include',
@@ -25,93 +65,110 @@ export function UserProvider({ children }) {
 
             if (!response.ok) {
                 if (response.status === 401) {
-                    try {
-                        // 토큰 갱신 요청
-                        const refreshResponse = await fetch(`https://rakunko.store/api/token/renew`, {
-                            method: 'GET',
-                            credentials: 'include'
-                        });
-
-                        if (refreshResponse.ok) {
-                            // 토큰 갱신 성공 시 원래 요청 다시 시도
-                            const retryResponse = await fetch(`https://rakunko.store/api/user/profile`, {
-                                credentials: 'include'
-                            });
-
-                            if (retryResponse.ok) {
-                                const data = await retryResponse.json();
-                                setUser(data.result);
-                                setIsAuthenticated(true);
-                                return;
-                            }
-                        }
-                    } catch (error) {
-                        console.error('토큰 갱신 실패:', error);
-                    }
+                    console.log('인증 실패');
+                    setIsAuthenticated(false);
+                    setUser(null);
+                    profileCacheRef.current = null;
+                    profileFetchedRef.current = false
                 }
+                throw new Error('프로필 정보를 가져오는데 실패했습니다.');
             }
 
             const data = await response.json();
-            console.log('받아온 프로필 데이터:', {
-                isSuccess: data.isSuccess,
-                code: data.code,
-                message: data.message,
-                result: {
-                    userId: data.result.userId,
-                    name: data.result.name,
-                    email: data.result.email,
-                    picture: data.result.picture
-                }
-            });
-
-            // 인증 상태와 사용자 정보 동시 업데이트
-            setIsAuthenticated(data.isSuccess);
             if (data.isSuccess) {
                 setUser(data.result);
+                setIsAuthenticated(true);
+                // 프로필 정보 캐싱
+                profileCacheRef.current = data.result;
+                profileFetchedRef.current = true;
             } else {
                 setUser(null);
+                setIsAuthenticated(false);
+                profileCacheRef.current = null;
+                profileFetchedRef.current = false;
             }
-            console.log('사용자 정보 업데이트 완료');
 
         } catch (err) {
             console.error('프로필 조회 에러:', err);
             setError(err.message);
             setIsAuthenticated(false);
             setUser(null);
+            profileCacheRef.current = null;
+            profileFetchedRef.current = false;
         } finally {
             setLoading(false);
-            console.log('프로필 정보 요청 완료');
         }
     };
 
+    // 컴포넌트 마운트 시 한 번만 실행
     useEffect(() => {
-        fetchUserProfile();
-    }, []);
+        if (!isAuthenticated && !isLoggingOut && !profileFetchedRef.current) {
+            fetchUserProfile();
+        }
+    }, [isAuthenticated, isLoggingOut]);
 
     // 컨텍스트 값 업데이트 함수
     const updateUser = (newUserData) => {
         setUser(newUserData);
+        // 캐시도 업데이트
+        profileCacheRef.current = newUserData;
+    };
+
+    const logout = async () => {
+        try {
+            setIsLoggingOut(true);
+            const response = await fetch('https://rakunko.store/logout', {
+                method: 'POST',
+                credentials: 'include',
+            });
+
+            if (response.ok) {
+                setUser(null);
+                setIsAuthenticated(false);
+                // 캐시 초기화
+                profileCacheRef.current = null;
+                profileFetchedRef.current = false;
+
+            } else {
+                throw new Error('로그아웃 실패');
+            }
+        } catch (error) {
+            console.error('로그아웃 에러:', error);
+            throw error;
+        }
+    };
+    // 캐시된 사용자 정보 강제 갱신 함수 추가
+    const forceRefreshUser = () => {
+        profileFetchedRef.current = false;
+        fetchUserProfile();
     };
 
     return (
         <UserContext.Provider value={{ 
             user, 
-            setUser: updateUser,
+            setUser,
             loading,
             error,
+            isAuthenticated,
+            isLoggingOut,
+            setIsAuthenticated,
             refetchUser: fetchUserProfile,
-            isAuthenticated
+            forceRefreshUser, // 강제 갱신 함수 추가
+            logout
         }}>
             {children}
         </UserContext.Provider>
     );
 }
 
-// 커스텀 훅 생성
+// 커스텀 훅 수정
 export const useUser = () => {
     const context = useContext(UserContext);
     if (context === undefined) {
         throw new Error('useUser must be used within a UserProvider');
     }
+
+    // useEffect를 사용하여 훅이 호출될 때마다 인증 상태 초기화 및 재확인
+
     return context;
 }; 

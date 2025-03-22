@@ -303,25 +303,31 @@ function MainPage() {
                   onMouseEnter={() => setShowDropdown(true)}
                   onMouseLeave={() => setShowDropdown(false)}
                 >
-                  <span className="welcome-text">{user.name}님</span>
+                  <span className="main-welcome-text">{user.name}님</span>
                   {showDropdown && (
-                    <div className="user-dropdown">
+                    <div className="main-user-dropdown">
                       
                       <button 
                         onClick={() => navigate('/mypage')} 
-                        className="dropdown-item"
+                        className="main-dropdown-item"
                       >
                         내 정보
                       </button>
                       <button 
                         onClick={() => navigate('/mypage/like')} 
-                        className="dropdown-item"
+                        className="main-dropdown-item"
                       >
                         좋아요
                       </button>
+                      <button
+                        onclick={()=> navigate('/chat-rooms')}
+                        className="main-dropdown-item"
+                        >
+
+                      </button>
                       <button 
                         onClick={handleLogout} 
-                        className="dropdown-item"
+                        className="main-dropdown-item"
                       >
                         로그아웃
                       </button>
@@ -386,7 +392,7 @@ function MainPage() {
                   
                     
                     <div className="cards-slider-container">
-                    <button 
+                    {/* <button 
                                 className="slider-button prev" 
                                 onClick={prevCars}
                                 disabled={!canScrollLeft}
@@ -424,7 +430,7 @@ function MainPage() {
                         disabled={!canScrollRight}
                     >
                         <IoIosArrowForward />
-                    </button>
+                    </button> */}
                     </div>
                 ) : response.content.length > 0 ? (
                     <div className="cards-grid">

@@ -9,6 +9,8 @@ import Description from './Description';
 import LoginPage from './LoginPage';
 import ChatWidget from './components/ChatWidget';
 import { UserProvider } from './context/UserContext';
+import MyPage from './MyPage';
+import ChatRooms from './chatRoomPage';
 import './App.css';
 
 
@@ -25,6 +27,7 @@ function App() {
             <Route path="/price-search" element={<PriceSearchPage />} />
             <Route path="/price-result" element={<Description />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/chat-rooms" element={<ChatRooms/>}/>
             <Route path="/description" element={
               <>
                 <Description />
@@ -32,6 +35,7 @@ function App() {
               </>
             } />
             <Route path="/login-success" element={<Navigate to="/" replace />} />
+            <Route path="/mypage" element={<MyPage />} />
           </Routes>
         </Router>
       </div>

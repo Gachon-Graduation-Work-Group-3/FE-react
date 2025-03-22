@@ -53,8 +53,7 @@ function Description() {
   const [predictionError, setPredictionError] = useState(null);
 
   const { isAuthenticated, user, logout } = useUser();
-  console.log('인증 상태:', isAuthenticated);
-  console.log('사용자 정보:', user);
+
   const [showDropdown, setShowDropdown] = useState(false);
 
   

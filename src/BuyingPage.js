@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import './BuyingPage.css';
 import g70Image from './img/g70.png';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import carDataJson from './data/transformed_carData.json';
 import axios from 'axios';
 import { fetchCar } from './remote/searchcar';
 import { formatDateToYearMonth } from './util/formatDateToYearMonth';
 import { handlePageChange } from './event/changevalue';
-
+import { useUser } from './context/UserContext';
 function BuyingPage() {
   const [filteredCars, setFilteredCars] = useState([]);
   const [filters, setFilters] = useState({
@@ -34,11 +34,24 @@ const [selectedSubModel, setSelectedSubModel] = useState(null);
 const [selectedGrade, setSelectedGrade] = useState(null);
 const [isSearchContentHovered, setIsSearchContentHovered] = useState(false);
 const [cars, setCars] = useState([]);
-
+const navigate = useNavigate();
 const initialCarData = carDataJson;
 const [carData] = useState(initialCarData);
 
+const { isAuthenticated, user, logout } = useUser();
+console.log('인증 상태:', isAuthenticated);
+console.log('사용자 정보:', user);
+const [showDropdown, setShowDropdown] = useState(false);
 
+
+const handleLogout = async () => {
+  try {
+    await logout();
+    navigate('/');
+  } catch (error) {
+    console.error('로그아웃 실패:', error);
+  }
+};
 
 
 
@@ -147,10 +160,47 @@ const getSelectedPath = () => {
           <Link to="/Buying" className="menu-item">내차 사기</Link>
           <Link to="/price-search" className="menu-item">시세 검색</Link>
         </div>
-        <div className="icon-container">
-          <div className="icon">♡</div>
-          <div className="icon">👤</div>
+        <div className="user-icon">
+          {isAuthenticated ? (
+              <div className="user-menu-container">
+                <div 
+                  className="user-menu-trigger"
+                  onMouseEnter={() => setShowDropdown(true)}
+                  onMouseLeave={() => setShowDropdown(false)}
+                >
+                  <span className="welcome-text">{user.name}님</span>
+                  {showDropdown && (
+                    <div className="user-dropdown">
+                      
+                      <button 
+                        onClick={() => navigate('/mypage')} 
+                        className="dropdown-item"
+                      >
+                        내 정보
+                      </button>
+                      <button 
+                        onClick={() => navigate('/mypage/like')} 
+                        className="dropdown-item"
+                      >
+                        좋아요
+                      </button>
+                      <button 
+                        onClick={handleLogout} 
+                        className="dropdown-item"
+                      >
+                        로그아웃
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+                ) : (
+              <div className="main-user-icon">
+                <Link to="/login" className="main-login">로그인</Link>
+              </div>
+            )}
         </div>
+        
         </div>
       </nav>
 
@@ -349,12 +399,12 @@ const getSelectedPath = () => {
                             <div className="card-content">
                                 <h3 className="car-title">{car.name}</h3>
                                 <div className="car-specs">
-                                    <span className="car-year">{formatDateToYearMonth(car.age)}</span>
+                                    <span className="car-year">{formatDateToYearMonth(car.age) || '날짜 정보 없음'}</span>
                                     <span className="separator">•</span>
-                                    <span className="car-mileage">{car.mileage.toLocaleString()}km</span>
+                                    <span className="car-mileage">{car.mileage || '주행 거리 정보 없음'}km</span>
                                 </div>
                                 <div className="car-price">
-                                    <strong>{car.price.toLocaleString()}</strong>
+                                    <strong>{car.price || '가격 정보 없음'}</strong>
                                     <span className="price-unit">만원</span>
                                 </div>
                             </div>
