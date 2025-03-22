@@ -10,15 +10,30 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
     const { user, isAuthenticated } = useUser();
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([]);
-    const messagesRef= useRef(messages);
+    const messagesRef= useRef([]);
     const [newMessage, setNewMessage] = useState('');
     const [roomId, setRoomId] = useState(null);
     const [otherUserId, setOtherUserId] = useState(initialOtherUserId);
     const stompClient = useRef(null);
     const [connected, setConnected] = useState(false);
     const messagesEndRef = useRef(null);
+
     const initialMessageApplied = useRef(false);
-    
+    const componentMountCount = useRef(0);
+    useEffect(() => {
+        // 마운트 카운트 증가
+        componentMountCount.current += 1;
+        console.log(`ChatWidget 마운트 횟수: ${componentMountCount.current}`);
+        
+        // messagesRef 초기화 (이전 값이 남아있을 수 있으므로)
+        messagesRef.current = [];
+        
+        // 컴포넌트 언마운트 시 정리
+        return () => {
+            console.log('ChatWidget 언마운트');
+        };
+    }, []);
+
     useEffect(()=>{
         if(!initialMessageApplied.current&& initialMessage){
             const initialMsg = {
@@ -36,6 +51,7 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
     // 웹소켓 연결 함수
     const connectWebSocket = useCallback(() => {
         console.log('웹소켓 연결 시도');
+        console.log('connectWebSocket 실행시 메시지 배열:', [...messagesRef.current]);
         if (isAuthenticated && !connected && user?.userId && !stompClient.current) {
             const socket = new SockJS(`${BASE_URL}/ws/chat`);
             stompClient.current = new Client({
@@ -55,7 +71,7 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
             stompClient.current.onConnect = () => {
                 setConnected(true);
                 console.log('웹소켓 연결 성공');
-                
+                console.log('웹소켓 성공시 메시지 배열:', [...messagesRef.current]);
                 // 사용자 개인 메시지 큐 구독
                 stompClient.current.subscribe(
                     `/queue/chat.user.${user.userId}`, 
@@ -94,6 +110,7 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
 
     // 인증 상태 변경 시에만 웹소켓 연결
     useEffect(() => {
+        console.log('초기 useEffect 실행시 메시지 배열:', [...messagesRef.current]);
         if (isAuthenticated && user?.userId) {
             connectWebSocket();
         }
@@ -135,7 +152,7 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
                 messageContent = receivedMessage.message || receivedMessage.content;
             }
             console.log('표시할 메시지 내용:', messageContent);
-
+            console.log('업데이트 전 메시지 배열:', [...messagesRef.current]);
             // 상태 업데이트 전에 메시지 형식 확인
             if (messageContent) {
                 const currentMessages=[...messagesRef.current];
@@ -149,7 +166,11 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
                 currentMessages.push(newMessage);
                 messagesRef.current=currentMessages;
 
-                setMessages([...messagesRef.current]);
+                setMessages(prev => {
+                    const updatedMessages = [...prev, newMessage];
+                    messagesRef.current = updatedMessages;
+                    return updatedMessages;
+                });
                 console.log('업데이트 후 메시지 배열:', [...messagesRef.current]);
             }
         } catch (error) {
@@ -193,6 +214,7 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
     // };
 
     const initializeChat = async () => {
+        console.log('initializeChat 실행시 메시지 배열:', [...messagesRef.current]);
         try {
             // 1. 채팅방 존재 여부 확인
             const response = await fetch(`${BASE_URL}/api/chat/room/?page=0&size=5`, {
@@ -254,6 +276,8 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
     }
 }
     const handleSubmit = async (e) => {
+        console.log('보내기 버튼 눌렀을 떄 메시지 배열:', [...messagesRef.current]);
+        console.log(`ChatWidget 마운트 횟수: ${componentMountCount.current}`);
         e.preventDefault();
         if (newMessage.trim() && connected && roomId) {
             const messageData = {
@@ -292,7 +316,8 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
     
     useEffect(() => {
         // 메시지 배열 변경 시 로그 출력
-        console.log('메시지 배열 업데이트됨:', messages);
+        console.log('메시지 배열 변경시 messages:', messages);
+        console.log('메시지 배열 변경시 [...messagesRef.current]:', [...messagesRef.current]);
         
         // 스크롤을 항상 최신 메시지로 이동
         if (messagesEndRef.current) {
