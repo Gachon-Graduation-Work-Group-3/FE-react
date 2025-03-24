@@ -62,11 +62,7 @@ function Description() {
 
   const [showDropdown, setShowDropdown] = useState(false);
   const [allLoading, setAllLoading] = useState(null);
-  // Description.js에서 chatWidgetProps 설정 부분 수정
-  const [chatWidgetInitialized, setChatWidgetInitialized] = useState(false);
   const componentMountCount = useRef(0);
-  // 컴포넌트 외부에 ref 선언
-  const chatInitializedRef = useRef(false);
   useEffect(() => {
     // 마운트 카운트 증가
     componentMountCount.current += 1;
@@ -105,6 +101,19 @@ function Description() {
       console.error('로그아웃 실패:', error);
     }
   };
+  useEffect(() => {
+    console.log("Description useEffect - allLoading:", allLoading);  // 디버깅
+    if (loading) {
+      console.log("되나2");
+      console.log('초기 cardata 설정');
+      setChatWidgetProps({
+        initialMessage: `${carData.result?.car?.name || '차량'} 관련 문의사항이 있으신가요?`,
+        otherUserId: "temp",
+        source: carData.result?.car?.source,
+        carId: carId
+      });
+    }
+  }, [loading]);
 
   useEffect(() => {
     console.log("Description useEffect - carId:", carId);  // 디버깅
@@ -113,20 +122,20 @@ function Description() {
       setLoading(false);
       return;
     }
-    if(chatInitializedRef.current){
-      console.log("이미 chatwidget이 초기화되었습니다.");
-      return;
-    }
+
     const initializeChat = async () =>{
       try{
         console.log('asdfasdfasdfSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS')
         setLoading(true);
         const carResponse = await fetchCarDescription(carId, setCarData, setError, setLoading);
-
-
-
+            // carData가 설정된 후에 allLoading 설정
+        setTimeout(() => {
+          if(carResponse) {
+            console.log('carResponse가 존재함, allLoading을 true로 설정');
+            setAllLoading(true);
+          }
+        }, 0);
         if(carData){
-          console.log("되나?1")
           if (carData?.result?.car) {
             const predictionRequestData = {
               age: carData.result.car.age,
@@ -148,18 +157,9 @@ function Description() {
             );
             
           }
-          console.log("되나2")
-          setAllLoading(true);
         }
-        if (allLoading) {setAllLoading(true);
-          console.log('초기 cardata 설정')
-          setChatWidgetProps({
-            initialMessage: `${carData.result?.car?.name || '차량'} 관련 문의사항이 있으신가요?`,
-            otherUserId: "temp",
-            source: carData.result?.car?.source,
-            carId: carId
-          });
-        }
+        
+        
     }
     catch(error){
       console.error('데이터 로딩 오류:', error);
@@ -168,7 +168,6 @@ function Description() {
   };
     initializeChat();
   }, [carId]);
-
 
   // if (loading) return <div>로딩 중...</div>;
   // if (error) return <div>에러: {error}</div>;

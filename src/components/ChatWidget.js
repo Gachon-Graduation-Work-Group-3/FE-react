@@ -40,7 +40,7 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
     useEffect(()=>{
         if(!initialMessageApplied.current&& initialMessage){
             const initialMsg = {
-                id: 1,
+                id: 0,
                 text: initialMessage || "메시지를 입력하세요.",
                 sender: "system",
                 timestamp: new Date() ? new Date().toLocaleString() : '시간 정보 없음'
@@ -162,7 +162,7 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
                 const newMessage = {
                     id: currentMessages.length + 1,
                     text: messageContent,
-                    sender: receivedMessage.sender === user.userId ? "user" : "other",
+                    sender: receivedMessage.sender === user.userId ? "sent" : "received",
                     timestamp: new Date() ? new Date().toLocaleString() : '시간 정보 없음'
                 };
                 console.log('새 메시지 추가:', newMessage);

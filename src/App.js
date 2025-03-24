@@ -28,11 +28,7 @@ function App() {
             <Route path="/price-result" element={<Description />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/chat-rooms" element={<ChatRooms/>}/>
-            <Route path="/description" element={
-              <>
-                <Description />
-              </>
-            } />
+            <Route path="/description" element={<Description />} />
             <Route path="/login-success" element={<Navigate to="/" replace />} />
             <Route path="/mypage" element={<MyPage />} />
           </Routes>
