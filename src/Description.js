@@ -1,4 +1,4 @@
-import React,{useState,useEffect} from 'react';
+import React,{memo, useCallback, useState,useEffect,useRef} from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import {fetchCarDescription} from './remote/SearchCarDescription';
 import ChatWidget from './components/ChatWidget';
@@ -15,6 +15,12 @@ import {
   ResponsiveContainer
 } from 'recharts';
 import { fetchCarPrediction } from './remote/SearchCarprediction';
+
+
+
+
+
+
 
 function Description() {
   const navigate = useNavigate();
@@ -55,8 +61,42 @@ function Description() {
   const { isAuthenticated, user, logout } = useUser();
 
   const [showDropdown, setShowDropdown] = useState(false);
+  const [allLoading, setAllLoading] = useState(null);
+  // Description.js에서 chatWidgetProps 설정 부분 수정
+  const [chatWidgetInitialized, setChatWidgetInitialized] = useState(false);
+  const componentMountCount = useRef(0);
+  // 컴포넌트 외부에 ref 선언
+  const chatInitializedRef = useRef(false);
+  useEffect(() => {
+    // 마운트 카운트 증가
+    componentMountCount.current += 1;
+    console.log(`description 마운트 횟수: ${componentMountCount.current}`);
+    console.log('인스턴스 ID:', Math.random());
+    
+    
+    // 컴포넌트 언마운트 시 정리
+    return () => {
+        console.log('ChatWidget 언마운트');
+    };
+}, []);
 
+  // ChatWidget props를 저장할 상태
+  const [chatWidgetProps, setChatWidgetProps] = useState(null);
   
+   // carData 로딩 완료 후 한 번만 ChatWidget props 설정
+  //  useEffect(() => {
+  //   console.log("chatwidgetProps")
+  //   if (!loading && carData.result?.car && !chatWidgetProps && allLoading && !chatWidgetInitialized) {
+  //     setChatWidgetProps({
+  //       initialMessage: `${carData.result.car.name || '차량'} 관련 문의사항이 있으신가요?`,
+  //       otherUserId: "temp",
+  //       source: carData.result.car.source,
+  //       carId: carId
+  //     });
+  //     setChatWidgetInitialized(true);
+  //   }
+  // }, [loading, carData, carId, allLoading]);
+
   const handleLogout = async () => {
     try {
       await logout();
@@ -73,31 +113,62 @@ function Description() {
       setLoading(false);
       return;
     }
-    fetchCarDescription(carId, setCarData, setError, setLoading);
+    if(chatInitializedRef.current){
+      console.log("이미 chatwidget이 초기화되었습니다.");
+      return;
+    }
+    const initializeChat = async () =>{
+      try{
+        console.log('asdfasdfasdfSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS')
+        setLoading(true);
+        const carResponse = await fetchCarDescription(carId, setCarData, setError, setLoading);
+
+
+
+        if(carData){
+          console.log("되나?1")
+          if (carData?.result?.car) {
+            const predictionRequestData = {
+              age: carData.result.car.age,
+              mileage: carData.result.car.mileage,
+              cc: carData.result.car.cc,
+              fuel_eff: carData.result.car.fuelEff,
+              high_out: carData.result.car.maxOut,
+              date: new Date().toISOString(),
+              view: carData.result.car.view,
+              new_price: carData.result.car.newPrice,
+              brand: carData.result.car.brand
+            };
+      
+            fetchCarPrediction(
+              predictionRequestData,
+              setPredictionData,
+              setPredictionError,
+              setPredictionLoading
+            );
+            
+          }
+          console.log("되나2")
+          setAllLoading(true);
+        }
+        if (allLoading) {setAllLoading(true);
+          console.log('초기 cardata 설정')
+          setChatWidgetProps({
+            initialMessage: `${carData.result?.car?.name || '차량'} 관련 문의사항이 있으신가요?`,
+            otherUserId: "temp",
+            source: carData.result?.car?.source,
+            carId: carId
+          });
+        }
+    }
+    catch(error){
+      console.error('데이터 로딩 오류:', error);
+      setLoading(false);
+    }
+  };
+    initializeChat();
   }, [carId]);
 
-  useEffect(() => {
-    if (carData?.result?.car) {
-      const predictionRequestData = {
-        age: carData.result.car.age,
-        mileage: carData.result.car.mileage,
-        cc: carData.result.car.cc,
-        fuel_eff: carData.result.car.fuelEff,
-        high_out: carData.result.car.maxOut,
-        date: new Date().toISOString(),
-        view: carData.result.car.view,
-        new_price: carData.result.car.newPrice,
-        brand: carData.result.car.brand
-      };
-
-      fetchCarPrediction(
-        predictionRequestData,
-        setPredictionData,
-        setPredictionError,
-        setPredictionLoading
-      );
-    }
-  }, [carData]);
 
   // if (loading) return <div>로딩 중...</div>;
   // if (error) return <div>에러: {error}</div>;
@@ -364,13 +435,20 @@ function Description() {
               </div>
             </div>
           </div>
-
-        <ChatWidget 
-          initialMessage={`${carData.result?.car?.name || '차량'} 관련 문의사항이 있으신가요?`}
-          otherUserId="temp"
-          source={carData.result?.car?.source}
-          carId={carId}
-        />
+        
+          {console.log('렌더링 시점의 chatWidgetProps:', chatWidgetProps)}
+    
+          {chatWidgetProps ? (
+            <>
+              {console.log('ChatWidget 렌더링 직전 props:', chatWidgetProps)}
+              <ChatWidget 
+                key="fixed-chat-widget" 
+                {...chatWidgetProps} 
+              />
+            </>
+          ) : (
+            <div style={{display: 'none'}}>chatWidgetProps가 없음</div>
+          )}
 
         <Link to="/price-search" className="back-button">
           다시 검색하기

@@ -20,20 +20,23 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
 
     const initialMessageApplied = useRef(false);
     const componentMountCount = useRef(0);
+    //마운트 카운트
     useEffect(() => {
         // 마운트 카운트 증가
         componentMountCount.current += 1;
         console.log(`ChatWidget 마운트 횟수: ${componentMountCount.current}`);
+        console.log('인스턴스 ID:', Math.random());
         
         // messagesRef 초기화 (이전 값이 남아있을 수 있으므로)
         messagesRef.current = [];
+        
         
         // 컴포넌트 언마운트 시 정리
         return () => {
             console.log('ChatWidget 언마운트');
         };
     }, []);
-
+    //초기 메시지 세팅 함수
     useEffect(()=>{
         if(!initialMessageApplied.current&& initialMessage){
             const initialMsg = {
@@ -313,7 +316,7 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
         setIsOpen(!isOpen);
     };
 
-    
+    //메시지 변경시  메시지 출력
     useEffect(() => {
         // 메시지 배열 변경 시 로그 출력
         console.log('메시지 배열 변경시 messages:', messages);

@@ -29,7 +29,7 @@ export const fetchCarDescription = async (carId, setCarData, setError, setLoadin
 
     try {
         console.log("fetchCarDescription 시작 - carId:", carId);  // 디버깅
-        setLoading(true);
+        
         
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000);
@@ -56,6 +56,7 @@ export const fetchCarDescription = async (carId, setCarData, setError, setLoadin
         const data = await res.json();
         console.log("API 성공, 받은 데이터:", data);  // 디버깅
         setCarData(data);
+        setLoading(true);
 
     } catch (error) {
         console.error("API 에러 발생:", error);  // 디버깅

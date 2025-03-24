@@ -31,7 +31,6 @@ function App() {
             <Route path="/description" element={
               <>
                 <Description />
-                <ChatWidget />
               </>
             } />
             <Route path="/login-success" element={<Navigate to="/" replace />} />
