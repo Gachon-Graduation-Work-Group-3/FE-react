@@ -102,9 +102,7 @@ function Description() {
     }
   };
   useEffect(() => {
-    console.log("Description useEffect - allLoading:", allLoading);  // 디버깅
     if (loading) {
-      console.log("되나2");
       console.log('초기 cardata 설정');
       setChatWidgetProps({
         initialMessage: `${carData.result?.car?.name || '차량'} 관련 문의사항이 있으신가요?`,
@@ -434,12 +432,10 @@ function Description() {
               </div>
             </div>
           </div>
-        
-          {console.log('렌더링 시점의 chatWidgetProps:', chatWidgetProps)}
     
           {chatWidgetProps ? (
             <>
-              {console.log('ChatWidget 렌더링 직전 props:', chatWidgetProps)}
+              {/* {console.log('ChatWidget 렌더링 직전 props:', chatWidgetProps)} */}
               <ChatWidget 
                 key="fixed-chat-widget" 
                 {...chatWidgetProps} 

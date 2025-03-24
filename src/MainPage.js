@@ -320,10 +320,10 @@ function MainPage() {
                         좋아요
                       </button>
                       <button
-                        onclick={()=> navigate('/chat-rooms')}
+                        onClick={()=> navigate('/chat-rooms')}
                         className="main-dropdown-item"
                         >
-
+                          채팅방
                       </button>
                       <button 
                         onClick={handleLogout} 

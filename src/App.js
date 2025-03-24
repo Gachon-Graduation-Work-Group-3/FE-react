@@ -7,7 +7,6 @@ import SearchPage from './SearchPage';
 import PriceSearchPage from './PriceSearchPage';
 import Description from './Description';
 import LoginPage from './LoginPage';
-import ChatWidget from './components/ChatWidget';
 import { UserProvider } from './context/UserContext';
 import MyPage from './MyPage';
 import ChatRooms from './chatRoomPage';
