@@ -89,7 +89,7 @@ function ChatRooms() {
         console.log('새 메시지 수신:', receivedMessage);
         receivedMessage.message = JSON.parse(receivedMessage.message);
         console.log(receivedMessage.message);
-        console.log(messages);
+
         setMessages(prev => [...prev, {
             id: prev.length + 1,
             text: receivedMessage.content || receivedMessage.message.content,
@@ -102,7 +102,7 @@ function ChatRooms() {
     // 채팅방 목록 로드
     const loadChatRooms = async () => {
         try {
-            const response = await fetch(`${BASE_URL}/api/chat/room/?page=0&size=5`, {
+            const response = await fetch(`${BASE_URL}/api/chat/room/info/?page=0&size=5`, {
                 method: 'GET',
                 credentials: 'include'
             });
@@ -127,7 +127,7 @@ function ChatRooms() {
     const loadChatHistory = async (roomId) => {
         try {
             const response = await fetch(
-                `${BASE_URL}/api/chat/room/info/roomId=${roomId}`, 
+                `${BASE_URL}/api/chat/message/?roomId=${roomId}&page=0&size=20`, 
                 {
                     method: 'GET',
                     credentials: 'include',
@@ -136,13 +136,12 @@ function ChatRooms() {
                     }
                 }
             );
-            
+
             if (!response.ok) {
                 throw new Error('채팅 내역 조회 실패');
             }
 
             const data = await response.json();
-            console.log(data);
             if (data.isSuccess) {
                 const messages = data.result.chatMessages.content.map(msg => ({
                     id: msg.id,
@@ -213,7 +212,7 @@ function ChatRooms() {
     // 채팅방 선택
     const selectRoom = async (room) => {
         setSelectedRoom(room);
-        
+        subscribeToChatRoom(room.roomId);
         await loadChatHistory(room.roomId);
         await markAsRead(room.roomId);
     };
