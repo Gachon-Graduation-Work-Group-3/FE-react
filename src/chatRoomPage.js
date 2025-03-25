@@ -102,7 +102,7 @@ function ChatRooms() {
     // 채팅방 목록 로드
     const loadChatRooms = async () => {
         try {
-            const response = await fetch(`${BASE_URL}/api/chat/room/info/?page=0&size=5`, {
+            const response = await fetch(`${BASE_URL}/api/chat/room/?page=0&size=5`, {
                 method: 'GET',
                 credentials: 'include'
             });
