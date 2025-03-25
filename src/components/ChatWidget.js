@@ -217,7 +217,6 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
     // };
 
     const initializeChat = async () => {
-        console.log('initializeChat 실행시 메시지 배열:', [...messagesRef.current]);
         try {
             // 1. 채팅방 존재 여부 확인
             const response = await fetch(`${BASE_URL}/api/chat/room/?page=0&size=5`, {
@@ -279,7 +278,6 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
     }
 }
     const handleSubmit = async (e) => {
-        console.log('보내기 버튼 눌렀을 떄 메시지 배열:', [...messagesRef.current]);
         console.log(`ChatWidget 마운트 횟수: ${componentMountCount.current}`);
         e.preventDefault();
         if (newMessage.trim() && connected && roomId) {
@@ -298,7 +296,8 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
                 // 메시지 발송
                 stompClient.current.publish({
                     destination: `/pub/${roomId}/${user.userId}`,
-                    body: JSON.stringify(messageData)
+                    body: JSON.stringify(messageData),
+                    routingKey: `chat.user.${user.userId}`
                 });
 
                 setNewMessage('');
@@ -319,7 +318,6 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
     //메시지 변경시  메시지 출력
     useEffect(() => {
         // 메시지 배열 변경 시 로그 출력
-        console.log('메시지 배열 변경시 messages:', messages);
         console.log('메시지 배열 변경시 [...messagesRef.current]:', [...messagesRef.current]);
         
         // 스크롤을 항상 최신 메시지로 이동
