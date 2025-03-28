@@ -43,7 +43,10 @@ const { isAuthenticated, user, logout } = useUser();
 console.log('인증 상태:', isAuthenticated);
 console.log('사용자 정보:', user);
 const [showDropdown, setShowDropdown] = useState(false);
-
+const [headerState, setHeaderState] = useState({
+  theme: 'light',
+  isScrolled: false
+});
 
 const handleLogout = async () => {
   try {
@@ -152,7 +155,7 @@ const getSelectedPath = () => {
 
   return (
     <div className="buying-container">
-      <Header />
+      <Header theme={headerState.theme} isScrolled={headerState.isScrolled}  />
 
       <div className="content-wrapper">
         <div className="filter-sidebar">
