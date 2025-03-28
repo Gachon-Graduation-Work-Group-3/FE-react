@@ -7,7 +7,7 @@ import './ChatWidget.css';
 const BASE_URL = 'https://rakunko.store';
 const user2Id = 4;
 function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, carId }) {
-    const { user, isAuthenticated } = useUser();
+    const { user, isAuthenticated,refreshUserToken } = useUser();
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([]);
     const messagesRef= useRef([]);
@@ -17,11 +17,12 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
     const stompClient = useRef(null);
     const [connected, setConnected] = useState(false);
     const messagesEndRef = useRef(null);
-
+    const [isComponentMounted, setIsComponentMounted] = useState(true);
     const initialMessageApplied = useRef(false);
     const componentMountCount = useRef(0);
     //마운트 카운트
     useEffect(() => {
+        setIsComponentMounted(true);
         // 마운트 카운트 증가
         componentMountCount.current += 1;
         console.log(`ChatWidget 마운트 횟수: ${componentMountCount.current}`);
@@ -33,9 +34,21 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
         
         // 컴포넌트 언마운트 시 정리
         return () => {
+            setIsComponentMounted(false);
             console.log('ChatWidget 언마운트');
         };
     }, []);
+    // STOMP 연결 끊는 함수
+    const disconnectStomp = () => {
+        if (stompClient.current) {
+            stompClient.current.deactivate();  // STOMP 클라이언트 비활성화
+            stompClient.current = null;        // 참조 제거
+            setConnected(false);               // 연결 상태 업데이트
+            console.log('STOMP 연결 종료');
+        }
+    };
+
+
     //초기 메시지 세팅 함수
     useEffect(()=>{
         if(!initialMessageApplied.current&& initialMessage){
@@ -53,6 +66,8 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
 
     // 웹소켓 연결 함수
     const connectWebSocket = useCallback(() => {
+
+        if (!isComponentMounted) return;
         console.log('웹소켓 연결 시도');
         console.log('connectWebSocket 실행시 메시지 배열:', [...messagesRef.current]);
         if (isAuthenticated && !connected && user?.userId && !stompClient.current) {
@@ -80,31 +95,49 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
                     `/queue/chat.user.${user.userId}`, 
                     handleNewMessage
                 );
-                if(roomId){
-                    subscribeToChatRoom(roomId);
-                }
+
             };
 
             stompClient.current.onStompError = (frame) => {
                 console.error('STOMP 에러:', frame);
                 setConnected(false);
-                // 재연결 시도
-                setTimeout(() => {
+                
+                // 토큰 갱신 후 재연결 시도
+                refreshUserToken().then(() => {
+                    // 토큰 갱신 성공 후 바로 재연결 시도
                     if (!connected) {
                         connectWebSocket();
                     }
-                }, 5000);
+                }).catch(error => {
+                    console.error('토큰 갱신 실패:', error);
+                    // 실패시 5초 후 재시도
+                    setTimeout(() => {
+                        if (!connected) {
+                            connectWebSocket();
+                        }
+                    }, 5000);
+                });
             };
 
-            stompClient.current.onWebSocketClose = () => {
-                console.log('웹소켓 연결 끊김');
+            stompClient.current.onWebSocketClose = (event) => {
+                console.log('WebSocket 연결 끊김:', event);
                 setConnected(false);
-                // 재연결 시도
-                setTimeout(() => {
+                
+                // 토큰 갱신 후 재연결 시도
+                refreshUserToken().then(() => {
+                    // 토큰 갱신 성공 후 바로 재연결 시도
                     if (!connected) {
                         connectWebSocket();
                     }
-                }, 5000);
+                }).catch(error => {
+                    console.error('토큰 갱신 실패:', error);
+                    // 실패시 5초 후 재시도
+                    setTimeout(() => {
+                        if (!connected) {
+                            connectWebSocket();
+                        }
+                    }, 5000);
+                });
             };
 
             stompClient.current.activate();
@@ -127,16 +160,6 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
         };
     }, [isAuthenticated, user?.userId]);
 
-    // 채팅방 입장 시 추가 구독
-    const subscribeToChatRoom = useCallback((roomId) => {
-        if (connected && stompClient.current) {
-            stompClient.current.subscribe(
-                `/sub/${roomId}`, 
-                handleNewMessage
-            );
-            console.log(`채팅방 ${roomId} 구독 완료`);
-        }
-    }, [connected]);
 
 
     const handleNewMessage = (message) => {
@@ -182,39 +205,43 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
         }
     };
 
-    // const loadChatHistory = async (roomId) => {
-    //     try {
-    //         const response = await fetch(
-    //             `${BASE_URL}/api/chat/message/?roomId=${roomId}&page=0&size=20`, 
-    //             {
-    //                 method: 'GET',
-    //                 credentials: 'include',
-    //                 headers: {
-    //                     'Content-Type': 'application/json',
-    //                     'Authorization': `Bearer ${localStorage.getItem('token')}`
-    //                 }
-    //             }
-    //         );
+    const loadChatHistory = async (roomId) => {
+        try {
+            const response = await fetch(
+                `${BASE_URL}/api/chat/message/?roomId=${roomId}&page=0&size=5`, 
+                {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                }
+            );
 
-    //         if (!response.ok) {
-    //             throw new Error('채팅 내역 조회 실패');
-    //         }
+            if(response.status === 401){
+                await refreshUserToken();
+                loadChatHistory();
+                return;
+            }
+            else if (!response.ok) {
+                throw new Error('채팅 내역 조회 실패');
+            }
 
-    //         const data = await response.json();
-    //         console.log(data);
-    //         if (data.isSuccess) {
-    //             const messages = data.result.chatMessages.content.map(msg => ({
-    //                 id: msg.id,
-    //                 text: msg.message,
-    //                 sender: msg.senderId === user?.userId ? "user" : "other",
-    //                 timestamp: new Date(msg.timestamp).toLocaleString()
-    //             }));
-    //             setMessages(messages);
-    //         }
-    //     } catch (error) {
-    //         console.error('채팅 내역 로드 실패:', error);
-    //     }
-    // };
+            const data = await response.json();
+            console.log(data);
+            if (data.isSuccess) {
+                const messages = data.result.chatMessages.content.map(msg => ({
+                    id: msg.id,
+                    text: msg.message,
+                    sender: msg.senderId === user?.userId ? "user" : "other",
+                    timestamp: new Date(msg.timestamp).toLocaleString()
+                }));
+                setMessages(messages);
+            }
+        } catch (error) {
+            console.error('채팅 내역 로드 실패:', error);
+        }
+    };
 
     const initializeChat = async () => {
         try {
@@ -228,18 +255,28 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
 
 
             console.log(data)
+            if(response.status === 401){
+                await refreshUserToken();
+                initializeChat();
+                return;
+            }
+            else if (!response.ok) {
+                throw new Error('채팅 내역 조회 실패');
+            }
             if (data.isSuccess) {
+                //user2(판매자)가 현재 유저가 구독한 방중에 같은 사람이 있으면 existroom에 넣는다.
                 const existRoom = data.result.content.find(room => room.user2Id === user2Id);
-
+                
                 if (existRoom) {
                     console.log("채팅방 존재")
                     setRoomId(existRoom.roomId);
                     setOtherUserId(existRoom.user2Id);
-                    subscribeToChatRoom(existRoom.roomId);
-                    //await loadChatHistory(existRoom.roomId);
+
+                    await loadChatHistory(existRoom.roomId);
                 } else {
                     console.log("채팅방 없음")
                     // 채팅방이 없는 경우, 새로운 채팅방 생성
+                    //현재는 고정된 사용자 사용
                     const createResponse = await fetch(`${BASE_URL}/api/chat/room/?user2Id=4`, {
                     method: 'POST',
                     credentials: 'include',
@@ -248,11 +285,26 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
                     },
                     body: JSON.stringify({ carId: carId })
                 });
+                if(createResponse.status === 401){
+                    await refreshUserToken();
+                    initializeChat();
+                    return;
+                }
+                else if (!createResponse.ok) {
+                    throw new Error('채팅방 생성 실패');
+                }
+
+
                 if(createResponse.status === 200){
                     const roomListResponse = await fetch(`${BASE_URL}/api/chat/room/?page=0&size=5`, {
                         method: 'GET',
                         credentials: 'include'
                     });
+                    if(roomListResponse.status === 401){
+                        await refreshUserToken();
+                        initializeChat();
+                        return;
+                    }
                     const roomListData = await roomListResponse.json();
                     console.log(roomListData);
                     if(roomListData.isSuccess){
@@ -260,16 +312,15 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
                         if(newRoom){
                             setRoomId(newRoom.roomId);
                             setOtherUserId(newRoom.user2Id);
-                            subscribeToChatRoom(newRoom.roomId);
 
-                            //await loadChatHistory(newRoom.roomId);
+                            await loadChatHistory(newRoom.roomId);
                         }
                     }
                 }
                 
                 
             }
-
+        
         } 
         
     }catch(error){
@@ -278,7 +329,6 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
     }
 }
     const handleSubmit = async (e) => {
-        console.log(`ChatWidget 마운트 횟수: ${componentMountCount.current}`);
         e.preventDefault();
         if (newMessage.trim() && connected && roomId) {
             const messageData = {

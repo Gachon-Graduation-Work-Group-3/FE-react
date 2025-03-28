@@ -8,6 +8,8 @@ import { fetchCar } from './remote/searchcar';
 import { formatDateToYearMonth } from './util/formatDateToYearMonth';
 import { IoIosArrowBack, IoIosArrowForward } from 'react-icons/io';
 import { useUser } from './context/UserContext';
+import { useLocation } from 'react-router-dom';
+import Header from './components/Header';
 // 슬라이더에 사용할 이미지 배열
 
 const sliderImages = [
@@ -100,20 +102,10 @@ function MainPage() {
   const [canScrollRight, setCanScrollRight] = useState(true);
 
   const navbarRef = useRef(null);
-  const { isAuthenticated, user, logout } = useUser();
-  console.log('인증 상태:', isAuthenticated);
-  console.log('사용자 정보:', user);
-  const [showDropdown, setShowDropdown] = useState(false);
-
-  
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigate('/');
-    } catch (error) {
-      console.error('로그아웃 실패:', error);
-    }
-  };
+  const [headerState, setHeaderState] = useState({
+    theme: 'dark',
+    isScrolled: false
+  });
 
   useEffect(() => {
     const navscroll = () => {
@@ -121,9 +113,17 @@ function MainPage() {
         const scrollY = window.scrollY;  // window.scrollY 사용
         
         if (scrollY > 0) {
-          navbarRef.current.classList.add('scrolled');
+          setHeaderState(prevState => ({  // 이전 상태를 명시적으로 참조
+            ...prevState,                 // 이전 상태의 모든 값을 복사 (theme: 'dark' 포함)
+            isScrolled: true             // isScrolled만 업데이트
+          }));
+          // navbarRef.current.classList.add('scrolled');
         } else {
-          navbarRef.current.classList.remove('scrolled');
+          setHeaderState(prevState => ({  // 이전 상태를 명시적으로 참조
+            ...prevState,                 // 이전 상태의 모든 값을 복사 (theme: 'dark' 포함)
+            isScrolled: false             // isScrolled만 업데이트
+          }));
+          // navbarRef.current.classList.remove('scrolled');
         }
       }
     };  // scroll state는 여기서 직접 사용하지 않으므로 의존성 불필요
@@ -284,66 +284,10 @@ function MainPage() {
 
   return (
     <div className="container" style={{ minHeight: '300vh' }}>
-      <nav className="main-nav-bar" ref={navbarRef}>
-        <div className="main-nav-bar-container">
-        <Link to="/" className="main-logo">얼마일카</Link>
-        <div className="main-menu-items">
-          <Link to="/search" className="main-menu-item">모델 검색</Link>
-          <Link to="/Selling" className="main-menu-item">내차 팔기</Link>
-          <Link to="/Buying" className="main-menu-item">내차 사기</Link>
-          <Link to="/price-search" className="main-menu-item">시세 검색</Link>
-        </div>
-        <div className="main-icon-container">
-          
-          <div className="main-user-icon">
-          {isAuthenticated ? (
-              <div className="user-menu-container">
-                <div 
-                  className="user-menu-trigger"
-                  onMouseEnter={() => setShowDropdown(true)}
-                  onMouseLeave={() => setShowDropdown(false)}
-                >
-                  <span className="main-welcome-text">{user.name}님</span>
-                  {showDropdown && (
-                    <div className="main-user-dropdown">
-                      
-                      <button 
-                        onClick={() => navigate('/mypage')} 
-                        className="main-dropdown-item"
-                      >
-                        내 정보
-                      </button>
-                      <button 
-                        onClick={() => navigate('/mypage/like')} 
-                        className="main-dropdown-item"
-                      >
-                        좋아요
-                      </button>
-                      <button
-                        onClick={()=> navigate('/chat-rooms')}
-                        className="main-dropdown-item"
-                        >
-                          채팅방
-                      </button>
-                      <button 
-                        onClick={handleLogout} 
-                        className="main-dropdown-item"
-                      >
-                        로그아웃
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-                ) : (
-              <div className="main-user-icon">
-                <Link to="/login" className="main-login">로그인</Link>
-              </div>
-            )}
-        </div>
-        </div>
-        </div>
-      </nav>
+      <div className="main-nav-bar" ref={navbarRef}>
+        <Header theme={headerState.theme} isScrolled={headerState.isScrolled}  />
+      </div>
+
 
       <ImageSlider />
       

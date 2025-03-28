@@ -1,3 +1,6 @@
+.description-container {
+  margin-top: 80px;
+}
 .spec-price {
   display: flex;
   gap: 24px;
@@ -96,3 +99,51 @@
   }
 }
 
+.main-image-container {
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.car-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.like-button {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+}
+
+.like-button svg {
+  color: #ccc;
+  transition: all 0.2s ease;
+}
+
+.like-button:hover {
+  transform: scale(1.1);
+}
+
+.like-button:hover svg {
+  color: #f44336;
+}
+
+.like-button.active svg {
+  fill: #f44336;
+  color: #f44336;
+}

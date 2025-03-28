@@ -5,7 +5,7 @@ import carDataJson from './data/transformed_carData.json';
 import { useUser } from './context/UserContext';
 
 function SellingPage() {
-  const [carInfo, setCarInfo] = useState({
+  const [formData, setFormData] = useState({
     licensePlate: '',
     manufacturer: '',
     model: '',
@@ -25,8 +25,6 @@ function SellingPage() {
   const [previewImages, setPreviewImages] = useState([]);
   const [carData] = useState(carDataJson);
   const { isAuthenticated, user, logout } = useUser();
-  console.log('인증 상태:', isAuthenticated);
-  console.log('사용자 정보:', user);
   const [showDropdown, setShowDropdown] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const totalSteps = 4; // 전체 단계 수
@@ -42,7 +40,7 @@ function SellingPage() {
   };
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setCarInfo(prev => ({
+    setFormData(prev => ({
       ...prev,
       [name]: value
     }));
@@ -56,16 +54,119 @@ function SellingPage() {
     setPreviewImages(prev => [...prev, ...previews]);
     
     // 이미지 파일 저장
-    setCarInfo(prev => ({
+    setFormData(prev => ({
       ...prev,
       images: [...prev.images, ...files]
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     // 여기에 서버로 데이터를 전송하는 로직 추가
-    console.log('제출된 차량 정보:', carInfo);
+    console.log('제출된 차량 정보:', formData);
+
+    try {
+      // FormData 객체 생성
+      const formDataToSend = new FormData();
+      
+      // 이미지 파일 추가
+      formData.images.forEach((file, index) => {
+        formDataToSend.append('images', file);
+      });
+      
+      // carSaleRequest JSON 생성 (현재 입력 필드 매핑)
+      const carSaleRequest = {
+        // 기존 입력 필드 매핑
+        number: formData.licensePlate,
+        manufacturer: formData.manufacturer,
+        model: formData.model,
+        submodel: formData.subModel,
+        grade: formData.grade,
+        name: `${formData.manufacturer} ${formData.model} ${formData.subModel} ${formData.grade}`,
+        price: parseInt(formData.price) || 0,
+        mileage: parseInt(formData.mileage) || 0,
+        description: formData.description,
+        
+        // 날짜 형식 변환
+        age: new Date(formData.year).toISOString(),
+        firstReg: new Date(formData.year).toISOString(),
+        
+        // 기본값 설정
+        cc: 0,
+        sunroof: 0,
+        engine: "gasoline",
+        ownerChange: 0,
+        frontSensor: 0,
+        color: "white",
+        insurCount: 0,
+        panel: 0,
+        totalLoss: 0,
+        autoLight: 0,
+        naviNon: 0,
+        cruiseCont: 0,
+        brand: formData.manufacturer,
+        rearCamera: 0,
+        floodTotalLoss: 0,
+        newPrice: 0,
+        naviGen: 0,
+        torque: 0,
+        rearWarn: 0,
+        maxOut: 0,
+        fuelEfficient: 0,
+        panoSunroof: 0,
+        frontCamera: 0,
+        floodStatus: 0,
+        otherDamageCount: 0,
+        illegalModification: 0,
+        aroundView: 0,
+        myDamageAmount: 0,
+        myDamageCount: 0,
+        floodPartLoss: 0,
+        fuel: "gasoline",
+        heatBack: 0,
+        otherDamageAmount: 0,
+        heatHandle: 0,
+        weight: 0,
+        corrosion: 0,
+        heatFront: 0,
+        autoPark: 0,
+        passAir: 0,
+        link: "",
+        replaceCount: 0,
+        rearSensor: 0,
+        theft: 0
+      };
+      
+
+      formDataToSend.append('carSaleRequest', new Blob([JSON.stringify(carSaleRequest)], {
+        type: 'application/json'
+      }));
+      // API 요청
+      const response = await fetch('https://rakunko.store/api/car/sale/article', {
+        method: 'POST',
+        credentials: 'include',
+        body: formDataToSend
+      });
+      
+      if (!response.ok) {
+        throw new Error('차량 등록에 실패했습니다.');
+      }
+      
+      const data = await response.json();
+      
+      if (data.isSuccess) {
+        console.log('차량 등록 성공');
+        // 3초 후 메인 페이지로 이동
+        setTimeout(() => {
+          navigate('/');
+        }, 3000);
+      } else {
+        throw new Error(data.message || '차량 등록에 실패했습니다.');
+      }
+      
+    } catch (err) {
+      console.error('차량 등록 실패:', err.message);
+    }
   };
 
   const handleManufacturerSelect = (e) => {
@@ -74,7 +175,7 @@ function SellingPage() {
     setSelectedModel(null);
     setSelectedSubModel(null);
     setSelectedGrade(null);
-    setCarInfo(prev => ({
+    setFormData(prev => ({
       ...prev,
       manufacturer: e.target.value,
       model: '',
@@ -88,7 +189,7 @@ function SellingPage() {
     setSelectedModel(model);
     setSelectedSubModel(null);
     setSelectedGrade(null);
-    setCarInfo(prev => ({
+    setFormData(prev => ({
       ...prev,
       model: e.target.value,
       subModel: '',
@@ -100,7 +201,7 @@ function SellingPage() {
     const subModel = selectedModel?.subModels.find(sm => sm.name === e.target.value);
     setSelectedSubModel(subModel);
     setSelectedGrade(null);
-    setCarInfo(prev => ({
+    setFormData(prev => ({
       ...prev,
       subModel: e.target.value,
       grade: ''
@@ -110,7 +211,7 @@ function SellingPage() {
   const handleGradeSelect = (e) => {
     const grade = selectedSubModel?.grades.find(g => g.name === e.target.value);
     setSelectedGrade(grade);
-    setCarInfo(prev => ({
+    setFormData(prev => ({
       ...prev,
       grade: e.target.value
     }));
@@ -197,7 +298,7 @@ function SellingPage() {
                     type="text"
                     name="licensePlate"
                     className="form-input"
-                    value={carInfo.licensePlate}
+                    value={formData.licensePlate}
                     onChange={handleInputChange}
                     placeholder="예: 12가 3456"
                   />
@@ -216,7 +317,7 @@ function SellingPage() {
                   <select
                     name="manufacturer"
                     className="form-select"
-                    value={carInfo.manufacturer}
+                    value={formData.manufacturer}
                     onChange={handleManufacturerSelect}
                   >
                     <option value="">제조사 선택</option>
@@ -233,7 +334,7 @@ function SellingPage() {
                   <select
                     name="model"
                     className="form-select"
-                    value={carInfo.model}
+                    value={formData.model}
                     onChange={handleModelSelect}
                     disabled={!selectedManufacturer}
                   >
@@ -251,7 +352,7 @@ function SellingPage() {
                   <select
                     name="subModel"
                     className="form-select"
-                    value={carInfo.subModel}
+                    value={formData.subModel}
                     onChange={handleSubModelSelect}
                     disabled={!selectedModel}
                   >
@@ -269,7 +370,7 @@ function SellingPage() {
                   <select
                     name="grade"
                     className="form-select"
-                    value={carInfo.grade}
+                    value={formData.grade}
                     onChange={handleGradeSelect}
                     disabled={!selectedSubModel}
                   >
@@ -298,7 +399,7 @@ function SellingPage() {
                     type="text"
                     name="year"
                     className="form-input"
-                    value={carInfo.year}
+                    value={formData.year}
                     onChange={handleInputChange}
                     placeholder="예: 2020"
                   />
@@ -310,7 +411,7 @@ function SellingPage() {
                     type="text"
                     name="mileage"
                     className="form-input"
-                    value={carInfo.mileage}
+                    value={formData.mileage}
                     onChange={handleInputChange}
                     placeholder="예: 30,000km"
                   />
@@ -322,7 +423,7 @@ function SellingPage() {
                     type="text"
                     name="price"
                     className="form-input"
-                    value={carInfo.price}
+                    value={formData.price}
                     onChange={handleInputChange}
                     placeholder="예: 2,500만원"
                   />

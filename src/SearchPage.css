@@ -142,12 +142,3 @@
     padding: 20px;
   }
 }
-.logo {
-    text-decoration: none;
-    color: inherit;
-    cursor: pointer;
-  }
-  
-  .logo:hover {
-    color: #007bff;
-  }

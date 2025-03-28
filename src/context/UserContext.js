@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect,useRef } from 'react';
+import { createContext, useContext, useState, useEffect,useRef, useCallback } from 'react';
 
 export const UserContext = createContext();
 
@@ -69,13 +69,17 @@ export function UserProvider({ children }) {
                     setIsAuthenticated(false);
                     setUser(null);
                     profileCacheRef.current = null;
-                    profileFetchedRef.current = false
+                    profileFetchedRef.current = false;
+                    refreshUserToken();
+                    
                 }
                 throw new Error('프로필 정보를 가져오는데 실패했습니다.');
             }
 
             const data = await response.json();
             if (data.isSuccess) {
+                // 유저 정보를 로컬 스토리지에 저장
+                localStorage.setItem('userData', JSON.stringify(data.result));
                 setUser(data.result);
                 setIsAuthenticated(true);
                 // 프로필 정보 캐싱
@@ -99,6 +103,27 @@ export function UserProvider({ children }) {
             setLoading(false);
         }
     };
+    // 토큰 갱신 함수
+  const refreshUserToken = useCallback(async () => {
+    try {
+      const response = await fetch('https://rakunko.store/api/token/renew', {
+        method: 'GET',
+        credentials: 'include'
+      });
+
+      if (!response.ok) {
+        setIsAuthenticated(false);
+        return false;
+      }
+
+      setIsAuthenticated(true);
+      return true;
+    } catch (error) {
+      console.error('토큰 갱신 실패:', error);
+      setIsAuthenticated(false);
+      return false;
+    }
+  }, []);
 
     // 컴포넌트 마운트 시 한 번만 실행
     useEffect(() => {
@@ -125,6 +150,7 @@ export function UserProvider({ children }) {
             if (response.ok) {
                 setUser(null);
                 setIsAuthenticated(false);
+
                 // 캐시 초기화
                 profileCacheRef.current = null;
                 profileFetchedRef.current = false;
@@ -154,15 +180,17 @@ export function UserProvider({ children }) {
             setIsAuthenticated,
             refetchUser: fetchUserProfile,
             forceRefreshUser, // 강제 갱신 함수 추가
-            logout
+            logout,
+            refreshUserToken // 토큰 갱신 함수 추가
         }}>
             {children}
         </UserContext.Provider>
     );
 }
 
+
 // 커스텀 훅 수정
-export const useUser = () => {
+export const useUser = () => {  
     const context = useContext(UserContext);
     if (context === undefined) {
         throw new Error('useUser must be used within a UserProvider');
@@ -172,3 +200,4 @@ export const useUser = () => {
 
     return context;
 }; 
+

@@ -1,0 +1,262 @@
+.nav-bar {
+    position: fixed;
+    height: 160px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    background-color: rgba(245, 245, 245, 0.01);  /* 약간 투명한 배경 */
+    transition: all 0.3s ease;  /* 스크롤 시 애니메이션 효과 */
+}
+
+.nav-bar-container {
+    position: relative;
+    left: 0vw;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 3.5rem 2rem 3.5rem 15rem;
+    min-height: 60px;
+    width: 100vw;
+}
+.nav-bar.scrolled {
+    background-color: black;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+
+.logo {
+    font-size: 3rem;
+    font-weight: bold;
+    position: relative;
+    left: 2rem;
+    font-weight: 1000;  
+    color: white;
+    text-decoration: none;
+}
+
+.menu-items {
+    display: flex;
+    gap: 3rem;
+    align-items: center;
+    margin: 0 auto;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.menu-item {
+    cursor: pointer;
+    color: white;
+    font-size: 1.5rem;
+    position: relative;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.menu-item:hover {
+    color: #fff;
+}
+.menu-item:after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    transition: width 0.3s;
+    text-decoration: none;
+}
+.logo:hover {
+    color: inherit;  /* 기본 색상 유지 */
+    text-decoration: none;
+  }
+  a:hover {
+    color: inherit;  /* hover 시에도 기본 색상 유지 */
+    text-decoration: none;
+  }
+.item:hover:after {
+    width: 100%;
+}
+.icon-container {
+    display: flex;
+    gap: 1.5rem;
+    position: absolute;
+    right: 2rem;
+  }
+
+
+.user-icon {
+    cursor: pointer;
+    width: 100px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color:inherit;
+}
+
+.user-menu-container {
+  position: relative;
+}
+
+.user-menu-trigger {
+  cursor: pointer;
+}
+
+.welcome-text .dark{
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: white;
+}
+.welcome-text .light{
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: black;
+}
+.like-icon {
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+.nav-bar .logo .light,
+.nav-bar .menu-item .light,
+.nav-bar .login .light  ,
+.nav-bar .like-icon .light {
+  color: black;
+  transition: color 0.3s ease;
+}
+.nav-bar .logo .dark,
+.nav-bar .menu-item .dark,
+.nav-bar .login .dark,
+.nav-bar .like-icon .dark {
+  color: white;
+  transition: color 0.3s ease;
+}
+
+/* 스크롤 시 링크 색상 변경 */
+.nav-bar.scrolled .logo,
+.nav-bar.scrolled .menu-item,
+.nav-bar.scrolled .login,
+.nav-bar.scrolled .like-icon {
+  color: white;
+}
+.main-nav-bar.scrolled .main-menu-item:after {
+  background-color: black;  /* 밑줄 색상도 검은색으로 */
+}
+
+
+.nav-bar.scrolled -menu-item:after {
+  background-color: black;  /* 밑줄 색상도 검은색으로 */
+}
+
+
+.user-menu-container {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .user-menu-trigger {
+    cursor: pointer;
+    padding: 8px;
+    color: white;  /* 텍스트 색상을 흰색으로 */
+  }
+  
+  .main-welcom  e-text {
+    color: white;
+    font-size: 1.3rem;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  
+  .user-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 50%;  /* 중앙 정렬을 위해 추가 */
+    transform: translateX(-50%);  /* 중앙 정렬을 위해 추가 */
+    background-color: rgba(0, 0, 0, 0.2);  /* 반투명 배경 */
+    border: 0.1px solid black;  /* 흰색 테두리 */
+    border-radius: 4px;
+    min-width: 120px;
+    z-index: 1000;
+    backdrop-filter: blur(5px);  /* 배경 블러 효과 */
+  }
+  
+  .dropdown-item {
+    display: block;
+    padding: 8px 16px;
+    color: white;  /* 텍스트 색상을 흰색으로 */
+    text-decoration: none;
+    transition: background-color 0.2s;
+    border: none;
+    width: 100%;
+    text-align: center;  /* 텍스트 중앙 정렬 */
+    background: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    font-weight: 400;
+  }
+  .dropdown-item {
+    display: block;
+    padding: 8px 16px;
+    color: black;  /* 텍스트 색상을 흰색으로 */
+    text-decoration: none;
+    transition: background-color 0.2s;
+    border: none;
+    width: 100%;
+    text-align: center;  /* 텍스트 중앙 정렬 */
+    background: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    font-weight: 400;
+  }
+  
+  .dropdown-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);  /* hover 시 약간 밝아지는 효과 */
+  }
+  
+  /* 구분선 색상 변경 */
+  .dropdown-item:not(:last-child) {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  /* 애니메이션 효과 */
+  .user-dropdown {
+    opacity: 0;
+    transform: translate(-50%, -10px);  /* X축 중앙 정렬 유지하면서 Y축 애니메이션 */
+    transition: all 0.3s ease;
+    animation: dropdownFadeIn 0.3s ease forwards;
+  }
+  
+  @keyframes dropdownFadeIn {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -10px);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+  }
+
+.login {
+  text-decoration: none;
+  color: #1a73e8;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: 1px solid #1a73e8;
+}
+
+.login:hover {
+  background-color: #1a73e8;
+  color: white;
+}

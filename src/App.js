@@ -8,8 +8,10 @@ import PriceSearchPage from './PriceSearchPage';
 import Description from './Description';
 import LoginPage from './LoginPage';
 import { UserProvider } from './context/UserContext';
-import MyPage from './MyPage';
+import UserProfile from './UserProfile';
 import ChatRooms from './chatRoomPage';
+import LikePage from './LikePage';
+import MySaleListPage from './MySaleListPage';
 import './App.css';
 
 
@@ -29,7 +31,9 @@ function App() {
             <Route path="/chat-rooms" element={<ChatRooms/>}/>
             <Route path="/description" element={<Description />} />
             <Route path="/login-success" element={<Navigate to="/" replace />} />
-            <Route path="/mypage" element={<MyPage />} />
+            <Route path="/userProfile" element={<UserProfile />} />
+            <Route path="/like" element={<LikePage />} />
+            <Route path="/my-sale-list" element={<MySaleListPage />} />
           </Routes>
         </Router>
       </div>

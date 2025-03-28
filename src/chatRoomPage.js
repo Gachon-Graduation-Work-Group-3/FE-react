@@ -17,7 +17,7 @@ function ChatRooms() {
     const stompClient = useRef(null);
     const [connected, setConnected] = useState(false);
     const [unreadCounts, setUnreadCounts] = useState({});
-
+    const [isComponentMounted, setIsComponentMounted] = useState(false);
     
     // 웹소켓 연결
     const connectWebSocket = useCallback(() => {
@@ -72,16 +72,6 @@ function ChatRooms() {
         }
     }, [isAuthenticated, user?.userId, connected]);
 
-    // 채팅방 구독
-    const subscribeToChatRoom = useCallback((roomId) => {
-        if (connected && stompClient.current) {
-            stompClient.current.subscribe(
-                `/sub/${roomId}`, 
-                handleNewMessage
-            );
-            console.log(`채팅방 ${roomId} 구독 완료`);
-        }
-    }, [connected]);
 
     // 새 메시지 처리
     const handleNewMessage = (message) => {
@@ -102,7 +92,7 @@ function ChatRooms() {
     // 채팅방 목록 로드
     const loadChatRooms = async () => {
         try {
-            const response = await fetch(`${BASE_URL}/api/chat/room/info/?page=0&size=5`, {
+            const response = await fetch(`${BASE_URL}/api/chat/room/?page=0&size=5`, {
                 method: 'GET',
                 credentials: 'include'
             });
@@ -112,6 +102,7 @@ function ChatRooms() {
             }
 
             const data = await response.json();
+            console.log('채팅방 목록 로드 성공');
             console.log(data);
             if (data.isSuccess) {
                 setChatRooms(data.result.content);
@@ -212,7 +203,6 @@ function ChatRooms() {
     // 채팅방 선택
     const selectRoom = async (room) => {
         setSelectedRoom(room);
-        subscribeToChatRoom(room.roomId);
         await loadChatHistory(room.roomId);
         await markAsRead(room.roomId);
     };

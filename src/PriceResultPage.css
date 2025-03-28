@@ -353,15 +353,7 @@
       font-size: 2rem;
     }
   }
-  .logo {
-    text-decoration: none;
-    color: inherit;
-    cursor: pointer;
-  }
-  
-  .logo:hover {
-    color: #007bff;
-  }
+
 
   .container::-webkit-scrollbar {
     display: none;

@@ -59,7 +59,7 @@ function Description() {
   const [predictionError, setPredictionError] = useState(null);
 
   const { isAuthenticated, user, logout } = useUser();
-
+  const [isLiked, setIsLiked] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [allLoading, setAllLoading] = useState(null);
   const componentMountCount = useRef(0);
@@ -92,6 +92,41 @@ function Description() {
   //     setChatWidgetInitialized(true);
   //   }
   // }, [loading, carData, carId, allLoading]);
+  const handleLikeClick = async () => {
+    if (!isAuthenticated) {
+      // 로그인 안 된 경우 로그인 페이지로 이동
+      alert('좋아요를 누르려면 로그인이 필요합니다.');
+      navigate('/login');
+      return;
+    }
+    
+    try {
+      // 좋아요 상태 토글
+      const newLikeState = !isLiked;
+      setIsLiked(newLikeState);
+      
+      // API 호출 (필요한 경우)
+      const response = await fetch(`https://rakunko.store/api/user/like?carId=${carId}}`, {
+        method: newLikeState ? 'POST' : 'DELETE',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        // 에러 발생 시 상태 원복
+        setIsLiked(!newLikeState);
+        throw new Error('좋아요 처리 중 오류가 발생했습니다.');
+      }else{
+        console.log("좋아요 추가완료")
+      }
+      
+    } catch (error) {
+      console.error('좋아요 처리 중 오류:', error);
+      alert(error.message);
+    }
+  };
 
   const handleLogout = async () => {
     try {
@@ -123,7 +158,6 @@ function Description() {
 
     const initializeChat = async () =>{
       try{
-        console.log('asdfasdfasdfSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS')
         setLoading(true);
         const carResponse = await fetchCarDescription(carId, setCarData, setError, setLoading);
             // carData가 설정된 후에 allLoading 설정
@@ -221,7 +255,7 @@ function Description() {
                         내 정보
                       </button>
                       <button 
-                        onClick={() => navigate('/mypage/like')} 
+                        onClick={() => navigate('/like')} 
                         className="dropdown-item"
                       >
                         좋아요
@@ -257,12 +291,19 @@ function Description() {
 
             <div className="car-main-info">
               <div className="car-image-section">
-                <div className="main-image">
+                <div className="main-image-container">
                   <img 
                     src={carData.result?.car?.image} 
                     alt={carData.result?.car?.name} 
                     className="car-image"
                   />
+                  <button 
+                  className={`like-button ${isLiked ? 'active' : ''}`}
+                  onClick={handleLikeClick}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                    </svg>
+                  </button>
                 </div>
               </div>
 
