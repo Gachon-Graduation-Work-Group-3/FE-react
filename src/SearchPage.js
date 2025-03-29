@@ -3,7 +3,7 @@ import './SearchPage.css';
 import { Link, useNavigate } from 'react-router-dom';
 import carDataJson from './data/transformed_carData.json';
 import { useUser } from './context/UserContext';
-
+import Header from './components/Header.js';
 function SearchPage() {
   
   const [selectedManufacturer, setSelectedManufacturer] = useState(null);
@@ -17,7 +17,10 @@ function SearchPage() {
   console.log('인증 상태:', isAuthenticated);
   console.log('사용자 정보:', user);
   const [showDropdown, setShowDropdown] = useState(false);
-
+  const [headerState, setHeaderState] = useState({
+    theme: 'light',
+    isScrolled: false
+  });
   const navigate = useNavigate();
   const handleLogout = async () => {
     try {
@@ -94,57 +97,7 @@ function SearchPage() {
 
   return (
     <div className="container">
-      <nav className="nav-bar" >
-        <div className="nav-bar-container">
-        <Link to="/" className="logo">얼마일카</Link>
-        <div className="menu-items">
-          <Link to="/search" className="menu-item">모델 검색</Link>
-          <Link to="/Selling" className="menu-item">내차 팔기</Link>
-          <Link to="/Buying" className="menu-item">내차 사기</Link>
-          <Link to="/price-search" className="menu-item">시세 검색</Link>
-        </div>
-        <div className="user-icon">
-          {isAuthenticated ? (
-              <div className="user-menu-container">
-                <div 
-                  className="user-menu-trigger"
-                  onMouseEnter={() => setShowDropdown(true)}
-                  onMouseLeave={() => setShowDropdown(false)}
-                >
-                  <span className="welcome-text">{user.name}님</span>
-                  {showDropdown && (
-                    <div className="user-dropdown">
-                      
-                      <button 
-                        onClick={() => navigate('/mypage')} 
-                        className="dropdown-item"
-                      >
-                        내 정보
-                      </button>
-                      <button 
-                        onClick={() => navigate('/mypage/like')} 
-                        className="dropdown-item"
-                      >
-                        좋아요
-                      </button>
-                      <button 
-                        onClick={handleLogout} 
-                        className="dropdown-item"
-                      >
-                        로그아웃
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-                ) : (
-              <div className="main-user-icon">
-                <Link to="/login" className="main-login">로그인</Link>
-              </div>
-            )}
-        </div>
-        </div>
-      </nav>
+      <Header theme={headerState.theme} isScrolled={headerState.isScrolled}  />
 
 
 

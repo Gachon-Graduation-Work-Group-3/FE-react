@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './BuyingPage.css';
-import g70Image from './img/g70.png';
 import { Link, useNavigate } from 'react-router-dom';
 import carDataJson from './data/transformed_carData.json';
-import axios from 'axios';
 import { fetchCar } from './remote/searchcar';
 import { formatDateToYearMonth } from './util/formatDateToYearMonth';
 import { handlePageChange } from './event/changevalue';

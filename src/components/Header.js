@@ -16,8 +16,11 @@ const Header = ({ theme = 'light', isScrolled = false }) => {
       console.error('로그아웃 실패:', error);
     }
   };
-  const headerClasses = `nav-bar ${isScrolled ? 'scrolled' : ''}`;
-
+  const headerClasses = [
+    'nav-bar',           // 기본 클래스
+    theme,               // theme 클래스 ('dark' 또는 'light')
+    isScrolled ? 'scrolled' : ''  // 스크롤 상태 클래스
+  ].filter(Boolean).join(' ');
   return (
     <nav className={headerClasses}>
        <div className="nav-bar-container">

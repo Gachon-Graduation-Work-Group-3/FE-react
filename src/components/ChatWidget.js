@@ -20,6 +20,9 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
     const [isComponentMounted, setIsComponentMounted] = useState(true);
     const initialMessageApplied = useRef(false);
     const componentMountCount = useRef(0);
+
+    const chatWidgetRef = useRef(null);
+    const stompClinet = useRef(null);
     //마운트 카운트
     useEffect(() => {
         setIsComponentMounted(true);
@@ -34,19 +37,38 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
         
         // 컴포넌트 언마운트 시 정리
         return () => {
+            disconnectStomp();
             setIsComponentMounted(false);
+            console.log('component트 언마운트시 '+isComponentMounted)
             console.log('ChatWidget 언마운트');
         };
     }, []);
+      // 스크롤 함수
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    };
+    // 메시지 목록이 업데이트될 때마다 스크롤
+    useEffect(() => {
+        scrollToBottom();
+      }, [messages]); // messages 배열이 변경될 때마다 실행
+
+
     // STOMP 연결 끊는 함수
     const disconnectStomp = () => {
         if (stompClient.current) {
-            stompClient.current.deactivate();  // STOMP 클라이언트 비활성화
-            stompClient.current = null;        // 참조 제거
-            setConnected(false);               // 연결 상태 업데이트
-            console.log('STOMP 연결 종료');
+          // 재연결 시도를 막기 위한 설정
+          stompClient.current.configure({
+            brokerURL: 'https://rakunko.store/ws',
+            reconnectDelay: 0,  // 재연결 시도 안 함
+            heartbeatIncoming: 0,
+            heartbeatOutgoing: 0
+          });
+          
+          stompClient.current.deactivate();
+          stompClient.current = null;
+          console.log('STOMP 연결 종료');
         }
-    };
+      };
 
 
     //초기 메시지 세팅 함수
@@ -66,7 +88,7 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
 
     // 웹소켓 연결 함수
     const connectWebSocket = useCallback(() => {
-
+        console.log(isComponentMounted);
         if (!isComponentMounted) return;
         console.log('웹소켓 연결 시도');
         console.log('connectWebSocket 실행시 메시지 배열:', [...messagesRef.current]);
@@ -100,45 +122,50 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
 
             stompClient.current.onStompError = (frame) => {
                 console.error('STOMP 에러:', frame);
-                setConnected(false);
-                
-                // 토큰 갱신 후 재연결 시도
-                refreshUserToken().then(() => {
-                    // 토큰 갱신 성공 후 바로 재연결 시도
-                    if (!connected) {
-                        connectWebSocket();
-                    }
-                }).catch(error => {
-                    console.error('토큰 갱신 실패:', error);
-                    // 실패시 5초 후 재시도
-                    setTimeout(() => {
+                if(!isComponentMounted){
+                    console.log('stomp에러 '+isComponentMounted)
+                    return;
+                }else{
+                    setConnected(false);
+                    // 토큰 갱신 후 재연결 시도
+                    refreshUserToken().then(() => {
+                        // 토큰 갱신 성공 후 바로 재연결 시도
                         if (!connected) {
                             connectWebSocket();
                         }
-                    }, 5000);
-                });
+                    }).catch(error => {
+                        console.error('토큰 갱신 실패:', error);
+                        // 실패시 5초 후 재시도
+                        setTimeout(() => {
+                            if (!connected) {
+                                connectWebSocket();
+                            }
+                        }, 5000);
+                    });
+                }
+                
             };
 
-            stompClient.current.onWebSocketClose = (event) => {
-                console.log('WebSocket 연결 끊김:', event);
-                setConnected(false);
+            // stompClient.current.onWebSocketClose = (event) => {
+            //     console.log('WebSocket 연결 끊김:', event);
+            //     setConnected(false);
                 
-                // 토큰 갱신 후 재연결 시도
-                refreshUserToken().then(() => {
-                    // 토큰 갱신 성공 후 바로 재연결 시도
-                    if (!connected) {
-                        connectWebSocket();
-                    }
-                }).catch(error => {
-                    console.error('토큰 갱신 실패:', error);
-                    // 실패시 5초 후 재시도
-                    setTimeout(() => {
-                        if (!connected) {
-                            connectWebSocket();
-                        }
-                    }, 5000);
-                });
-            };
+            //     // 토큰 갱신 후 재연결 시도
+            //     refreshUserToken().then(() => {
+            //         // 토큰 갱신 성공 후 바로 재연결 시도
+            //         if (!connected) {
+            //             connectWebSocket();
+            //         }
+            //     }).catch(error => {
+            //         console.error('토큰 갱신 실패:', error);
+            //         // 실패시 5초 후 재시도
+            //         setTimeout(() => {
+            //             if (!connected) {
+            //                 connectWebSocket();
+            //             }
+            //         }, 5000);
+            //     });
+            // };
 
             stompClient.current.activate();
         }
@@ -392,6 +419,8 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
                                 </div>
                             </div>
                         ))}
+                        {/* 스크롤 위치를 잡기 위한 빈 div */}
+                        <div ref={messagesEndRef} />
                     </div>
                     <form onSubmit={handleSubmit} className="chat-input">
                         <input

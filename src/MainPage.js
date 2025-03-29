@@ -283,7 +283,7 @@ function MainPage() {
   }, []); // 빈 의존성 배열
 
   return (
-    <div className="container" style={{ minHeight: '300vh' }}>
+    <div className="container" style={{ minHeight: '320vh' }}>
       <div className="main-nav-bar" ref={navbarRef}>
         <Header theme={headerState.theme} isScrolled={headerState.isScrolled}  />
       </div>
