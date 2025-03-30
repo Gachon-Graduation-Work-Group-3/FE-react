@@ -7,7 +7,6 @@ const Header = ({ theme = 'light', isScrolled = false }) => {
     const navigate = useNavigate();
     const [showDropdown, setShowDropdown] = useState(false);
     const { isAuthenticated, user, logout } = useUser();
-    console.log(theme,isScrolled);
   const handleLogout = async () => {
     try {
       await logout();

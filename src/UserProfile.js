@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useUser } from './context/UserContext';
 import './UserProfile.css';
-
+import Header from './components/Header';
 function UserProfile() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -10,7 +10,10 @@ function UserProfile() {
     // useUser를 사용하여 사용자 정보 가져오기
   
     const [profile,setProfile] = useState(null);
-
+    const [headerState, setHeaderState] = useState({
+        theme: 'light',
+        isScrolled: false
+      });
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -41,8 +44,9 @@ function UserProfile() {
                 if (!response.ok) {
                     throw new Error('프로필 정보를 불러오는데 실패했습니다.');
                 }
-
+                
                 const data = await response.json();
+                console.log(data)
                 if (data.isSuccess) {
                     const userData = {
                         ...data.result,
@@ -86,50 +90,7 @@ function UserProfile() {
 
     return (
         <div>
-            <nav className="nav-bar">
-                <div className="nav-bar-container">
-                    <Link to="/" className="logo">얼마일카</Link>
-                    <div className="menu-items">
-                        <Link to="/search" className="menu-item">모델 검색</Link>
-                        <Link to="/Selling" className="menu-item">내차 팔기</Link>
-                        <Link to="/Buying" className="menu-item">내차 사기</Link>
-                        <Link to="/price-search" className="menu-item">시세 검색</Link>
-                    </div>
-                    <div className="user-icon">
-                        <div className="user-menu-container">
-                            <div 
-                                className="user-menu-trigger"
-                                onMouseEnter={() => setShowDropdown(true)}
-                                onMouseLeave={() => setShowDropdown(false)}
-                            >
-                                <span className="welcome-text">{profile.name}님</span>
-                                {showDropdown && (
-                                    <div className="user-dropdown">
-                                        <button 
-                                            onClick={() => navigate('/mypage')} 
-                                            className="dropdown-item"
-                                        >
-                                            내 정보
-                                        </button>
-                                        <button 
-                                            onClick={() => navigate('/mypage/like')} 
-                                            className="dropdown-item"
-                                        >
-                                            좋아요
-                                        </button>
-                                        <button 
-                                            onClick={handleLogout} 
-                                            className="dropdown-item"
-                                        >
-                                            로그아웃
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </nav>
+            <Header theme={headerState.theme} isScrolled={headerState.isScrolled}  />
 
             <div className="profile-container">
                 <h1 className="profile-title">사용자 정보</h1>
