@@ -93,6 +93,7 @@ export function UserProvider({ children }) {
             }
 
         } catch (err) {
+            refreshUserToken();
             console.error('프로필 조회 에러:', err);
             setError(err.message);
             setIsAuthenticated(false);
