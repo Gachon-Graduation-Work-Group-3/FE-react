@@ -22,13 +22,22 @@ const Header = ({ theme = 'light', isScrolled = false }) => {
   ].filter(Boolean).join(' ');
   return (
     <nav className={headerClasses}>
-       <div className="nav-bar-container">
+        <div className="logo-container">
         <Link to="/" className={`logo ${theme}`}>얼마일카</Link>
+        </div>
         <div className="menu-items">
-          <Link to="/search" className={`menu-item ${theme}`}>모델 검색</Link>
-          <Link to="/Selling" className={`menu-item ${theme}`}>내차 팔기</Link>
-          <Link to="/Buying" className={`menu-item ${theme}`}>내차 사기</Link>
-          <Link to="/price-search" className={`menu-item ${theme}`}>시세 검색</Link>
+          <div className="menu-item-container"onClick={()=> navigate('/search')}>
+          <Link  className={`menu-item ${theme}`}>모델 검색</Link>
+          </div>
+          <div className="menu-item-container"onClick={()=> navigate('/Selling')}>
+          <Link className={`menu-item ${theme}`}>내차 팔기</Link>
+          </div>
+          <div className="menu-item-container"onClick={()=> navigate('/Buying')}>
+          <Link  className={`menu-item ${theme}`}>내차 사기</Link>
+          </div>
+          <div className="menu-item-container"onClick={()=> navigate('/price-search')}>
+          <Link  className={`menu-item ${theme}`}>시세 검색</Link>
+          </div>
         </div>
         <div className="icon-container">
           
@@ -77,7 +86,6 @@ const Header = ({ theme = 'light', isScrolled = false }) => {
                 <Link to="/login" className={`login ${theme}`}>로그인</Link>
               </div>
             )}
-        </div>
         </div>
         </div>
         </nav>

@@ -25,7 +25,7 @@ body {
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  background-color: rgba(245, 245, 245, 0.01);  /* 약간 투명한 배경 */
+
   transition: all 0.3s ease;  /* 스크롤 시 애니메이션 효과 */
 }
 
@@ -106,12 +106,13 @@ body {
   margin-bottom: 2rem;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 }
+
+
 .slide-button {
   display: flex;           /* Flexbox 사용 */
   justify-content: center; /* 수평 중앙 정렬 */
   align-items: center;     /* 수직 중앙 정렬 */
   padding: 15px 40px;
-  border-radius: 30px;
   font-size: 2rem;
   font-weight: 600;
   cursor: pointer;
@@ -123,11 +124,11 @@ body {
   height: 50px;           /* 높이 고정 */
 
 }
-
 .slide-button.black {
-  background-color: black;
+  background-color: rgba(255, 255, 255, 0.2);  /* 투명한 하얀색 */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   color: white;
-  border: 0.1px solid white;
+  border-left: 3px solid #EB5B38;
 }
 
 

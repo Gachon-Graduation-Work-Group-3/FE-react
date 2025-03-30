@@ -1,30 +1,29 @@
 .nav-bar.dark{
     position: fixed;
-    height: 100px;
+    height: 130px;
     width: 100%;
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
     z-index: 1000;
-    background-color: rgba(245, 245, 245, 0.01);  /* 약간 투명한 배경 */
+
     transition: all 0.3s ease;  /* 스크롤 시 애니메이션 효과 */
 }
 .nav-bar.light{
-  height: 100px;
+  height: 130px;
   width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: rgba(245, 245, 245, 0.01);  /* 약간 투명한 배경 */
   transition: all 0.3s ease;  /* 스크롤 시 애니메이션 효과 */
 }
 
 .nav-bar-container {
     position: relative;
     width: 100%;
-    height: 100px;
+    height: 130px;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
 }
 .nav-bar.scrolled {
@@ -35,51 +34,37 @@
 .logo {
     display: flex;
     align-items: center;
+    left: 5rem;
     font-size: 3rem;
     font-weight: bold;
-    position: relative;
-    height: 100px;
-    left: 2rem;
+    height: 130px;
     font-weight: 1000;  
-    color: white;
+    color: #F2F2F2;
     text-decoration: none;
-    left: 20px;  /* 또는 원래 위치 */
     transition: all 0.3s ease;  /* 부드러운 이동 효과 */
 }
 
 .menu-items {
     display: flex;
-    height: 100px;
+    height: 130px;
     align-items: center;
     justify-content: center;
-    transform: translateX(-50%);
 }
 
 .menu-item {
-    margin : 0 2rem 0 2rem;
+    margin : 0 3rem 0 3rem;
     cursor: pointer;
-    color: white;
-    font-size: 1.2rem;
+    color: #F2F2F2;
+    font-size: 1.5rem;
     position: relative;
     font-weight: 600;
     text-decoration: none;
     transition: background-color 0.3s ease;
+    align-items: center;
+    justify-content: center;
 }
 
-.menu-item:hover {
-    color: #fff;
-    background-color: transparent;
-}
-.menu-item:after {
-    content: '';
-    position: absolute;
-    bottom: -5px;
-    left: 0;
-    width: 0;
-    height: 2px;
-    transition: width 0.3s;
-    text-decoration: none;
-}
+
 .logo:hover {
     color: inherit;  /* 기본 색상 유지 */
     text-decoration: none;
@@ -93,17 +78,18 @@
 }
 .icon-container {
     display: flex;
-    gap: 1.5rem;
-    position: absolute;
     right: 2rem;
+    height: 100%;  
+    align-items: center;
+    justify-content: center;
+    width: 15%;
   }
 
 
 .user-icon {
     cursor: pointer;
-    width: 100px;
-    height: 30px;
-    border-radius: 50%;
+    height:130px;
+    width: 60%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -122,7 +108,7 @@
 .welcome-text.dark{
   font-size: 1.3rem;
   font-weight: 600;
-  color: white;
+  color: #F2F2F2;
 }
 .welcome-text.light{
   font-size: 1.3rem;
@@ -145,11 +131,22 @@
   color: black;
   transition: color 0.3s ease;
 }
+.nav-bar .menu-item-container:hover,
+.nav-bar .user-icon:hover{
+  background-color: #eb1400;
+  transition: transform 0.3s ease;
+  
+}
+.nav-bar .menu-item-container:hover .menu-item,
+.nav-bar .icon-container:hover .login{
+  transition: transform 0.3s ease;
+}
+
 .nav-bar .logo.dark,
 .nav-bar .menu-item.dark,
 .nav-bar .login.dark,
 .nav-bar .like-icon.dark {
-  color: white;
+  color: #F2F2F2;
   transition: color 0.3s ease;
   
 }
@@ -159,18 +156,31 @@
 .nav-bar.scrolled .menu-item,
 .nav-bar.scrolled .login,
 .nav-bar.scrolled .like-icon {
-  color: white;
+  color: #F2F2F2;
 }
 .main-nav-bar.scrolled .main-menu-item:after {
   background-color: black;  /* 밑줄 색상도 검은색으로 */
 }
-
+.menu-item-container{
+  width: 25%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
 .nav-bar.scrolled -menu-item:after {
   background-color: black;  /* 밑줄 색상도 검은색으로 */
 }
 
-
+.logo-container{
+  padding-left: 3rem;
+  width:15%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 .user-menu-container {
     position: relative;
     display: inline-block;
@@ -179,11 +189,11 @@
   .user-menu-trigger {
     cursor: pointer;
     padding: 8px;
-    color: white;  /* 텍스트 색상을 흰색으로 */
+    color: #F2F2F2;  /* 텍스트 색상을 흰색으로 */
   }
   
   .main-welcom  e-text {
-    color: white;
+    color: #F2F2F2;
     font-size: 1.3rem;
     font-weight: 600;
     text-decoration: none;
@@ -206,7 +216,7 @@
   .dropdown-item.dark {
     display: block;
     padding: 8px 16px;
-    color: white;  /* 텍스트 색상을 흰색으로 */
+    color: #F2F2F2;  /* 텍스트 색상을 흰색으로 */
     text-decoration: none;
     transition: background-color 0.2s;
     border: none;
@@ -266,12 +276,10 @@
   font-weight: 500;
   padding: 8px 16px;
   border-radius: 4px;
-  border: 1px solid #1a73e8;
 }
 
 .login:hover {
-  background-color: #1a73e8;
-  color: white;
+  color: #F2F2F2;
 }
 
 @media screen and (max-width: 1500px){
@@ -284,8 +292,21 @@
     transition: padding 0.3s ease;
   }
 }
-@media screen and (max-width: 1100px){
+@media screen and (max-width: 1200px){
   .menu-item{
     font-size:1rem;
+  }
+  .logo{
+    font-size: 2rem;
+  }
+}
+@media screen and (max-width: 800px){
+
+  .logo{
+    width:60%;
+    font-size: 1.5rem;
+  }
+  .logo-container{
+    padding-left: 0;
   }
 }
