@@ -160,30 +160,31 @@ function MainPage() {
       console.log(`📌 휠 이벤트 감지: ${event.deltaY}`);
     const currentSection = activeSection;
     if(currentSection==='slider-section'){
-      if(sliderAtBoundary==='top'&& MediaEncryptedEvent.deltaY<0){
+      if(sliderAtBoundary==='top'&& event.deltaY<0){
         console.log(`📌 위쪽 경계 스크롤 시도, 이미지 슬라이더로 이동`);
         event.preventDefault();
         isScrolling=true;
         imageSliderRef.current.scrollIntoView({
           behavior: 'smooth',
           block: 'start',
+          duration: 4000
         });
-        setTimeout(()=>{
-          isScrolling=false;
-          
-        },800);
+        setTimeout(() => {
+          isScrolling = false;
+        }, 1500);
         return
-      }else if(sliderAtBoundary==='bottom'&& MediaEncryptedEvent.deltaY>0){
+      }else if(sliderAtBoundary==='bottom'&& event.deltaY>0){
         console.log(`📌 아래쪽 경계 스크롤 시도, 추천 차량으로 이동`);
         event.preventDefault();
         isScrolling=true;
         recommendationsRef.current.scrollIntoView({
           behavior: 'smooth',
           block: 'start',
+          duration: 1500
         });
-        setTimeout(()=>{
-          isScrolling=false;
-        },800);
+        setTimeout(() => {
+          isScrolling = false;
+        }, 1500);
         return
       }
     
@@ -219,10 +220,11 @@ function MainPage() {
     nextRef.current.scrollIntoView({
       behavior: 'smooth',
       block: 'start',
+      duration: 1500
     });
-    setTimeout(()=>{
-      isScrolling=false;
-    },800);
+    setTimeout(() => {
+      isScrolling = false;
+    }, 1500);
   }
 };
 
@@ -239,13 +241,37 @@ return ()=>{
   },[activeSection,sliderAtBoundary]);
   
 
-  // 특정 섹션으로 스크롤하는 함수
+  // 부드러운 스크롤 함수 추가
+  const smoothScroll = (element, target, duration) => {
+    const start = element.scrollTop;
+    const distance = target - start;
+    const startTime = performance.now();
+
+    const easeInOutQuad = (t) => {
+      return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+    };
+
+    const animation = (currentTime) => {
+      const timeElapsed = currentTime - startTime;
+      const progress = Math.min(timeElapsed / duration, 1);
+      
+      element.scrollTop = start + distance * easeInOutQuad(progress);
+
+      if (progress < 1) {
+        requestAnimationFrame(animation);
+      }
+    };
+
+    requestAnimationFrame(animation);
+  };
+
+  // scrollToSection 함수를 수정하여 smoothScroll 사용
   const scrollToSection = (ref) => {
     if (ref.current) {
-      ref.current.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'start' 
-      });
+      const container = document.querySelector('.container');
+      const targetPosition = ref.current.offsetTop;
+      
+      smoothScroll(container, targetPosition, 4000); // 1.5초 동안 스크롤
     }
   };
 
@@ -476,6 +502,22 @@ return ()=>{
   //   };
   // }, [activeSection]); // activeSection이 변경될 때마다 이벤트 리스너 업데이트
 
+  // 슬라이더 섹션의 dot을 세 부분으로 나누기
+  const getSliderDotClass = (position) => {
+    if (activeSection !== 'slider-section') return '';
+    
+    switch(position) {
+      case 'top':
+        return sliderAtBoundary === 'top' ? 'active' : '';
+      case 'middle':
+        return sliderAtBoundary === null ? 'active' : '';
+      case 'bottom':
+        return sliderAtBoundary === 'bottom' ? 'active' : '';
+      default:
+        return '';
+    }
+  };
+
   return (
     <div className="container" style={{ minHeight: '320vh' }}>
       <div className="main-nav-bar" ref={navbarRef}>
@@ -486,10 +528,20 @@ return ()=>{
           className={`dot ${activeSection === 'image-slider' ? 'active' : ''}`}
           onClick={() => scrollToSection(imageSliderRef)}
         />
-        <div 
-          className={`dot ${activeSection === 'slider-section' ? 'active' : ''}`}
-          onClick={() => scrollToSection(sliderSectionRef)}
-        />
+        <div className="slider-dots">
+          <div 
+            className={`dot small ${getSliderDotClass('top')}`}
+            onClick={() => scrollToSection(sliderSectionRef)}
+          />
+          <div 
+            className={`dot small ${getSliderDotClass('middle')}`}
+            onClick={() => scrollToSection(sliderSectionRef)}
+          />
+          <div 
+            className={`dot small ${getSliderDotClass('bottom')}`}
+            onClick={() => scrollToSection(sliderSectionRef)}
+          />
+        </div>
         <div 
           className={`dot ${activeSection === 'recommendations' ? 'active' : ''}`}
           onClick={() => scrollToSection(recommendationsRef)}

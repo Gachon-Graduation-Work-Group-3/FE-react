@@ -81,10 +81,13 @@ const Header = ({ theme = 'light', isScrolled = false }) => {
                   )}
                 </div>
               </div>
-                ) : (
-              <div className="user-icon">
-                <Link to="/login" className={`login ${theme}`}>로그인</Link>
-              </div>
+                ) : (   
+                  <button 
+                  onClick={() => navigate('/login')} 
+                  className={`login ${theme}`}
+                >
+                  로그인
+                </button>            
             )}
         </div>
         </div>

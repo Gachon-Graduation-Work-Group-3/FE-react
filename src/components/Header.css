@@ -174,7 +174,6 @@
 }
 
 .logo-container{
-  padding-left: 3rem;
   width:15%;
   height: 100%;
   display: flex;
@@ -272,10 +271,19 @@
 
 .login {
   text-decoration: none;
-  color: #1a73e8;
   font-weight: 500;
+  font-size: 1.2rem;
+
+  display: block;
   padding: 8px 16px;
-  border-radius: 4px;
+  color: #F2F2F2;  /* 텍스트 색상을 흰색으로 */
+  transition: background-color 0.2s;
+  border: none;
+  width: 100%;
+  text-align: center;  /* 텍스트 중앙 정렬 */
+  background: none;
+  cursor: pointer;
+
 }
 
 .login:hover {

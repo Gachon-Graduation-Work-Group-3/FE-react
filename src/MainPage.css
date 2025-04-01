@@ -1,37 +1,47 @@
-body {
-  overflow-y: visible; /* 또는 auto */
+html, body {
   margin: 0;
   padding: 0;
-  overflow-x: hidden;
-  scrollbar-width: none;  /* Firefox */
-  -ms-overflow-style: none;  /* IE and Edge */
-
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
+
+html::-webkit-scrollbar,
 body::-webkit-scrollbar {
   display: none;
 }
+
+body {
+  overflow-y: visible; /* 또는 auto */
+  overflow-x: hidden;
+}
+
 .container {
-  margin-top: 80px;
-  width: 100vh;
-  overflow-x: hidden; 
+  margin-top: 130px;
+  width: 100vw;
   position: static;
   display: flex;
   flex-direction: column;
   align-items: center;
   background-color: #f3f3f3;
-  margin-top: 130px;
   min-height: 100vh;
-  overflow-y: visible;
+  height: 100vh;
+  overflow-x: hidden;
+  overflow-y: scroll;
   scroll-snap-type: y proximity;
   scroll-behavior: smooth;
-  overflow-y: scroll;
-  height: 100vh;
-  scrollbar-width: none;  /* Firefox */
-  -ms-overflow-style: none;  /* IE and Edge */
+  scroll-timeline: 3s;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
 }
 
 .container::-webkit-scrollbar {
-  display: none;  /* Chrome, Safari, Opera */
+  display: none;
+  width: 0;
+  background: transparent;
 }
 
 .main-nav-bar {
@@ -389,12 +399,13 @@ body::-webkit-scrollbar {
   }
   
 .recommendations {
-    padding: 2rem 4rem;
-    width: 100vw;
-    background: #f3f3f3;
+    padding: 130px 4rem;
+    width: 100%;
+    background: black;
     display: flex;
     flex-direction: column;
     align-items: center;
+    overflow: hidden;
 }
 
 .cards-container {
@@ -570,26 +581,17 @@ body::-webkit-scrollbar {
 
 .slider-section {
   width: 100%;
-  height: 100vh;  /* 전체 화면 높이 */
-  background-color: black;  /* 슬라이더 배경색 */
-  position: relative;
-  overflow: hidden;  /* 넘치는 콘텐츠 숨김 */
-}
-
-/* 스냅 섹션 설정 */
-.snap-section {
-  scroll-snap-align: start;
   height: 100vh;
-}
-
-/* 이미지 슬라이더 섹션에도 스냅 적용 */
-.image-slider-section {
+  background-color: black;
   position: relative;
-  height: 100vh;
-  scroll-snap-align: start;
-  margin-top: 0;
+  overflow: hidden;
 }
 
+#slider-section {
+  scroll-snap-align: start;
+  scroll-behavior: smooth;
+  transition: all 3s ease-in-out;
+}
 
 .scroll-down-button:hover {
   opacity: 1;
@@ -621,6 +623,7 @@ body::-webkit-scrollbar {
   height: 100vh;
   width: 100%;
   position: relative;
+  overflow: hidden;
 }
 
 /* 스크롤 힌트 */
@@ -645,27 +648,53 @@ body::-webkit-scrollbar {
 /* 섹션 내비게이션 도트 */
 .section-dots {
   position: fixed;
-  right: 30px;
+  right: 20px;
   top: 50%;
   transform: translateY(-50%);
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 10px;
   z-index: 1000;
 }
 
 .dot {
   width: 12px;
   height: 12px;
-  background-color: rgba(255, 255, 255, 0.5);
   border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.5);
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .dot.active {
-  background-color: #ee0000;
+  background-color: #FF6B00;
+}
+
+.slider-dots {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 5px 0;
+}
+
+.dot.small {
+  width: 8px;
+  height: 8px;
+  margin-left: 2px;
+}
+
+/* 슬라이더 섹션이 활성화되지 않았을 때 작은 점들을 흐리게 표시 */
+.slider-dots .dot.small:not(.active) {
+  opacity: 0.5;
+}
+
+/* 슬라이더 섹션이 활성화되었을 때 현재 위치의 점을 강조 */
+.slider-dots .dot.small.active {
+  background-color: #ff6b00;
   transform: scale(1.2);
+}
+.dot.small.active {
+  margin-left: 2px;
 }
 
 .image-slider-section, 
@@ -677,8 +706,9 @@ body::-webkit-scrollbar {
 }
 
 #slider-section {
-  overflow-y: auto;
   scroll-snap-align: start;
+  scroll-behavior: smooth;
+  transition: all 3s ease-in-out;
 }
 
 /* 다른 섹션들은 스크롤 스냅 유지 */
@@ -687,3 +717,23 @@ body::-webkit-scrollbar {
   scroll-snap-align: start;
   overflow: hidden;
 }
+
+.scrollable-right-content {
+  scroll-behavior: smooth;
+  transition: all 4s ease-in-out;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollable-right-content::-webkit-scrollbar {
+  display: none;
+}
+
+#slider-section {
+  overflow-y: auto;
+  scroll-snap-align: start;
+}
+
+.slider-section {
+  overflow: hidden;  /* 충돌하는 overflow 속성 */
+}
+
