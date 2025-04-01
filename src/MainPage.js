@@ -10,6 +10,7 @@ import { IoIosArrowBack, IoIosArrowForward } from 'react-icons/io';
 import { useUser } from './context/UserContext';
 import { useLocation } from 'react-router-dom';
 import Header from './components/Header';
+import Slider from './Slider';  // Slider 컴포넌트 import
 // 슬라이더에 사용할 이미지 배열
 
 const sliderImages = [
@@ -100,7 +101,8 @@ function MainPage() {
   const cardsRef = useRef(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
-
+    // 스크롤 감지 및 현재 섹션 표시 기능
+    const [activeSection, setActiveSection] = useState('image-slider');
   const navbarRef = useRef(null);
   const [headerState, setHeaderState] = useState({
     theme: 'dark',
@@ -140,69 +142,190 @@ function MainPage() {
     };
   }, []); // navscroll을 의존성으로 추가
 
-  // checkScroll 함수 수정
-  const checkScroll = useCallback(() => {
-    if (cardsRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = cardsRef.current;
-      // 스크롤 위치 디버깅
-      console.log('Scroll position:', {
-        scrollLeft,
-        scrollWidth,
-        clientWidth,
-        canScrollLeft: scrollLeft > 0,
-        canScrollRight: scrollLeft < (scrollWidth - clientWidth)
-      });
-      
-      setCanScrollLeft(scrollLeft > 0);
-      setCanScrollRight(scrollLeft < (scrollWidth - clientWidth));
-    }
-  }, []);
-  // 스크롤 이벤트 리스너
-  useEffect(() => {
-    const currentRef = cardsRef.current;
-    if (currentRef) {
-      currentRef.addEventListener('scroll', checkScroll);
-      // 초기 상태 체크
-      checkScroll();
-    }
-    return () => {
-      if (currentRef) {
-        currentRef.removeEventListener('scroll', checkScroll);
+  // 각 섹션에 대한 ref 정의
+  const imageSliderRef = useRef(null);
+  const sliderSectionRef = useRef(null);
+  const recommendationsRef = useRef(null);
+
+  const [sliderAtBoundary, setSliderAtBoundary] = useState(null);
+  const handleSliderBoundaryScroll = (boundary) => {
+    setSliderAtBoundary(boundary);
+  };
+
+  useEffect(()=>{
+    const container = document.querySelector('.container');
+    let isScrolling = false;
+    const handleWheel = (event) => {
+    const currentSection = activeSection;
+    if(currentSection==='slider-section'){
+      if(sliderAtBoundary==='top'&& MediaEncryptedEvent.deltaY<0){
+        event.preventDefault();
+        isScrolling=true;
+        imageSliderRef.current.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        });
+        setTimeout(()=>{
+          isScrolling=false;
+          
+        },800);
+        return
+      }else if(sliderAtBoundary==='bottom'&& MediaEncryptedEvent.deltaY>0){
+        event.preventDefault();
+        isScrolling=true;
+        recommendationsRef.current.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        });
+        setTimeout(()=>{
+          isScrolling=false;
+        },800);
+        return
       }
-    };
-  }, [checkScroll]);
+    
+    return;
+    
+  }
+  const direction = event.deltaY>0?1:-1;
 
-  // 이전/다음 버튼 핸들러 수정
-  const prevCars = useCallback(() => {
-    if (cardsRef.current) {
-      const cardWidth = cardsRef.current.children[0].offsetWidth;
-      const gap = 32; // gap: 2rem = 32px
-      const scrollAmount = -(cardWidth + gap);
-      
-      cardsRef.current.scrollBy({
-        left: scrollAmount,
-        behavior: 'smooth'
-      });
-
-      // 스크롤 후 상태 업데이트를 위한 setTimeout
-      setTimeout(checkScroll, 500); // 스크롤 애니메이션 완료 후 체크
+  let nextRef;
+  if(direction>0){
+    if(currentSection==='image-slider'){
+      nextRef=sliderSectionRef;
+    }else if(currentSection==='slider-section'){
+      nextRef=recommendationsRef;
     }
-  }, [checkScroll]);
-
-  const nextCars = useCallback(() => {
-    if (cardsRef.current) {
-      const cardWidth = cardsRef.current.children[0].offsetWidth;
-      const gap = 32;
-      const scrollAmount = cardWidth + gap;
-      
-      cardsRef.current.scrollBy({
-        left: scrollAmount,
-        behavior: 'smooth'
-      });
-
-      setTimeout(checkScroll, 500);
+  }else{
+    if(currentSection==='recommendations'){
+      nextRef=sliderSectionRef;
+    }else if(currentSection==='slider-section'){
+      nextRef=imageSliderRef;
     }
-  }, [checkScroll]);
+  }
+
+
+  if(nextRef){
+    event.preventDefault();
+    isScrolling=true;
+    nextRef.current.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
+    setTimeout(()=>{
+      isScrolling=false;
+    },800);
+  }
+};
+
+if(container){
+  container.addEventListener('wheel',handleWheel,{passive:false});
+}
+return ()=>{
+  if(container){
+    container.removeEventListener('wheel',handleWheel);
+  }
+}
+  },[activeSection,sliderAtBoundary]);
+  
+
+  // 특정 섹션으로 스크롤하는 함수
+  const scrollToSection = (ref) => {
+    if (ref.current) {
+      ref.current.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+      });
+    }
+  };
+
+  //   useEffect(() => {
+  //     const observerOptions = {
+  //       root: null,
+  //       rootMargin: '0px',
+  //       threshold: 0.1 // 10% 이상 보이면 활성화로 변경 (기존 0.6)
+  //     };
+      
+  //     const sectionObserver = new IntersectionObserver((entries) => {
+  //       entries.forEach(entry => {
+  //         if (entry.isIntersecting) {
+  //           setActiveSection(entry.target.id);
+  //         }
+  //       });
+  //     }, observerOptions);
+      
+  //     // 각 섹션 관찰 시작
+  //     if (imageSliderRef.current) sectionObserver.observe(imageSliderRef.current);
+  //     if (sliderSectionRef.current) sectionObserver.observe(sliderSectionRef.current);
+  //     if (recommendationsRef.current) sectionObserver.observe(recommendationsRef.current);
+      
+  //     return () => {
+  //       sectionObserver.disconnect();
+  //     };
+  //   }, []);
+  
+  // // checkScroll 함수 수정
+  // const checkScroll = useCallback(() => {
+  //   if (cardsRef.current) {
+  //     const { scrollLeft, scrollWidth, clientWidth } = cardsRef.current;
+  //     // 스크롤 위치 디버깅
+  //     console.log('Scroll position:', {
+  //       scrollLeft,
+  //       scrollWidth,
+  //       clientWidth,
+  //       canScrollLeft: scrollLeft > 0,
+  //       canScrollRight: scrollLeft < (scrollWidth - clientWidth)
+  //     });
+      
+  //     setCanScrollLeft(scrollLeft > 0);
+  //     setCanScrollRight(scrollLeft < (scrollWidth - clientWidth));
+  //   }
+  // }, []);
+  // // 스크롤 이벤트 리스너
+  // useEffect(() => {
+  //   const currentRef = cardsRef.current;
+  //   if (currentRef) {
+  //     currentRef.addEventListener('scroll', checkScroll);
+  //     // 초기 상태 체크
+  //     checkScroll();
+  //   }
+  //   return () => {
+  //     if (currentRef) {
+  //       currentRef.removeEventListener('scroll', checkScroll);
+  //     }
+  //   };
+  // }, [checkScroll]);
+
+  // // 이전/다음 버튼 핸들러 수정
+  // const prevCars = useCallback(() => {
+  //   if (cardsRef.current) {
+  //     const cardWidth = cardsRef.current.children[0].offsetWidth;
+  //     const gap = 32; // gap: 2rem = 32px
+  //     const scrollAmount = -(cardWidth + gap);
+      
+  //     cardsRef.current.scrollBy({
+  //       left: scrollAmount,
+  //       behavior: 'smooth'
+  //     });
+
+  //     // 스크롤 후 상태 업데이트를 위한 setTimeout
+  //     setTimeout(checkScroll, 500); // 스크롤 애니메이션 완료 후 체크
+  //   }
+  // }, [checkScroll]);
+
+  // const nextCars = useCallback(() => {
+  //   if (cardsRef.current) {
+  //     const cardWidth = cardsRef.current.children[0].offsetWidth;
+  //     const gap = 32;
+  //     const scrollAmount = cardWidth + gap;
+      
+  //     cardsRef.current.scrollBy({
+  //       left: scrollAmount,
+  //       behavior: 'smooth'
+  //     });
+
+  //     setTimeout(checkScroll, 500);
+  //   }
+  // }, [checkScroll]);
 
   const movetoDescription = (carId) => {
     console.log("Moving to description with carId:", carId); // 디버깅용
@@ -248,50 +371,133 @@ function MainPage() {
   //   };
   // }, [handleScroll]);
 
-  useEffect(() => {
-    const observer = new IntersectionObserver((entries) => {
+  // useEffect(() => {
+  //   const observer = new IntersectionObserver((entries) => {
       
-      entries.forEach((entry, index) => {
-        // 이미 visible 클래스가 있으면 스킵
-        if (entry.target.classList.contains('visible')) return;
+  //     entries.forEach((entry, index) => {
+  //       // 이미 visible 클래스가 있으면 스킵
+  //       if (entry.target.classList.contains('visible')) return;
         
-        if (entry.isIntersecting) {
-          setTimeout(() => {
-            entry.target.classList.add('visible');
-          }, index * 200);
-        }
-      });
-    }, {
-      threshold: 0.7,
-      // 한 번만 관찰하도록 설정
-      once: true
-    });
+  //       if (entry.isIntersecting) {
+  //         setTimeout(() => {
+  //           entry.target.classList.add('visible');
+  //         }, index * 200);
+  //       }
+  //     });
+  //   }, {
+  //     threshold: 0.7,
+  //     // 한 번만 관찰하도록 설정
+  //     once: true
+  //   });
 
-    const elements = document.querySelectorAll('.feature-item');
+  //   const elements = document.querySelectorAll('.feature-item');
     
-    // 이미 observe 중인 요소는 다시 observe하지 않음
-    elements.forEach(item => {
-      if (!item.classList.contains('visible')) {
-        observer.observe(item);
-      }
-    });
+  //   // 이미 observe 중인 요소는 다시 observe하지 않음
+  //   elements.forEach(item => {
+  //     if (!item.classList.contains('visible')) {
+  //       observer.observe(item);
+  //     }
+  //   });
 
-    // 클린업 함수
-    return () => {
-      observer.disconnect();
-    };
-  }, []); // 빈 의존성 배열
+  //   // 클린업 함수
+  //   return () => {
+  //     observer.disconnect();
+  //   };
+  // }, []); // 빈 의존성 배열
+
+  // // MainPage 함수 내에 wheel 이벤트 리스너 추가
+  // useEffect(() => {
+  //   const container = document.querySelector('.container');
+  //   let isScrolling = false;
+    
+  //   const handleWheel = (event) => {
+  //     // 스크롤 중복 방지
+  //     if (isScrolling) return;
+      
+  //     // 현재 보이는 섹션 확인
+  //     const currentSection = activeSection;
+      
+  //     // 스크롤 방향 감지 (양수: 아래로, 음수: 위로)
+  //     const direction = event.deltaY > 0 ? 1 : -1;
+      
+  //     // 다음 섹션 결정
+  //     let nextRef;
+  //     if (direction > 0) {
+  //       // 아래로 스크롤
+  //       if (currentSection === 'image-slider') {
+  //         nextRef = sliderSectionRef;
+  //       } else if (currentSection === 'slider-section') {
+  //         nextRef = recommendationsRef;
+  //       }
+  //     } else {
+  //       // 위로 스크롤
+  //       if (currentSection === 'recommendations') {
+  //         nextRef = sliderSectionRef;
+  //       } else if (currentSection === 'slider-section') {
+  //         nextRef = imageSliderRef;
+  //       }
+  //     }
+      
+  //     // 다음 섹션이 있으면 이동
+  //     if (nextRef) {
+  //       event.preventDefault(); // 기본 스크롤 방지
+  //       isScrolling = true;
+        
+  //       // 부드러운 스크롤 이동
+  //       nextRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        
+  //       // 스크롤 중복 방지를 위한 타이머
+  //       setTimeout(() => {
+  //         isScrolling = false;
+  //       }, 800); // 스크롤 애니메이션 시간보다 약간 길게
+  //     }
+  //   };
+    
+  //   if (container) {
+  //     container.addEventListener('wheel', handleWheel, { passive: false });
+  //   }
+    
+  //   return () => {
+  //     if (container) {
+  //       container.removeEventListener('wheel', handleWheel);
+  //     }
+  //   };
+  // }, [activeSection]); // activeSection이 변경될 때마다 이벤트 리스너 업데이트
 
   return (
     <div className="container" style={{ minHeight: '320vh' }}>
       <div className="main-nav-bar" ref={navbarRef}>
         <Header theme={headerState.theme} isScrolled={headerState.isScrolled}  />
       </div>
+      <div className="section-dots">
+        <div 
+          className={`dot ${activeSection === 'image-slider' ? 'active' : ''}`}
+          onClick={() => scrollToSection(imageSliderRef)}
+        />
+        <div 
+          className={`dot ${activeSection === 'slider-section' ? 'active' : ''}`}
+          onClick={() => scrollToSection(sliderSectionRef)}
+        />
+        <div 
+          className={`dot ${activeSection === 'recommendations' ? 'active' : ''}`}
+          onClick={() => scrollToSection(recommendationsRef)}
+        />
+      </div>
 
-
-      <ImageSlider />
+      <section id="image-slider" className="image-slider-section snap-section" ref={imageSliderRef}>
+        <ImageSlider />
+        <div className="scroll-hint" onClick={() => scrollToSection(sliderSectionRef)}>
+          <div className="arrow-down"></div>
+        </div>
+      </section>
       
-      <section className="main-features-section">
+      <section id="slider-section" className="slider-section snap-section" ref={sliderSectionRef}>
+      <Slider onBoundaryScroll={handleSliderBoundaryScroll} />
+      </section>
+      
+      
+      
+      {/* <section className="main-features-section">
         <div className="feature-container">
             <div className="feature-item">
               <div className="feature-num">
@@ -325,9 +531,9 @@ function MainPage() {
             </div>
             </div>
         </div>
-        </section>
+        </section> */}
 
-        <section className="recommendations">
+        <section id="recommendations" className="recommendations snap-section" ref={recommendationsRef}>
             <h2 className="recommendation-title">얼마Car 추천</h2>
             <div className="cards-container">
                 {loading ? (
@@ -336,45 +542,7 @@ function MainPage() {
                   
                     
                     <div className="cards-slider-container">
-                    {/* <button 
-                                className="slider-button prev" 
-                                onClick={prevCars}
-                                disabled={!canScrollLeft}
-                            >
-                                <IoIosArrowBack />
-                            </button>
-                          <div className="cards-grid" ref={cardsRef}>
-                    
-                          {response.content.map((car, i) => (
-                            <div 
-                                key={i} 
-                                className="car-card" 
-                                onClick={() => movetoDescription(car.carId)}
-                            >
-                                <div className="car-image-wrapper">
-                                    <img
-                                        src={car.image}
-                                        alt={`${car.name}`}
-                                        className="car-image"
-                                    />
-                                </div>
-                                <div className="car-details">
-                                    <h3 className="car-name">{car.name}</h3>
-                                    <p className="car-info">{formatDateToYearMonth(car.age)} / {car.mileage}km</p>
-                                    <p className="car-price">
-                                        <strong>{car.price}만원</strong>
-                                    </p>
-                                </div>
-                            </div>
-                        ))}
-                        </div>
-                        <button 
-                        className="slider-button next" 
-                        onClick={nextCars}
-                        disabled={!canScrollRight}
-                    >
-                        <IoIosArrowForward />
-                    </button> */}
+                    {<h1>...데이터를 불러오는중 오류가 발생하였습니다.</h1>}
                     </div>
                 ) : response.content.length > 0 ? (
                     <div className="cards-grid">

@@ -1,0 +1,110 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+.slider-container {
+  width: 100%;
+  height: 100vh;
+  overflow-y: scroll;
+  background-color: black;
+  color: white;
+  display: flex;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none;  /* IE and Edge */
+  scroll-behavior: smooth;  /* 부드러운 스크롤 추가 */
+}
+
+.slider-container::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari, Opera */
+}
+
+.fixed-left-content {
+  position: sticky;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-left: 5rem;
+}
+
+.text-container {
+  position: relative;
+  height: 300px;
+  width: 100%;
+}
+
+.text {
+  font-size: 5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  opacity: 0.3;
+  transition: all 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);  /* 전환 효과 개선 */
+}
+
+.text.active {
+  opacity: 1;
+  color: white;
+}
+
+.outline {
+  color: transparent;
+  -webkit-text-stroke: 2px white;
+}
+
+.scrollable-right-content {
+  width: 50%;
+  height: 100vh;
+}
+
+.right-section {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: 2rem;
+  scroll-snap-align: start;
+}
+
+.right-content {
+  padding: 2rem;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.right-section.in-view .right-content {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.right-content h3 {
+  color: #ff6b00;
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.right-content p {
+  font-size: 1.2rem;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+.right-content ul {
+  list-style: none;
+  padding: 0;
+}
+
+.right-content li {
+  margin: 1rem 0;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+}
+
+.right-content li:before {
+  content: '•';
+  color: #ff6b00;
+  margin-right: 1rem;
+}
