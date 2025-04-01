@@ -149,6 +149,7 @@ function MainPage() {
 
   const [sliderAtBoundary, setSliderAtBoundary] = useState(null);
   const handleSliderBoundaryScroll = (boundary) => {
+    console.log(`📌 슬라이더 경계 변경: ${boundary}`);
     setSliderAtBoundary(boundary);
   };
 
@@ -156,9 +157,11 @@ function MainPage() {
     const container = document.querySelector('.container');
     let isScrolling = false;
     const handleWheel = (event) => {
+      console.log(`📌 휠 이벤트 감지: ${event.deltaY}`);
     const currentSection = activeSection;
     if(currentSection==='slider-section'){
       if(sliderAtBoundary==='top'&& MediaEncryptedEvent.deltaY<0){
+        console.log(`📌 위쪽 경계 스크롤 시도, 이미지 슬라이더로 이동`);
         event.preventDefault();
         isScrolling=true;
         imageSliderRef.current.scrollIntoView({
@@ -171,6 +174,7 @@ function MainPage() {
         },800);
         return
       }else if(sliderAtBoundary==='bottom'&& MediaEncryptedEvent.deltaY>0){
+        console.log(`📌 아래쪽 경계 스크롤 시도, 추천 차량으로 이동`);
         event.preventDefault();
         isScrolling=true;
         recommendationsRef.current.scrollIntoView({
@@ -187,19 +191,23 @@ function MainPage() {
     
   }
   const direction = event.deltaY>0?1:-1;
-
+  console.log(`📌 방향: ${direction>0?'아래로':'위로'}`);
   let nextRef;
   if(direction>0){
     if(currentSection==='image-slider'){
       nextRef=sliderSectionRef;
+      console.log(`📌 이미지 슬라이더에서 아래로 스크롤 시도, 슬라이더 섹션으로 이동`);
     }else if(currentSection==='slider-section'){
       nextRef=recommendationsRef;
+      console.log(`📌 슬라이더 섹션에서 아래로 스크롤 시도, 추천 차량으로 이동`);
     }
   }else{
     if(currentSection==='recommendations'){
       nextRef=sliderSectionRef;
+      console.log(`📌 추천 차량에서 위로 스크롤 시도, 슬라이더 섹션으로 이동`);
     }else if(currentSection==='slider-section'){
       nextRef=imageSliderRef;
+      console.log(`📌 슬라이더 섹션에서 위로 스크롤 시도, 이미지 슬라이더로 이동`);
     }
   }
 
@@ -207,6 +215,7 @@ function MainPage() {
   if(nextRef){
     event.preventDefault();
     isScrolling=true;
+    console.log(`📌 스크롤 이벤트 방지 및 스크롤 시작`);
     nextRef.current.scrollIntoView({
       behavior: 'smooth',
       block: 'start',
@@ -219,10 +228,12 @@ function MainPage() {
 
 if(container){
   container.addEventListener('wheel',handleWheel,{passive:false});
+  console.log(`📌 휠 이벤트 리스너 추가`);
 }
 return ()=>{
   if(container){
     container.removeEventListener('wheel',handleWheel);
+    console.log(`📌 휠 이벤트 리스너 제거`);
   }
 }
   },[activeSection,sliderAtBoundary]);
@@ -238,30 +249,31 @@ return ()=>{
     }
   };
 
-  //   useEffect(() => {
-  //     const observerOptions = {
-  //       root: null,
-  //       rootMargin: '0px',
-  //       threshold: 0.1 // 10% 이상 보이면 활성화로 변경 (기존 0.6)
-  //     };
+    useEffect(() => {
+      const observerOptions = {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.1 // 10% 이상 보이면 활성화로 변경 (기존 0.6)
+      };
       
-  //     const sectionObserver = new IntersectionObserver((entries) => {
-  //       entries.forEach(entry => {
-  //         if (entry.isIntersecting) {
-  //           setActiveSection(entry.target.id);
-  //         }
-  //       });
-  //     }, observerOptions);
+      const sectionObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            console.log(`📌 섹션 관찰: ${entry.target.id}`);
+            setActiveSection(entry.target.id);
+          }
+        });
+      }, observerOptions);
       
-  //     // 각 섹션 관찰 시작
-  //     if (imageSliderRef.current) sectionObserver.observe(imageSliderRef.current);
-  //     if (sliderSectionRef.current) sectionObserver.observe(sliderSectionRef.current);
-  //     if (recommendationsRef.current) sectionObserver.observe(recommendationsRef.current);
+      // 각 섹션 관찰 시작
+      if (imageSliderRef.current) sectionObserver.observe(imageSliderRef.current);
+      if (sliderSectionRef.current) sectionObserver.observe(sliderSectionRef.current);
+      if (recommendationsRef.current) sectionObserver.observe(recommendationsRef.current);
       
-  //     return () => {
-  //       sectionObserver.disconnect();
-  //     };
-  //   }, []);
+      return () => {
+        sectionObserver.disconnect();
+      };
+    }, []);
   
   // // checkScroll 함수 수정
   // const checkScroll = useCallback(() => {
