@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useRef, useCallback, useLayoutEffect } from 'react';
 import './MainPage.css';
-import car1 from './img/car1.jpg';
-import car2 from './img/car2.jpg';
-import car5 from './img/car5.jpg';
+import car1 from '../../img/car1.jpg';
+import car2 from '../../img/car2.jpg';
+import car5 from '../../img/car5.jpg';
 import { Link, useNavigate } from 'react-router-dom';
-import { fetchCar } from './remote/searchcar';
-import { formatDateToYearMonth } from './util/formatDateToYearMonth';
+import { fetchCar } from '../../remote/searchcar';
+import { formatDateToYearMonth } from '../../util/formatDateToYearMonth';
 import { IoIosArrowBack, IoIosArrowForward } from 'react-icons/io';
-import { useUser } from './context/UserContext';
+import { useUser } from '../../context/UserContext';
 import { useLocation } from 'react-router-dom';
-import Header from './components/Header';
+import Header from '../../components/Header';
 import Slider from './Slider';  // Slider 컴포넌트 import
 // 슬라이더에 사용할 이미지 배열
 
@@ -558,44 +558,6 @@ return ()=>{
       <section id="slider-section" className="slider-section snap-section" ref={sliderSectionRef}>
       <Slider onBoundaryScroll={handleSliderBoundaryScroll} />
       </section>
-      
-      
-      
-      {/* <section className="main-features-section">
-        <div className="feature-container">
-            <div className="feature-item">
-              <div className="feature-num">
-                01
-              </div>
-            <div className="feature-text">
-            <h3 className="feature-title">최고의 가격</h3>
-            <p className="feature-description">
-            다양한 요소 분석 & 다른 차량들과 비교</p>
-            </div>
-            
-            </div>
-
-            <div className="feature-item">
-              <div className="feature-num">02</div>
-            <div className="feature-text">
-            <h3 className="feature-title">머신러닝 기반</h3>
-            <p className="feature-description">
-            과거 데이터 학습하여 차량 가격을 예측
-            </p>
-            </div>
-            </div>
-
-            <div className="feature-item">
-              <div className="feature-num">03</div>
-            <div className="feature-text">
-            <h3 className="feature-title">다양한 정보</h3>
-            <p className="feature-description">
-              다양한 변수를 고려해 세밀한 가격 예측을 제공
-            </p>
-            </div>
-            </div>
-        </div>
-        </section> */}
 
         <section id="recommendations" className="recommendations snap-section" ref={recommendationsRef}>
             <h2 className="recommendation-title">얼마Car 추천</h2>
@@ -606,7 +568,30 @@ return ()=>{
                   
                     
                     <div className="cards-slider-container">
-                    {<h1>...데이터를 불러오는중 오류가 발생하였습니다.</h1>}
+                    <div className="cards-grid">
+                        {response.content.map((car, i) => (
+                            <div 
+                                key={i} 
+                                className="car-card" 
+                                onClick={() => movetoDescription(car.carId)}
+                            >
+                                <div className="car-image-wrapper">
+                                    <img
+                                        src={car.image}
+                                        alt={`${car.name}`}
+                                        className="car-image"
+                                    />
+                                </div>
+                                <div className="car-details">
+                                    <h3 className="car-name">{car.name}</h3>
+                                    <p className="car-info">{formatDateToYearMonth(car.age)} / {car.mileage}km</p>
+                                    <p className="car-price">
+                                        <strong>{car.price}만원</strong>
+                                    </p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                     </div>
                 ) : response.content.length > 0 ? (
                     <div className="cards-grid">

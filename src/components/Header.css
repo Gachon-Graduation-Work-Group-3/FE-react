@@ -2,6 +2,7 @@
     position: fixed;
     height: 130px;
     width: 100%;
+    max-width: calc(100% - 80px);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -12,6 +13,7 @@
 .nav-bar.light{
   height: 130px;
   width: 100%;
+  max-width: calc(100% - 80px);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -317,4 +319,13 @@
   .logo-container{
     padding-left: 0;
   }
+}
+.outer-nav-bar{
+  padding: 0 40px;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
 }

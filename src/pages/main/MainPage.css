@@ -19,7 +19,6 @@ body {
 }
 
 .container {
-  margin-top: 130px;
   width: 100vw;
   position: static;
   display: flex;
@@ -181,73 +180,7 @@ body {
   background-color: #fff;
 }
 
-.main-features-section {
-  height: auto;
-  padding: 6rem 0;
-  background: black;
-  margin-top: 0;
-  position: relative;
-  z-index: 2;
-}
 
-.feature-container {
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
-  gap: 4rem;
-  width: 100vw;
-  margin: 0 auto;
-  padding: 0 2rem;
-  background: black;
-}
-
-.feature-item {
-  background: black;
-  min-width: 100vw;
-  display: flex;
-  flex-direction: row;
-  width: 300px;
-  padding: 2rem;
-  border-radius: 20px;
-  opacity: 0;  /* 완전히 투명 */
-  transform: translateY(20px);  /* 약간 아래로 이동 */
-  transition: all 0.5s ease;  /* 부드러운 전환 효과 */
-}
-
-.feature-item.visible {
-  opacity: 1;  /* 완전히 불투명 */
-  transform: translateY(0);  /* 원래 위치로 */
-}
-
-.feature-num {
-  display: flex;
-  font-size: 10rem;
-  font-weight: 700;
-  color: #555;
-  align-items:flex-start;
-}
-
-.feature-text {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-right: 15rem;
-}
-.feature-title {
-  font-size: 2rem;
-  margin-bottom: 1.2rem;
-  color: #555;
-}
-
-.feature-description {
-  color: #f1f1f1;
-  font-size: 5rem;
-  line-height: 1.8;
-  white-space: pre-line;
-  opacity: 0.9;
-  font-weight: 700;
-}
 
 .car-list-section {
   padding: 2rem 2rem;

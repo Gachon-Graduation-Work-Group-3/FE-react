@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
-import MainPage from './MainPage';
+import MainPage from './pages/main/MainPage';
 import BuyingPage from './BuyingPage';
 import SellingPage from './SellingPage';
 import SearchPage from './SearchPage';

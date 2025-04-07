@@ -21,6 +21,7 @@ const Header = ({ theme = 'light', isScrolled = false }) => {
     isScrolled ? 'scrolled' : ''  // 스크롤 상태 클래스
   ].filter(Boolean).join(' ');
   return (
+    <div className='outer-nav-bar'>
     <nav className={headerClasses}>
         <div className="logo-container">
         <Link to="/" className={`logo ${theme}`}>얼마일카</Link>
@@ -92,6 +93,7 @@ const Header = ({ theme = 'light', isScrolled = false }) => {
         </div>
         </div>
         </nav>
+        </div>
   );
 };
 

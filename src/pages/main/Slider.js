@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './Slider.css';
-
+import car_price_comparison from '../../img/car_price_compare.png';
+import machine_learning from '../../img/machineLearning.png';
+import various_information from '../../img/more_information.png';
 const Slider = ({ onBoundaryScroll }) => {
 
     const [activeSection, setActiveSection] = useState(0);
@@ -42,30 +44,33 @@ const Slider = ({ onBoundaryScroll }) => {
     }, [onBoundaryScroll]);
     const sections = [
         {
-        text: 'RANGE',
-        title: 'TECHNOLOGY & AUTOMATION',
-        description: 'Maximize your fleet with our digital solutions.',
+        img: car_price_comparison,
+        text: '최고의 가격',
+        title: '요소 분석 & 비교',
+        description: '다양한 요소를 분석하고 다른 차량들과 비교합니다.',
         bulletPoints: [
-            'Built to serve and inspire',
-            'Access to innovation at unlock'
+            '신뢰할 수 있는 가격 예측',
+            '객관적인 비교 데이터 제공'
         ]
         },
         {
-        text: 'ACCELERATION',
-        title: 'PERFORMANCE METRICS',
-        description: 'Experience unprecedented power and efficiency.',
+        img: machine_learning,
+        text: '머신러닝 기반',
+        title: '데이터 학습을 통한 예측',
+        description: '과거 데이터를 학습하여 차량 가격을 정확하게 예측합니다.',
         bulletPoints: [
-            'Advanced drive systems',
-            'Optimized energy consumption'
+            '고도화된 AI 모델 적용',
+            '지속적인 학습을 통한 정밀한 분석'
         ]
         },
         {
-        text: 'TOTAL POWER',
-        title: 'POWER DELIVERY',
-        description: 'Ultimate performance at your command.',
+        img: various_information,
+        text: '다양한 정보',
+        title: '세밀한 가격 예측',
+        description: '다양한 변수를 고려하여 보다 정교한 가격 예측을 제공합니다.',
         bulletPoints: [
-            'Instant torque delivery',
-            'Sustainable power output'
+            '차량 상태, 주행 거리 등 반영',
+            '실시간 데이터 업데이트'
         ]
         },
         // 추가 섹션들...
@@ -116,6 +121,9 @@ const Slider = ({ onBoundaryScroll }) => {
                 className={`right-section ${index === activeSection ? 'in-view' : ''}`}
             >
                 <div className="right-content">
+                    <div className="right-content-img">
+                        <img src={section.img} />
+                    </div>
                 <h3>{section.title}</h3>
                 <p>{section.description}</p>
                 <ul>
