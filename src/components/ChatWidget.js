@@ -7,7 +7,10 @@ import './ChatWidget.css';
 const BASE_URL = 'https://rakunko.store';
 const user2Id = 4;
 function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, carId }) {
-    const { user, isAuthenticated,refreshUserToken } = useUser();
+    const isAuthenticated = localStorage.getItem('isAuthenticated');
+    const user = JSON.parse(localStorage.getItem('userData'));
+    const token = localStorage.getItem('token');
+    const { refreshUserToken } = useUser();
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([]);
     const messagesRef= useRef([]);
@@ -97,7 +100,7 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
             stompClient.current = new Client({
                 webSocketFactory: () => socket,
                 connectHeaders: {
-                    'credentials': 'include',
+                    'Authorization': `Bearer ${token}`
                 },
                 debug: (str) => {
                     console.log('STOMP: ' + str);
@@ -112,10 +115,16 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
                 setConnected(true);
                 console.log('웹소켓 연결 성공');
                 console.log('웹소켓 성공시 메시지 배열:', [...messagesRef.current]);
+                console.log(user.userId)
                 // 사용자 개인 메시지 큐 구독
                 stompClient.current.subscribe(
-                    `/queue/chat.user.${user.userId}`, 
-                    handleNewMessage
+                    `/queue/chat.user.${user.userId}`,
+                    handleNewMessage,
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    }
                 );
 
             };
@@ -233,14 +242,14 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
     };
 
     const loadChatHistory = async (roomId) => {
+        console.log('loadChatHistory 실행');
         try {
             const response = await fetch(
-                `${BASE_URL}/api/chat/message/?roomId=${roomId}&page=0&size=5`, 
+                `${BASE_URL}/api/chat/message/?roomId=${roomId}&page=0&size=100`, 
                 {
                     method: 'GET',
-                    credentials: 'include',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Authorization': `Bearer ${token}`
                     },
                 }
             );
@@ -256,12 +265,20 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
 
             const data = await response.json();
             console.log(data);
-            if (data.isSuccess) {
+            if (data.code === "COMMON200") {
                 const messages = data.result.chatMessages.content.map(msg => ({
                     id: msg.id,
-                    text: msg.message,
-                    sender: msg.senderId === user?.userId ? "user" : "other",
-                    timestamp: new Date(msg.timestamp).toLocaleString()
+                    text: JSON.parse(msg.message).content,
+                    sender: msg.senderId === user?.userId ? "received" : "sent",
+                    timestamp: new Date(msg.timestamp.split('.')[0]).toLocaleString('ko-KR', {
+                        timeZone: 'Asia/Seoul',
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit'
+                    })
                 }));
                 setMessages(messages);
             }
@@ -275,7 +292,9 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
             // 1. 채팅방 존재 여부 확인
             const response = await fetch(`${BASE_URL}/api/chat/room/?page=0&size=5`, {
                 method: 'GET',
-                credentials: 'include'
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
             });
             console.log("토글버튼 클릭 챗 초기화")
             const data = await response.json();
@@ -290,7 +309,8 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
             else if (!response.ok) {
                 throw new Error('채팅 내역 조회 실패');
             }
-            if (data.isSuccess) {
+            if (data.code === "COMMON200") {
+                console.log('room get 요청 성공: '+data.result);
                 //user2(판매자)가 현재 유저가 구독한 방중에 같은 사람이 있으면 existroom에 넣는다.
                 const existRoom = data.result.content.find(room => room.user2Id === user2Id);
                 
@@ -298,19 +318,19 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
                     console.log("채팅방 존재")
                     setRoomId(existRoom.roomId);
                     setOtherUserId(existRoom.user2Id);
-
                     await loadChatHistory(existRoom.roomId);
                 } else {
                     console.log("채팅방 없음")
+                    console.log('user2Id: '+user2Id);
+                    console.log('carId: '+carId);
                     // 채팅방이 없는 경우, 새로운 채팅방 생성
                     //현재는 고정된 사용자 사용
-                    const createResponse = await fetch(`${BASE_URL}/api/chat/room/?user2Id=4`, {
+                    const createResponse = await fetch(`${BASE_URL}/api/chat/room/?user2Id=${user2Id}`, {
                     method: 'POST',
-                    credentials: 'include',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Authorization': `Bearer ${token}`
                     },
-                    body: JSON.stringify({ carId: carId })
+                    body: JSON.stringify({ carId: 1})
                 });
                 if(createResponse.status === 401){
                     await refreshUserToken();
@@ -325,7 +345,9 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
                 if(createResponse.status === 200){
                     const roomListResponse = await fetch(`${BASE_URL}/api/chat/room/?page=0&size=5`, {
                         method: 'GET',
-                        credentials: 'include'
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
                     });
                     if(roomListResponse.status === 401){
                         await refreshUserToken();
@@ -334,7 +356,7 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
                     }
                     const roomListData = await roomListResponse.json();
                     console.log(roomListData);
-                    if(roomListData.isSuccess){
+                    if(roomListData.code === "COMMON200"){
                         const newRoom = roomListData.result.content.find(room => room.user2Id === user2Id);
                         if(newRoom){
                             setRoomId(newRoom.roomId);
@@ -356,7 +378,11 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
     }
 }
     const handleSubmit = async (e) => {
+        console.log('click');
         e.preventDefault();
+        console.log('connected: '+connected);
+        console.log('roomId: '+roomId);
+        console.log('newMessage: '+newMessage);
         if (newMessage.trim() && connected && roomId) {
             const messageData = {
                 content: newMessage,
@@ -374,7 +400,10 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
                 stompClient.current.publish({
                     destination: `/pub/${roomId}/${user.userId}`,
                     body: JSON.stringify(messageData),
-                    routingKey: `chat.user.${user.userId}`
+                    routingKey: `chat.user.${user.userId}`,
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
                 });
 
                 setNewMessage('');

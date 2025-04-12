@@ -562,7 +562,7 @@ return ()=>{
         <section id="recommendations" className="recommendations snap-section" ref={recommendationsRef}>
             <h2 className="recommendation-title">얼마Car 추천</h2>
             <div className="cards-container">
-                {loading ? (
+                {loading || !response?.content ? (
                     <div className="loading-state">데이터를 불러오는 중입니다...</div>
                 ) : error ? (
                   

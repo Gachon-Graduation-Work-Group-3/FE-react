@@ -89,67 +89,46 @@ function SellingPage() {
         name: `${formData.manufacturer} ${formData.model} ${formData.subModel} ${formData.grade}`,
         price: parseInt(formData.price) || 0,
         mileage: parseInt(formData.mileage) || 0,
-        description: formData.description,
-        
+        description: formData.description,    
         // 날짜 형식 변환
         age: new Date(formData.year).toISOString(),
         firstReg: new Date(formData.year).toISOString(),
-        
         // 기본값 설정
         cc: 0,
-        sunroof: 0,
         engine: "gasoline",
-        ownerChange: 0,
-        frontSensor: 0,
         color: "white",
-        insurCount: 0,
-        panel: 0,
-        totalLoss: 0,
-        autoLight: 0,
-        naviNon: 0,
-        cruiseCont: 0,
         brand: formData.manufacturer,
-        rearCamera: 0,
-        floodTotalLoss: 0,
-        newPrice: 0,
-        naviGen: 0,
-        torque: 0,
-        rearWarn: 0,
         maxOut: 0,
         fuelEfficient: 0,
-        panoSunroof: 0,
-        frontCamera: 0,
-        floodStatus: 0,
-        otherDamageCount: 0,
-        illegalModification: 0,
-        aroundView: 0,
-        myDamageAmount: 0,
-        myDamageCount: 0,
-        floodPartLoss: 0,
         fuel: "gasoline",
-        heatBack: 0,
-        otherDamageAmount: 0,
-        heatHandle: 0,
         weight: 0,
-        corrosion: 0,
-        heatFront: 0,
-        autoPark: 0,
-        passAir: 0,
-        link: "",
-        replaceCount: 0,
-        rearSensor: 0,
-        theft: 0
+        torque: 0,
+        newPrice: 0,
       };
       
 
       formDataToSend.append('carSaleRequest', new Blob([JSON.stringify(carSaleRequest)], {
         type: 'application/json'
       }));
+
+      for (const [key, value] of formDataToSend.entries()) {
+        console.log(`${key}:`, value);
+      
+        if (value instanceof File) {
+          console.log(`  → filename: ${value.name}, type: ${value.type}, size: ${value.size} bytes`);
+        } else if (value instanceof Blob) {
+          console.log('  → Blob:', value);
+        } else {
+          console.log('  →', value);
+        }
+      }
       // API 요청
       const response = await fetch('https://rakunko.store/api/car/sale/article', {
         method: 'POST',
-        credentials: 'include',
-        body: formDataToSend
+        body: formDataToSend,
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
       });
       
       if (!response.ok) {

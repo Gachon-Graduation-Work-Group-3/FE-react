@@ -31,14 +31,11 @@ export const fetchCarPrediction = async (carData, setPredictionData, setError, s
         });
         console.log(processedData);
         
-        const response = await fetch('https://rakunko.store/price/prediction', {
+        const response = await fetch('http://158.179.168.250:8000/docs', {
             method: 'POST',
             headers: {
-                'accept': 'application/json',
-                'Content-Type': 'application/json',
-                
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
             },
-            credentials: 'include',
             body: processedData
         });
         console.log(response);

@@ -12,14 +12,15 @@ import UserProfile from './UserProfile';
 import ChatRooms from './chatRoomPage';
 import LikePage from './LikePage';
 import MySaleListPage from './MySaleListPage';
+import LoginSuccess from './LoginsSuccess';
 import './App.css';
 
 
 function App() {
   return (
+  <Router>
     <UserProvider>
-      <div>
-        <Router>
+      <div>   
           <Routes>
             <Route path="/" element={<MainPage />} />
             <Route path="/buying" element={<BuyingPage />} />
@@ -30,14 +31,14 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/chat-rooms" element={<ChatRooms/>}/>
             <Route path="/description" element={<Description />} />
-            <Route path="/login-success" element={<Navigate to="/" replace />} />
+            <Route path="/login-success" element={<LoginSuccess />} />
             <Route path="/userProfile" element={<UserProfile />} />
             <Route path="/like" element={<LikePage />} />
             <Route path="/my-sale-list" element={<MySaleListPage />} />
           </Routes>
-        </Router>
       </div>
     </UserProvider>
+    </Router>
   );
 }
 

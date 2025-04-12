@@ -1,15 +1,26 @@
-import React, { forwardRef,useState } from 'react';
+import React, { forwardRef, useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useUser } from '../context/UserContext';
 import './Header.css';
+import { useUser } from '../context/UserContext';
 // forwardRef를 사용하여 ref를 전달받을 수 있게 함
 const Header = ({ theme = 'light', isScrolled = false }) => {
     const navigate = useNavigate();
     const [showDropdown, setShowDropdown] = useState(false);
     const { isAuthenticated, user, logout } = useUser();
+    
+    // 디버깅을 위한 로그 추가
+    useEffect(() => {
+        console.log('Header - 인증 상태:', isAuthenticated);
+        console.log('Header - 인증 타입:', typeof isAuthenticated);
+        console.log('Header - localStorage 인증 상태:', localStorage.getItem('isAuthenticated'));
+        console.log('Header - 유저 정보:', user);
+    }, [isAuthenticated, user]);
+    
   const handleLogout = async () => {
     try {
+      console.log('로그아웃 시도...');
       await logout();
+      console.log('로그아웃 성공!');
       navigate('/');
     } catch (error) {
       console.error('로그아웃 실패:', error);
@@ -43,14 +54,14 @@ const Header = ({ theme = 'light', isScrolled = false }) => {
         <div className="icon-container">
           
           <div className="user-icon">
-          {isAuthenticated ? (
+          {isAuthenticated === true ? (
               <div className="user-menu-container">
                 <div 
                   className="user-menu-trigger"
                   onMouseEnter={() => setShowDropdown(true)}
                   onMouseLeave={() => setShowDropdown(false)}
                 >
-                  <span className={`welcome-text ${theme}`}>{user.name}님</span>
+                  <span className={`welcome-text ${theme}`}>{user && user.name ? user.name : ''}님</span>
                   {showDropdown && (
                     <div className="user-dropdown">
                       
@@ -84,7 +95,10 @@ const Header = ({ theme = 'light', isScrolled = false }) => {
               </div>
                 ) : (   
                   <button 
-                  onClick={() => navigate('/login')} 
+                  onClick={() => {
+                    console.log('로그인 버튼 클릭');
+                    navigate('/login');
+                  }} 
                   className={`login ${theme}`}
                 >
                   로그인
