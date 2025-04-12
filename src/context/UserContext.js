@@ -179,27 +179,34 @@ export function UserProvider({ children }) {
         try {
             const token = localStorage.getItem('token');
             setIsLoggingOut(true);
-            const response = await fetch('https://rakunko.store/logout', {
+            
+            // 로컬 상태 초기화를 먼저 수행
+            localStorage.removeItem('token');          // 토큰 제거
+            localStorage.removeItem('refreshToken');   // 리프레시 토큰 제거
+            localStorage.removeItem('userData');       // 유저 데이터 제거
+            localStorage.setItem('isAuthenticated', 'false');
+            
+            setUser(null);
+            setIsAuthenticated(false);
+            profileCacheRef.current = null;
+            profileFetchedRef.current = false;
+    
+            // 서버 로그아웃 요청은 마지막에 수행
+            await fetch('https://rakunko.store/logout', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
-            localStorage.setItem('isAuthenticated', false);
-            if (response.ok) {
-                setUser(null);
-                setIsAuthenticated(false);
-
-                // 캐시 초기화
-                profileCacheRef.current = null;
-                profileFetchedRef.current = false;
-
-            } else {
-                throw new Error('로그아웃 실패');
-            }
+    
+            // 로그인 페이지로 리다이렉트
+            navigate('/login', { replace: true });
+            
         } catch (error) {
             console.error('로그아웃 에러:', error);
-            throw error;
+            // 에러가 발생해도 로컬 상태는 초기화된 상태 유지
+        } finally {
+            setIsLoggingOut(false);
         }
     };
     // 캐시된 사용자 정보 강제 갱신 함수 추가
