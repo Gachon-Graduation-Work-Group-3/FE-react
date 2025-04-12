@@ -1,0 +1,73 @@
+.login-success-container {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  }
+  
+  .login-success-content {
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    min-width: 300px;
+  }
+  
+  .loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #3498db;
+    border-radius: 50%;
+    margin: 0 auto 20px;
+    animation: spin 1s linear infinite;
+  }
+  
+  .welcome-text {
+    color: #2c3e50;
+    font-size: 24px;
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+  
+  .loading-text {
+    color: #7f8c8d;
+    font-size: 16px;
+    margin-bottom: 20px;
+  }
+  
+  .progress-bar {
+    background: #f0f0f0;
+    height: 4px;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 20px;
+  }
+  
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #3498db, #2ecc71);
+    animation: fill 2s ease-in-out infinite;
+    transform-origin: left;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  @keyframes fill {
+    0% { transform: scaleX(0); }
+    50% { transform: scaleX(1); }
+    100% { transform: scaleX(0); }
+  }
+  
+  /* 반응형 디자인 */
+  @media (max-width: 480px) {
+    .login-success-content {
+      width: 90%;
+      padding: 30px;
+    }
+  }
