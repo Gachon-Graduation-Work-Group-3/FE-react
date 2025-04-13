@@ -39,7 +39,10 @@ export function UserProvider({ children }) {
             fetchUserProfile();
         }
     }, [location, navigate]);
-    
+    useEffect(() => {
+        console.log('accessToken', localStorage.getItem('token'));
+        console.log('refreshToken', localStorage.getItem('refreshToken'));
+    }); 
     // 프로필 정보 가져오기
     const fetchUserProfile = async () => {
         localStorage.setItem('isAuthenticated', false);
@@ -121,6 +124,7 @@ export function UserProvider({ children }) {
                 localStorage.setItem('token', token);
                 localStorage.setItem('userData', JSON.stringify(data.result));
                 localStorage.setItem('isAuthenticated', true);
+                console.log('token', token);
                 setUser(data.result);
                 setIsAuthenticated(true);
                 // 프로필 정보 캐싱
@@ -148,32 +152,28 @@ export function UserProvider({ children }) {
         }
     };
     // 토큰 갱신 함수
-  const refreshUserToken = useCallback(async () => {
-    try {
-      localStorage.setItem('isAuthenticated', true);
-      setIsAuthenticated(true);
-      localStorage.setItem('token', localStorage.getItem('refreshToken'));
-      return true;
-    } catch (error) {
-      console.error('토큰 갱신 실패:', error);
-      setIsAuthenticated(false);
-      return false;
-    }
-  }, []);
+    const refreshUserToken = useCallback(async () => {
+        try {
+                console.log("401에러 후 refreshUserToken 호출");
+                localStorage.setItem('isAuthenticated', true);
+                setIsAuthenticated(true);
+                localStorage.setItem('token', localStorage.getItem('refreshToken'));
+            return true;
+        } catch (error) {
+                console.error('토큰 갱신 실패:', error);
+                setIsAuthenticated(false);
+            return false;
+        }
+    }, []);
 
     // 컴포넌트 마운트 시 한 번만 실행
     useEffect(() => {
+        // 인증되지 않았고 로그아웃 상태가 아니고 프로필 정보가 없으면 프로필 정보 가져오기
         if (!isAuthenticated && !isLoggingOut && !profileFetchedRef.current) {
             fetchUserProfile();
         }
     }, [isAuthenticated, isLoggingOut]);
 
-    // 컨텍스트 값 업데이트 함수
-    const updateUser = (newUserData) => {
-        setUser(newUserData);
-        // 캐시도 업데이트
-        profileCacheRef.current = newUserData;
-    };
 
     const logout = async () => {
         try {
@@ -209,11 +209,6 @@ export function UserProvider({ children }) {
             setIsLoggingOut(false);
         }
     };
-    // 캐시된 사용자 정보 강제 갱신 함수 추가
-    const forceRefreshUser = () => {
-        profileFetchedRef.current = false;
-        fetchUserProfile();
-    };
 
     return (
         <UserContext.Provider value={{ 
@@ -225,7 +220,6 @@ export function UserProvider({ children }) {
             isLoggingOut,
             setIsAuthenticated,
             refetchUser: fetchUserProfile,
-            forceRefreshUser, // 강제 갱신 함수 추가
             logout,
             refreshUserToken // 토큰 갱신 함수 추가
         }}>

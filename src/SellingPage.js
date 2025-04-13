@@ -74,7 +74,7 @@ function SellingPage() {
       const formDataToSend = new FormData();
       
       // 이미지 파일 추가
-      formData.images.forEach((file, index) => {
+      formData.images.forEach(file => {
         formDataToSend.append('images', file);
       });
       
@@ -96,7 +96,7 @@ function SellingPage() {
         // 기본값 설정
         cc: 0,
         engine: "gasoline",
-        color: "white",
+        color: "wh",
         brand: formData.manufacturer,
         maxOut: 0,
         fuelEfficient: 0,
@@ -104,24 +104,56 @@ function SellingPage() {
         weight: 0,
         torque: 0,
         newPrice: 0,
+        images: formData.images.map(file => file.name).join(','),
       };
       
+      formDataToSend.append('carSaleRequest', JSON.stringify(carSaleRequest));
 
-      formDataToSend.append('carSaleRequest', new Blob([JSON.stringify(carSaleRequest)], {
-        type: 'application/json'
-      }));
+      console.log('=== FormData 전송 데이터 로그 ===');
 
-      for (const [key, value] of formDataToSend.entries()) {
+// 이미지 파일 로그
+formData.images.forEach((file, index) => {
+    console.log(`이미지 ${index + 1}:`, {
+        파일명: file.name,
+        타입: file.type,
+        크기: `${(file.size / 1024).toFixed(2)}KB`
+    });
+});
+
+// carSaleRequest 객체 로그
+console.log('차량 정보:', {
+    차량번호: carSaleRequest.number,
+    제조사: carSaleRequest.manufacturer,
+    모델: carSaleRequest.model,
+    세부모델: carSaleRequest.submodel,
+    등급: carSaleRequest.grade,
+    차량명: carSaleRequest.name,
+    가격: `${carSaleRequest.price.toLocaleString()}원`,
+    주행거리: `${carSaleRequest.mileage.toLocaleString()}km`,
+    연식: carSaleRequest.age,
+    최초등록일: carSaleRequest.firstReg
+});
+
+// FormData 전체 내용 로그
+for (const [key, value] of formDataToSend.entries()) {
+    if (value instanceof File) {
+        console.log(`${key}:`, {
+            타입: 'File',
+            파일명: value.name,
+            파일타입: value.type,
+            파일크기: `${(value.size / 1024).toFixed(2)}KB`
+        });
+    } else if (value instanceof Blob) {
+        console.log(`${key}:`, {
+            타입: 'Blob',
+            데이터: JSON.parse(await value.text())
+        });
+    } else {
         console.log(`${key}:`, value);
-      
-        if (value instanceof File) {
-          console.log(`  → filename: ${value.name}, type: ${value.type}, size: ${value.size} bytes`);
-        } else if (value instanceof Blob) {
-          console.log('  → Blob:', value);
-        } else {
-          console.log('  →', value);
-        }
-      }
+    }
+}
+
+console.log('=== 전송 데이터 로그 종료 ===');
       // API 요청
       const response = await fetch('https://rakunko.store/api/car/sale/article', {
         method: 'POST',
@@ -142,7 +174,7 @@ function SellingPage() {
         // 3초 후 메인 페이지로 이동
         setTimeout(() => {
           navigate('/');
-        }, 3000);
+        }, 1000);
       } else {
         throw new Error(data.message || '차량 등록에 실패했습니다.');
       }
@@ -214,7 +246,9 @@ function SellingPage() {
 
   return (
     <div className="container">
-      <Header theme={headerState.theme} isScrolled={headerState.isScrolled}  />
+      <div className="selling-nav-bar">
+        <Header theme={headerState.theme} isScrolled={headerState.isScrolled}  />
+      </div>
 
       <form className="selling-form" onSubmit={handleSubmit}>
         <h2 className="form-title">내차 판매하기</h2>
@@ -222,9 +256,10 @@ function SellingPage() {
         <div className="steps-container">
           <div className="steps-wrapper" style={{ transform: `translateX(-${currentStep * 25}%)` }}>
             {/* 1단계: 차량번호 */}
-            <div className="car-info-section step">
-              <h3 className="section-title">차량번호 입력</h3>
-              <div className="form-group">
+            <div className="car-selling-section step">
+              <div className="car-selling-section-wrapper">
+                <h3 className="section-title">차량번호 입력</h3>
+                <div className="form-group">
                 <label className="form-label">차량번호</label>
                 <div className="license-plate-input">
                   <input
@@ -238,14 +273,16 @@ function SellingPage() {
                   <button type="button" className="verify-button">조회하기</button>
                 </div>
               </div>
-              <button type="button" className="next-button" onClick={handleNext}>다음</button>
+                <button type="button" className="next-button right" onClick={handleNext}>다음</button>
+              </div>
             </div>
 
             {/* 2단계: 차량 기본 정보 */}
-            <div className="car-info-section step">
-              <h3 className="section-title">차량 기본 정보</h3>
-              <div className="info-grid">
-                <div className="form-group">
+            <div className="car-selling-section step">
+              <div className="car-selling-section-wrapper basic-info-wrapper">
+                <h3 className="section-title">차량 기본 정보</h3>
+                <div className="info-grid">
+                  <div className="form-group">
                   <label className="form-label">제조사</label>
                   <select
                     name="manufacturer"
@@ -319,14 +356,16 @@ function SellingPage() {
               <div className="step-buttons">
                 <button type="button" className="prev-button" onClick={handlePrev}>이전</button>
                 <button type="button" className="next-button" onClick={handleNext}>다음</button>
+                </div>
               </div>
             </div>
 
             {/* 3단계: 차량 상세 정보 */}
-            <div className="car-info-section step">
-              <h3 className="section-title">차량 상세 정보</h3>
-              <div className="info-grid">
-                <div className="form-group">
+            <div className="car-selling-section step">
+              <div className="car-selling-section-wrapper basic-info-wrapper2">
+                <h3 className="section-title">차량 상세 정보</h3>
+                <div className="info-grid">
+                  <div className="form-group">
                   <label className="form-label">연식</label>
                   <input
                     type="text"
@@ -364,15 +403,17 @@ function SellingPage() {
               </div>
               <div className="step-buttons">
                 <button type="button" className="prev-button" onClick={handlePrev}>이전</button>
-                <button type="button" className="next-button" onClick={handleNext}>다음</button>
+                  <button type="button" className="next-button" onClick={handleNext}>다음</button>
+                </div>
               </div>
             </div>
 
             {/* 4단계: 차량 사진 */}
-            <div className="car-info-section step">
-              <h3 className="section-title">차량 사진</h3>
-              <div className="image-upload">
-                <input
+            <div className="car-selling-section step">
+              <div className="car-selling-section-wrapper">
+                <h3 className="section-title">차량 사진</h3>
+                <div className="image-upload">
+                  <input
                   type="file"
                   multiple
                   accept="image/*"
@@ -399,6 +440,7 @@ function SellingPage() {
               <div className="step-buttons">
                 <button type="button" className="prev-button" onClick={handlePrev}>이전</button>
                 <button type="submit" className="next-button">등록 완료</button>
+              </div>
               </div>
             </div>
           </div>

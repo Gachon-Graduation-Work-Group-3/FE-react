@@ -429,3 +429,8 @@
 .filter-options::-webkit-scrollbar-thumb:hover {
     background: #999;
 }
+
+.buying-nav-bar {
+
+  z-index: 1000;
+}

@@ -270,16 +270,9 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
                     id: msg.id,
                     text: JSON.parse(msg.message).content,
                     sender: msg.senderId === user?.userId ? "received" : "sent",
-                    timestamp: new Date(msg.timestamp.split('.')[0]).toLocaleString('ko-KR', {
-                        timeZone: 'Asia/Seoul',
-                        year: 'numeric',
-                        month: '2-digit',
-                        day: '2-digit',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        second: '2-digit'
-                    })
+                    timestamp: new Date(JSON.parse(msg.message).timestamp).toLocaleString()
                 }));
+                messages.reverse();
                 setMessages(messages);
             }
         } catch (error) {

@@ -153,7 +153,9 @@ const getSelectedPath = () => {
 
   return (
     <div className="buying-container">
+    <div className="buying-nav-bar">
       <Header theme={headerState.theme} isScrolled={headerState.isScrolled}  />
+    </div>
 
       <div className="content-wrapper">
         <div className="filter-sidebar">
