@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useUser } from './context/UserContext';
+import { UserContext } from './context/UserContext';
 import './LikePage.css';
 import Header from './components/Header';
 function LikePage() {
@@ -10,8 +10,9 @@ function LikePage() {
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [showDropdown, setShowDropdown] = useState(false);
-  
-  const { user, isAuthenticated } = useUser();
+  const { logout } = useContext(UserContext);
+  const isAuthenticated = localStorage.getItem('isAuthenticated');
+  const user = localStorage.getItem('userData');
   const navigate = useNavigate();
   const [headerState, setHeaderState] = useState({
     theme: 'light',

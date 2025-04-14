@@ -1,6 +1,6 @@
-import { createContext, useContext, useState, useEffect,useRef, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-
+import api from '../api/axiosInstance';
 export const UserContext = createContext();
 
 export function UserProvider({ children }) {
@@ -13,8 +13,6 @@ export function UserProvider({ children }) {
     const location = useLocation();
     const navigate = useNavigate();
 
-    const profileCacheRef = useRef(null);
-    const profileFetchedRef = useRef(false);
     // URL에서 토큰 감지하여 처리
     useEffect(() => {
         const searchParams = new URLSearchParams(location.search);
@@ -25,6 +23,7 @@ export function UserProvider({ children }) {
             console.log('로그인 성공: 토큰을 받았습니다.');
             localStorage.setItem('token', accessToken);
             localStorage.setItem('isAuthenticated', true);
+            localStorage.setItem('timestamp', Date.now());
             console.log('accessToken', accessToken);
             console.log('refreshToken', refreshToken);
             if (refreshToken) {
@@ -39,24 +38,18 @@ export function UserProvider({ children }) {
             fetchUserProfile();
         }
     }, [location, navigate]);
+
+
     useEffect(() => {
         console.log('accessToken', localStorage.getItem('token'));
         console.log('refreshToken', localStorage.getItem('refreshToken'));
     }); 
+
     // 프로필 정보 가져오기
     const fetchUserProfile = async () => {
-        localStorage.setItem('isAuthenticated', false);
-        // 이미 인증된 사용자 정보가 캐시되어 있으면 API 호출 스킵
-        if (profileCacheRef.current && profileFetchedRef.current) {
-            console.log('캐시된 프로필 정보 사용');
-            setUser(profileCacheRef.current);
-            setIsAuthenticated(true);
-            setLoading(false);
-            return;
-        }
+        
 
         if (isLoggingOut) {
-            localStorage.setItem('isAuthenticated', false);
             setUser(null);
             setIsAuthenticated(false);
             setLoading(false);
@@ -70,50 +63,13 @@ export function UserProvider({ children }) {
             // 저장된 토큰 또는 기본 토큰 사용
             const token = localStorage.getItem('token');
             
-            // 먼저 토큰 갱신 시도
-            if(isAuthenticated){
-            try {
-                const refreshResponse = await fetch(`https://rakunko.store/api/token/renew`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-                
-                if (refreshResponse.ok) {
-                    console.log('토큰 갱신 성공');
-                } else {
-                    console.log('토큰 갱신 실패');
-                }
-            } catch (error) {
-                console.error('토큰 갱신 중 에러:', error);
-                }
-            }
 
             // 갱신 시도 후 프로필 정보 요청
-            const response = await fetch('https://rakunko.store/api/user/profile', {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
+            const response = await api.get('/api/user/profile');
 
             console.log('API 응답 상태:', response.status);
-
-            if (!response.ok) {
-                if (response.status === 401) {
-                    console.log('인증 실패');
-                    setIsAuthenticated(false);
-                    setUser(null);
-                    profileCacheRef.current = null;
-                    profileFetchedRef.current = false;
-                    refreshUserToken();
-                    
-                }
-                throw new Error('프로필 정보를 가져오는데 실패했습니다.');
-            }
             console.log('프로필 정보 요청 성공');
-            const data = await response.json();
+            const data = response.data;
             // 응답 데이터 구조 확인을 위한 로그 추가
             console.log('API 응답 데이터:', data);
             
@@ -121,32 +77,19 @@ export function UserProvider({ children }) {
             if (data && data.code === "COMMON200" && data.result) {
                 console.log('데이터 조회 성공 - COMMON200');
                 // 유저 정보를 로컬 스토리지에 저장
-                localStorage.setItem('token', token);
                 localStorage.setItem('userData', JSON.stringify(data.result));
-                localStorage.setItem('isAuthenticated', true);
                 console.log('token', token);
                 setUser(data.result);
-                setIsAuthenticated(true);
-                // 프로필 정보 캐싱
-                profileCacheRef.current = data.result;
-                profileFetchedRef.current = true;
+                
             } else {
                 console.log('유효한 데이터 없음 또는 코드가 COMMON200이 아님:', data?.code);
                 setUser(null);
-                setIsAuthenticated(false);
-                profileCacheRef.current = null;
-                profileFetchedRef.current = false;
             }
 
         } catch (err) {
-            refreshUserToken();
             console.error('프로필 조회 에러:', err);
-            localStorage.setItem('isAuthenticated', false);
             setError(err.message);
-            setIsAuthenticated(false);
             setUser(null);
-            profileCacheRef.current = null;
-            profileFetchedRef.current = false;
         } finally {
             setLoading(false);
         }
@@ -166,16 +109,7 @@ export function UserProvider({ children }) {
         }
     }, []);
 
-    // 컴포넌트 마운트 시 한 번만 실행
-    useEffect(() => {
-        // 인증되지 않았고 로그아웃 상태가 아니고 프로필 정보가 없으면 프로필 정보 가져오기
-        if (!isAuthenticated && !isLoggingOut && !profileFetchedRef.current) {
-            fetchUserProfile();
-        }
-    }, [isAuthenticated, isLoggingOut]);
-
-
-    const logout = async () => {
+    const logout = useCallback(async () => {
         try {
             const token = localStorage.getItem('token');
             setIsLoggingOut(true);
@@ -188,16 +122,10 @@ export function UserProvider({ children }) {
             
             setUser(null);
             setIsAuthenticated(false);
-            profileCacheRef.current = null;
-            profileFetchedRef.current = false;
+
     
             // 서버 로그아웃 요청은 마지막에 수행
-            await fetch('https://rakunko.store/logout', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
+            await api.post('/logout');
     
             // 로그인 페이지로 리다이렉트
             navigate('/login', { replace: true });
@@ -207,6 +135,35 @@ export function UserProvider({ children }) {
             // 에러가 발생해도 로컬 상태는 초기화된 상태 유지
         } finally {
             setIsLoggingOut(false);
+        }
+    }, []);
+
+    // 컴포넌트 마운트 시 한 번만 실행
+    useEffect(() => {
+        const timestamp = localStorage.getItem('timestamp');
+        if (timestamp) {
+            const currentTime = Date.now();
+            const timeDiff = currentTime - timestamp;
+            if (timeDiff > 1000 * 60 * 60 ) {
+                logout();
+            }
+        }
+    }, []);
+
+    // 개선: 상태 관리 함수로 일원화
+    const setAuthState = (isAuth, userData = null, isLoading = false) => {
+        // React 상태 업데이트
+        setIsAuthenticated(isAuth);
+        if (userData !== null) setUser(userData);
+        setLoading(isLoading);
+        
+        // localStorage 업데이트
+        localStorage.setItem('isAuthenticated', isAuth);
+        
+        if (userData) {
+            localStorage.setItem('userData', JSON.stringify(userData));
+        } else if (userData === null && !isAuth) {
+            localStorage.removeItem('userData');
         }
     };
 
@@ -229,25 +186,5 @@ export function UserProvider({ children }) {
 }
 
 
-// 커스텀 훅 수정
-export const useUser = () => {  
-    const context = useContext(UserContext);
-    if (context === undefined) {
-        throw new Error('useUser must be used within a UserProvider');
-    }
 
-    // useEffect를 사용하여 훅이 호출될 때마다 인증 상태 초기화 및 재확인
-    useEffect(() => {
-        // 초기 호출 시 localStorage의 인증 상태를 false로 설정
-        localStorage.setItem('isAuthenticated', false);
-        console.log('useUser 훅 호출: 초기 인증 상태를 false로 설정');
-        
-        // 컴포넌트 마운트 후 프로필 정보 가져오기
-        if (context.refetchUser) {
-            context.refetchUser();
-        }
-    }, []);
-
-    return context;
-}; 
 

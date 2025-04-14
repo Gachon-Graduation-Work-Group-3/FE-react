@@ -1,10 +1,10 @@
-import React,{memo, useCallback, useState,useEffect,useRef} from 'react';
+import React,{memo, useCallback, useState,useEffect,useRef, useContext} from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import {fetchCarDescription} from './remote/SearchCarDescription';
 import ChatWidget from './components/ChatWidget';
 import './PriceResultPage.css';
 import './Description.css';
-import { useUser } from './context/UserContext';
+import { UserContext } from './context/UserContext';
 import {
   LineChart,
   Line,
@@ -62,8 +62,10 @@ function Description() {
   const [predictionData, setPredictionData] = useState(0,);
   const [predictionLoading, setPredictionLoading] = useState(false);
   const [predictionError, setPredictionError] = useState(null);
+  const { logout } = useContext(UserContext);
 
-  const { isAuthenticated, user, logout } = useUser();
+  const isAuthenticated = localStorage.getItem('isAuthenticated');
+  const user = localStorage.getItem('userData');
   const [isLiked, setIsLiked] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [allLoading, setAllLoading] = useState(null);

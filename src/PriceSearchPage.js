@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './PriceSearchPage.css';
 import { Link } from 'react-router-dom';
 import carDataJson from './data/transformed_carData.json';
-import { useUser } from './context/UserContext';
+import { UserContext } from './context/UserContext';
 import Header from './components/Header';
 function PriceSearchPage() {
   const navigate = useNavigate();
@@ -15,13 +15,14 @@ function PriceSearchPage() {
     year: '',
     mileage: ''
   });
-  
+  const { logout } = useContext(UserContext);
   const [selectedManufacturer, setSelectedManufacturer] = useState(null);
   const [selectedModel, setSelectedModel] = useState(null);
   const [selectedSubModel, setSelectedSubModel] = useState(null);
   const [selectedGrade, setSelectedGrade] = useState(null);
   const [carData] = useState(carDataJson);
-  const { isAuthenticated, user, logout } = useUser();
+  const isAuthenticated = localStorage.getItem('isAuthenticated');
+  const user = localStorage.getItem('userData');
   console.log('인증 상태:', isAuthenticated);
   console.log('사용자 정보:', user);
   const [showDropdown, setShowDropdown] = useState(false);

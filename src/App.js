@@ -13,6 +13,7 @@ import ChatRooms from './chatRoomPage';
 import LikePage from './LikePage';
 import MySaleListPage from './MySaleListPage';
 import LoginSuccess from './LoginsSuccess';
+import UserContextPage from './UserContextPage';
 import './App.css';
 
 
@@ -35,6 +36,7 @@ function App() {
             <Route path="/userProfile" element={<UserProfile />} />
             <Route path="/like" element={<LikePage />} />
             <Route path="/my-sale-list" element={<MySaleListPage />} />
+            <Route path="/user-context" element={<UserContextPage />} />
           </Routes>
       </div>
     </UserProvider>

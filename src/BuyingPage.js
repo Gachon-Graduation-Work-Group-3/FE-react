@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useContext } from 'react';
 import './BuyingPage.css';
 import { Link, useNavigate } from 'react-router-dom';
 import carDataJson from './data/transformed_carData.json';
 import { fetchCar } from './remote/searchcar';
 import { formatDateToYearMonth } from './util/formatDateToYearMonth';
 import { handlePageChange } from './event/changevalue';
-import { useUser } from './context/UserContext';
+import { UserContext } from './context/UserContext';
 import Header from './components/Header';
 function BuyingPage() {
   const [filteredCars, setFilteredCars] = useState([]);
@@ -32,12 +32,14 @@ const [selectedModel, setSelectedModel] = useState(null);
 const [selectedSubModel, setSelectedSubModel] = useState(null);
 const [selectedGrade, setSelectedGrade] = useState(null);
 const [isSearchContentHovered, setIsSearchContentHovered] = useState(false);
+const { logout } = useContext(UserContext);
 const [cars, setCars] = useState([]);
 const navigate = useNavigate();
 const initialCarData = carDataJson;
 const [carData] = useState(initialCarData);
 
-const { isAuthenticated, user, logout } = useUser();
+const isAuthenticated = localStorage.getItem('isAuthenticated');
+const user = localStorage.getItem('userData');
 console.log('인증 상태:', isAuthenticated);
 console.log('사용자 정보:', user);
 const [showDropdown, setShowDropdown] = useState(false);

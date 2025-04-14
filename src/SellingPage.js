@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import './SellingPage.css';
 import { Link, useNavigate } from 'react-router-dom';
 import carDataJson from './data/transformed_carData.json';
-import { useUser } from './context/UserContext';
+import { UserContext } from './context/UserContext';
 import Header from './components/Header';
+import api from './api/axiosInstance';
+
 function SellingPage() {
+  const { logout } = useContext(UserContext);
   const [formData, setFormData] = useState({
     licensePlate: '',
     manufacturer: '',
@@ -24,7 +27,8 @@ function SellingPage() {
   const [selectedGrade, setSelectedGrade] = useState(null);
   const [previewImages, setPreviewImages] = useState([]);
   const [carData] = useState(carDataJson);
-  const { isAuthenticated, user, logout } = useUser();
+  const isAuthenticated = localStorage.getItem('isAuthenticated');
+  const user = localStorage.getItem('userData');
   const [showDropdown, setShowDropdown] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const totalSteps = 4; // 전체 단계 수
@@ -63,7 +67,84 @@ function SellingPage() {
       images: [...prev.images, ...files]
     }));
   };
-
+ // 폼 유효성 검사 함수 추가
+  const validateCurrentStep = () => {
+    // 각 단계별 유효성 검사
+    switch(currentStep) {
+      case 0: // 차량번호 단계
+        if (!formData.licensePlate || formData.licensePlate.trim() === '') {
+          alert('차량번호를 입력해주세요.');
+          return false;
+        }
+        // 차량번호 형식 검사 (예: 12가 3456 형식)
+        const licensePlateRegex = /^\d{2,3}[가-힣]\s?\d{4}$/;
+        if (!licensePlateRegex.test(formData.licensePlate)) {
+          alert('올바른 차량번호 형식이 아닙니다. (예: 12가 3456)');
+          return false;
+        }
+        break;
+      
+      case 1: // 차량 기본 정보 단계
+        if (!formData.manufacturer) {
+          alert('제조사를 선택해주세요.');
+          return false;
+        }
+        if (!formData.model) {
+          alert('모델을 선택해주세요.');
+          return false;
+        }
+        if (!formData.subModel) {
+          alert('세부모델을 선택해주세요.');
+          return false;
+        }
+        if (!formData.grade) {
+          alert('등급을 선택해주세요.');
+          return false;
+        }
+        break;
+      
+      case 2: // 차량 상세 정보 단계
+        if (!formData.year) {
+          alert('연식을 입력해주세요.');
+          return false;
+        }
+        // 연식 형식 검사 (4자리 숫자)
+        if (!/^\d{4}$/.test(formData.year)) {
+          alert('연식은 4자리 숫자로 입력해주세요. (예: 2020)');
+          return false;
+        }
+        
+        if (!formData.mileage) {
+          alert('주행거리를 입력해주세요.');
+          return false;
+        }
+        // 주행거리 형식 검사 (숫자만 허용)
+        if (!/^\d+$/.test(formData.mileage.replace(/,/g, ''))) {
+          alert('주행거리는 숫자만 입력해주세요.');
+          return false;
+        }
+        
+        if (!formData.price) {
+          alert('판매가격을 입력해주세요.');
+          return false;
+        }
+        // 판매가격 형식 검사 (숫자만 허용)
+        if (!/^\d+$/.test(formData.price.replace(/,/g, ''))) {
+          alert('판매가격은 숫자만 입력해주세요.');
+          return false;
+        }
+        break;
+      
+      case 3: // 차량 사진 단계
+        if (formData.images.length === 0) {
+          alert('최소 1장 이상의 차량 사진을 업로드해주세요.');
+          return false;
+        }
+        break;
+    }
+    
+    return true;
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
     // 여기에 서버로 데이터를 전송하는 로직 추가
@@ -77,8 +158,56 @@ function SellingPage() {
       formData.images.forEach(file => {
         formDataToSend.append('images', file);
       });
-      
+      console.log(`licensePlate 값: "${formData.licensePlate}", 타입: ${typeof formData.licensePlate}`);
       // carSaleRequest JSON 생성 (현재 입력 필드 매핑)
+      const carSaleRequest1 = {
+        // 기존 입력 필드 매핑
+        // number: formData.licensePlate,
+        // model: formData.model,
+        // submodel: formData.subModel,
+        // grade: formData.grade,
+        // name: `${formData.manufacturer} ${formData.model} ${formData.subModel} ${formData.grade}`,
+        // price: parseInt(formData.price) || 0,
+        // mileage: parseInt(formData.mileage) || 0,
+        // description: formData.description,    
+        // // 날짜 형식 변환
+        // age: "2025-04-13",
+        // firstReg: "2025-04-13",
+        // // 기본값 설정
+        // cc: 0,
+        // engine: "gasoline",
+        // color: "wh",
+        // brand: formData.manufacturer,
+        // maxOut: 0,
+        // fuelEfficient: 0,
+        // fuel: "gasoline",
+        // weight: 0,
+        // torque: 0,
+        // newPrice: 0,
+        // images: formData.images.map(file => file.name).join(','),
+        cc: 0,
+        engine: "string",
+        color: "wh",
+        firstReg: "2025-04-13",
+        brand: "string",
+        submodel: "string",
+        price: 0,
+        model: "string",
+        number: "string",
+        newPrice: 0,
+        mileage: 0,
+        torque: 0,
+        maxOut: 0,
+        name: "string",
+        fuelEfficient: 0,
+        manufacturer: "string",
+        fuel: "string",
+        grade: "string",
+        weight: 0,
+        description: "string",
+        age: "2025-04-13",
+        images: "string",
+      };
       const carSaleRequest = {
         // 기존 입력 필드 매핑
         number: formData.licensePlate,
@@ -91,8 +220,8 @@ function SellingPage() {
         mileage: parseInt(formData.mileage) || 0,
         description: formData.description,    
         // 날짜 형식 변환
-        age: new Date(formData.year).toISOString(),
-        firstReg: new Date(formData.year).toISOString(),
+        age: "2025-04-13",
+        firstReg: "2025-04-13",
         // 기본값 설정
         cc: 0,
         engine: "gasoline",
@@ -105,78 +234,50 @@ function SellingPage() {
         torque: 0,
         newPrice: 0,
         images: formData.images.map(file => file.name).join(','),
+        // cc: 0,
+        // engine: "string",
+        // color: "wh",
+        // firstReg: "2025-04-13",
+        // brand: "string",
+        // submodel: "string",
+        // price: 0,
+        // model: "string",
+        // number: "string",
+        // newPrice: 0,
+        // mileage: 0,
+        // torque: 0,
+        // maxOut: 0,
+        // name: "string",
+        // fuelEfficient: 0,
+        // manufacturer: "string",
+        // fuel: "string",
+        // grade: "string",
+        // weight: 0,
+        // description: "string",
+        // age: "2025-04-13",
+        // images: "string",
       };
-      
       formDataToSend.append('carSaleRequest', JSON.stringify(carSaleRequest));
 
-      console.log('=== FormData 전송 데이터 로그 ===');
 
-// 이미지 파일 로그
-formData.images.forEach((file, index) => {
-    console.log(`이미지 ${index + 1}:`, {
-        파일명: file.name,
-        타입: file.type,
-        크기: `${(file.size / 1024).toFixed(2)}KB`
-    });
-});
 
-// carSaleRequest 객체 로그
-console.log('차량 정보:', {
-    차량번호: carSaleRequest.number,
-    제조사: carSaleRequest.manufacturer,
-    모델: carSaleRequest.model,
-    세부모델: carSaleRequest.submodel,
-    등급: carSaleRequest.grade,
-    차량명: carSaleRequest.name,
-    가격: `${carSaleRequest.price.toLocaleString()}원`,
-    주행거리: `${carSaleRequest.mileage.toLocaleString()}km`,
-    연식: carSaleRequest.age,
-    최초등록일: carSaleRequest.firstReg
-});
+      const response = await api.post('api/car/sale/article', formDataToSend);
 
-// FormData 전체 내용 로그
-for (const [key, value] of formDataToSend.entries()) {
-    if (value instanceof File) {
-        console.log(`${key}:`, {
-            타입: 'File',
-            파일명: value.name,
-            파일타입: value.type,
-            파일크기: `${(value.size / 1024).toFixed(2)}KB`
-        });
-    } else if (value instanceof Blob) {
-        console.log(`${key}:`, {
-            타입: 'Blob',
-            데이터: JSON.parse(await value.text())
-        });
-    } else {
-        console.log(`${key}:`, value);
-    }
-}
+      console.log(JSON.stringify(response));
 
-console.log('=== 전송 데이터 로그 종료 ===');
-      // API 요청
-      const response = await fetch('https://rakunko.store/api/car/sale/article', {
-        method: 'POST',
-        body: formDataToSend,
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      
-      if (!response.ok) {
+      // 올바른 방식
+      if (response.status !== 200) {
         throw new Error('차량 등록에 실패했습니다.');
       }
       
-      const data = await response.json();
-      
-      if (data.isSuccess) {
+      if (response.status === 200) {
         console.log('차량 등록 성공');
         // 3초 후 메인 페이지로 이동
         setTimeout(() => {
           navigate('/');
         }, 1000);
       } else {
-        throw new Error(data.message || '차량 등록에 실패했습니다.');
+        throw new Error( '차량 등록에 실패했습니다.');
       }
       
     } catch (err) {
@@ -233,6 +334,11 @@ console.log('=== 전송 데이터 로그 종료 ===');
   };
 
   const handleNext = () => {
+
+    if (!validateCurrentStep()) {
+      return; // 유효성 검사 실패 시 다음 단계로 넘어가지 않음
+    }
+
     if (currentStep < totalSteps - 1) {
       setCurrentStep(prev => prev + 1);
     }

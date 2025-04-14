@@ -1,14 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useUser } from './context/UserContext';
+import { UserContext } from './context/UserContext';
 import './UserProfile.css';
 import Header from './components/Header';
 function UserProfile() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [showDropdown, setShowDropdown] = useState(false);
+    const { logout } = useContext(UserContext);
     // useUser를 사용하여 사용자 정보 가져오기
-  
+    const isAuthenticated = localStorage.getItem('isAuthenticated');    
+    const user = localStorage.getItem('userData');
     const [profile,setProfile] = useState(null);
     const [headerState, setHeaderState] = useState({
         theme: 'light',
@@ -68,17 +70,7 @@ function UserProfile() {
 
     const handleLogout = async () => {
         try {
-            // 로그아웃 API 호출
-            const response = await fetch('https://rakunko.store/api/user/logout', {
-                method: 'POST',
-                credentials: 'include',
-            });
-            
-            if (response.ok) {
-                // 로컬 스토리지나 세션에서 토큰 등 제거
-                localStorage.removeItem('token');
-                navigate('/');
-            }
+            await logout();
         } catch (error) {
             console.error('로그아웃 실패:', error);
         }

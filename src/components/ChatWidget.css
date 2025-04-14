@@ -70,14 +70,14 @@
 }
 
 .message.received {
-    align-self: flex-end;
+    align-self: flex-start;
     background-color: #007bff;
     color: white;
     margin-left: auto;
 }
 
 .message.sent {
-    align-self: flex-start;
+    align-self: flex-end;
     background-color: #e9ecef;
     color: black;
     margin-right: auto;

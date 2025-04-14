@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useContext } from 'react';
 import SockJS from 'sockjs-client';
 import { Client } from '@stomp/stompjs';
-import { useUser } from '../context/UserContext';
+import { UserContext } from '../context/UserContext';
 import './ChatWidget.css';
+import api from '../api/axiosInstance';
 
 const BASE_URL = 'https://rakunko.store';
 const user2Id = 4;
@@ -10,7 +11,7 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
     const isAuthenticated = localStorage.getItem('isAuthenticated');
     const user = JSON.parse(localStorage.getItem('userData'));
     const token = localStorage.getItem('token');
-    const { refreshUserToken } = useUser();
+    const { logout, refreshUserToken } = useContext(UserContext);
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([]);
     const messagesRef= useRef([]);
@@ -227,7 +228,7 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
                 console.log('새 메시지 추가:', newMessage);
                 currentMessages.push(newMessage);
                 messagesRef.current=currentMessages;
-
+                console.log(newMessage.sender);
                 setMessages(prev => {
                     const updatedMessages = [...prev, newMessage];
                     messagesRef.current = updatedMessages;
@@ -253,7 +254,7 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
                     },
                 }
             );
-
+            
             if(response.status === 401){
                 await refreshUserToken();
                 loadChatHistory();
@@ -271,7 +272,9 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
                     text: JSON.parse(msg.message).content,
                     sender: msg.senderId === user?.userId ? "received" : "sent",
                     timestamp: new Date(JSON.parse(msg.message).timestamp).toLocaleString()
-                }));
+                }
+            ));
+                
                 messages.reverse();
                 setMessages(messages);
             }
@@ -283,29 +286,19 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
     const initializeChat = async () => {
         try {
             // 1. 채팅방 존재 여부 확인
-            const response = await fetch(`${BASE_URL}/api/chat/room/?page=0&size=5`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
+            const response = await api.get(`/api/chat/room/?page=0&size=5`);
             console.log("토글버튼 클릭 챗 초기화")
-            const data = await response.json();
 
 
-            console.log(data)
             if(response.status === 401){
-                await refreshUserToken();
-                initializeChat();
+                logout();
                 return;
             }
-            else if (!response.ok) {
-                throw new Error('채팅 내역 조회 실패');
-            }
-            if (data.code === "COMMON200") {
-                console.log('room get 요청 성공: '+data.result);
+            console.log(response.data);
+            if (response.status === 200) {
+                console.log('room get 요청 성공: '+JSON.stringify(response.data.result));
                 //user2(판매자)가 현재 유저가 구독한 방중에 같은 사람이 있으면 existroom에 넣는다.
-                const existRoom = data.result.content.find(room => room.user2Id === user2Id);
+                const existRoom = response.data.result.content.find(room => room.user2Id === user2Id);
                 
                 if (existRoom) {
                     console.log("채팅방 존재")
@@ -318,13 +311,8 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
                     console.log('carId: '+carId);
                     // 채팅방이 없는 경우, 새로운 채팅방 생성
                     //현재는 고정된 사용자 사용
-                    const createResponse = await fetch(`${BASE_URL}/api/chat/room/?user2Id=${user2Id}`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ carId: 1})
-                });
+                    const createResponse = await api.post(`/api/chat/room/?user2Id=${user2Id}`, {body: JSON.stringify({ carId: 2})});
+                    
                 if(createResponse.status === 401){
                     await refreshUserToken();
                     initializeChat();
@@ -336,21 +324,15 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
 
 
                 if(createResponse.status === 200){
-                    const roomListResponse = await fetch(`${BASE_URL}/api/chat/room/?page=0&size=5`, {
-                        method: 'GET',
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        }
-                    });
+                    const roomListResponse = await api.get(`/api/chat/room/?page=0&size=5`);
+                        
                     if(roomListResponse.status === 401){
-                        await refreshUserToken();
                         initializeChat();
                         return;
                     }
-                    const roomListData = await roomListResponse.json();
-                    console.log(roomListData);
-                    if(roomListData.code === "COMMON200"){
-                        const newRoom = roomListData.result.content.find(room => room.user2Id === user2Id);
+                    console.log(roomListResponse.data);
+                    if(roomListResponse.data.code === "COMMON200"){
+                        const newRoom = roomListResponse.data.result.content.find(room => room.user2Id === user2Id);
                         if(newRoom){
                             setRoomId(newRoom.roomId);
                             setOtherUserId(newRoom.user2Id);
