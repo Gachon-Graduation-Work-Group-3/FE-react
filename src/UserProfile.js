@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { UserContext } from './context/UserContext';
 import './UserProfile.css';
 import Header from './components/Header';
+import api from './api/axiosInstance';
 function UserProfile() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -31,32 +32,27 @@ function UserProfile() {
                 return;
             }
             const email = contextUser.email;
-            console.log(email)
             try {
                 console.log("사용할 이메일:", email);
-                const response = await fetch('https://rakunko.store/api/user/profile', {
-                    method: 'GET',
+                const response = await api.get('/api/user/profile', {
                     headers: {
                         'Content-Type': 'application/json',
                         'X-User-Email': email
                     },
-                    credentials: 'include',
                 });
-
-                if (!response.ok) {
+                console.log(response)
+                if (response.status !== 200) {
                     throw new Error('프로필 정보를 불러오는데 실패했습니다.');
                 }
                 
-                const data = await response.json();
-                console.log(data)
-                if (data.isSuccess) {
+                if (response.status === 200) {
                     const userData = {
-                        ...data.result,
+                        ...response.data.result,
                         email: email  // 이메일 정보 추가
                     };
                     setProfile(userData);
                 } else {
-                    throw new Error(data.message || '프로필 정보를 불러오는데 실패했습니다.');
+                    throw new Error(response.data.message || '프로필 정보를 불러오는데 실패했습니다.');
                 }
             } catch (err) {
                 setError(err.message);

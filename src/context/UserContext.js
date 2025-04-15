@@ -140,7 +140,11 @@ export function UserProvider({ children }) {
 
     // 컴포넌트 마운트 시 한 번만 실행
     useEffect(() => {
+        console.log('userContext 마운트');
+
         const timestamp = localStorage.getItem('timestamp');
+        console.log('timestamp', timestamp);
+        console.log('Date.now()', Date.now());
         if (timestamp) {
             const currentTime = Date.now();
             const timeDiff = currentTime - timestamp;
