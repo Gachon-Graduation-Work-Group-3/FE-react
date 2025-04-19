@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { UserContext } from './context/UserContext';
+import { UserContext } from '../../context/UserContext';
 import './LikePage.css';
-import Header from './components/Header';
-import api from './api/axiosInstance';
+import Header from '../../components/Header';
+import api from '../../api/axiosInstance';
 function LikePage() {
   const [likedCars, setLikedCars] = useState([]);
   const [loading, setLoading] = useState(true);

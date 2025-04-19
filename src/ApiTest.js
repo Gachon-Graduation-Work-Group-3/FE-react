@@ -2,9 +2,9 @@ import React, { useState, useEffect, useContext } from 'react';
 import { UserContext } from './context/UserContext';
 import { useNavigate } from 'react-router-dom';
 import api from './api/axiosInstance';
-import './UserContextPage.css';
+import './ApiTest.css';
 
-function UserContextPage() {
+function ApiTestPage() {
   const navigate = useNavigate();
   // 사용자 인증 상태 확인
   const isAuthenticated = localStorage.getItem('isAuthenticated');
@@ -486,4 +486,4 @@ function UserContextPage() {
   );
 }
 
-export default UserContextPage;
+export default ApiTestPage;

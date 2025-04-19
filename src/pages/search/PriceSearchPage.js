@@ -2,9 +2,9 @@ import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './PriceSearchPage.css';
 import { Link } from 'react-router-dom';
-import carDataJson from './data/transformed_carData.json';
-import { UserContext } from './context/UserContext';
-import Header from './components/Header';
+import carDataJson from '../../data/transformed_carData.json';
+import { UserContext } from '../../context/UserContext';
+import Header from '../../components/Header';
 function PriceSearchPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useState({
@@ -93,7 +93,9 @@ function PriceSearchPage() {
 
   return (
     <div className="container">
-      <Header theme={headerState.theme} isScrolled={headerState.isScrolled}  />
+      <div className="header-container">  
+        <Header theme={headerState.theme} isScrolled={headerState.isScrolled}  />
+      </div>
 
       <div className="search-content">
         <h1 className="search-title">시세 검색</h1>

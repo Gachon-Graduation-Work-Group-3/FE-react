@@ -2,9 +2,9 @@ import React, { useState, useEffect, useRef, useCallback, useContext } from 'rea
 import { useNavigate } from 'react-router-dom';
 import SockJS from 'sockjs-client';
 import { Client } from '@stomp/stompjs';
-import { UserContext } from './context/UserContext';
-import api from './api/axiosInstance';
-import Header from './components/Header';
+import { UserContext } from '../../context/UserContext';
+import api from '../../api/axiosInstance';
+import Header from '../../components/Header';
 import './chatRoomPage.css';
 const BASE_URL = 'https://rakunko.store';
 

@@ -375,7 +375,7 @@ return ()=>{
   };
 
   useEffect(() => {
-    fetchCar(0, 5, setResponse, setError, setLoading, null, null).then((data) => {
+    fetchCar(0, 10, setResponse, setError, setLoading, null, null).then((data) => {
       console.log('Car description:', data);
     })
       .catch((error) => {

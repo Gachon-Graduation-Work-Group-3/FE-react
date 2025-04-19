@@ -1,12 +1,12 @@
 import React, { useState, useEffect,useContext } from 'react';
 import './BuyingPage.css';
 import { Link, useNavigate } from 'react-router-dom';
-import carDataJson from './data/transformed_carData.json';
-import { fetchCar } from './remote/searchcar';
-import { formatDateToYearMonth } from './util/formatDateToYearMonth';
-import { handlePageChange } from './event/changevalue';
-import { UserContext } from './context/UserContext';
-import Header from './components/Header';
+import carDataJson from '../../data/transformed_carData.json';
+import { fetchCar } from '../../remote/searchcar';
+import { formatDateToYearMonth } from '../../util/formatDateToYearMonth';
+import { handlePageChange } from '../../event/changevalue';
+import { UserContext } from '../../context/UserContext';
+import Header from '../../components/Header';
 function BuyingPage() {
   const [filteredCars, setFilteredCars] = useState([]);
   const [filters, setFilters] = useState({

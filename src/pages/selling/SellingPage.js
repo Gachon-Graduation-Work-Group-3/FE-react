@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useContext } from 'react';
 import './SellingPage.css';
 import { Link, useNavigate } from 'react-router-dom';
-import carDataJson from './data/transformed_carData.json';
-import { UserContext } from './context/UserContext';
-import Header from './components/Header';
-import api from './api/axiosInstance';
+import carDataJson from '../../data/transformed_carData.json';
+import { UserContext } from '../../context/UserContext';
+import Header from '../../components/Header';
+import api from '../../api/axiosInstance';
 
 function SellingPage() {
   const { logout } = useContext(UserContext);
