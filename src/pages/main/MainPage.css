@@ -26,7 +26,7 @@ body {
   align-items: center;
   background-color: #f3f3f3;
   min-height: 100vh;
-  height: 100vh;
+  height: auto;
   overflow-x: hidden;
   overflow-y: scroll;
   scroll-snap-type: y proximity;
@@ -334,14 +334,17 @@ body {
 .recommendations {
     padding: 130px 4rem;
     width: 100%;
+    min-height: 100vh; /* 최소 높이를 100vh로 설정 */
+    height: auto; /* 자동으로 내용에 맞게 높이 조정 */
     background: black;
     display: flex;
     flex-direction: column;
     align-items: center;
-    overflow: hidden;
+    overflow: visible; /* overflow를 visible로 변경 */
 }
 
 .cards-container {
+    height: auto;
     padding: 0 40px;
     width: 100%;
     max-width: 1650px;
@@ -553,10 +556,11 @@ body {
 }
 .snap-section {
   scroll-snap-align: start;
-  height: 100vh;
+  min-height: 100vh;
+  height: auto;
   width: 100%;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 }
 
 /* 스크롤 힌트 */
@@ -634,7 +638,8 @@ body {
 .slider-section, 
 .recommendations {
   scroll-snap-align: start;
-  height: 100vh;
+  min-height: 100vh; /* height에서 min-height로 변경 */
+  height: auto;
   width: 100%;
 }
 
@@ -648,7 +653,6 @@ body {
 .image-slider-section, 
 .recommendations {
   scroll-snap-align: start;
-  overflow: hidden;
 }
 
 .scrollable-right-content {
@@ -670,3 +674,108 @@ body {
   overflow: hidden;  /* 충돌하는 overflow 속성 */
 }
 
+/* cards-grid 클래스 수정 */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+  width: 100%;
+  padding: 20px 0;
+}
+
+/* car-card 클래스 수정 */
+.car-card {
+  position: relative;
+  background: #1a1a1a;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s, box-shadow 0.3s;
+  width: 100%;
+}
+
+.car-image-wrapper {
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+}
+
+.car-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.car-details {
+  padding: 15px;
+  background: #1a1a1a;
+  color: white;
+}
+
+.car-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: white;
+  margin-bottom: 8px;
+}
+
+.car-price {
+  font-size: 20px;
+  color: #f3a83c;
+  font-weight: bold;
+  margin: 5px 0;
+}
+
+.car-info {
+  font-size: 14px;
+  color: #ccc;
+}
+
+/* 위치 정보 스타일 */
+.location-info {
+  display: flex;
+  align-items: center;
+  color: #aaa;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+/* 구매 버튼 */
+.buy-now-btn {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  background: white;
+  color: black;
+  text-align: center;
+  text-decoration: none;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+/* 반응형 그리드 조정 */
+@media (min-width: 1400px) {
+  .cards-grid {
+      grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 1399px) and (min-width: 1000px) {
+  .cards-grid {
+      grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 999px) and (min-width: 600px) {
+  .cards-grid {
+      grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 599px) {
+  .cards-grid {
+      grid-template-columns: repeat(1, 1fr);
+  }
+}

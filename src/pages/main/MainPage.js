@@ -156,9 +156,32 @@ function MainPage() {
   useEffect(()=>{
     const container = document.querySelector('.container');
     let isScrolling = false;
+    let lastSectionChange = Date.now();
+    const sectionCooldown = 800;
+
     const handleWheel = (event) => {
-      console.log(`📌 휠 이벤트 감지: ${event.deltaY}`);
+    if(isScrolling || Date.now()-lastSectionChange< sectionCooldown){
+      event.preventDefault();
+      return;
+    }
+    console.log(`📌 휠 이벤트 감지: ${event.deltaY}`);
     const currentSection = activeSection;
+    if(currentSection==='recommendations' &&event.deltaY<0){
+      event.preventDefault();
+      isScrolling=true;
+      lastSectionChange=Date.now();
+
+      sliderSectionRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+      setTimeout(() => {
+        isScrolling=false;
+      }, 1500);
+      return;
+    }
+    
+
     if(currentSection==='slider-section'){
       if(sliderAtBoundary==='top'&& event.deltaY<0){
         console.log(`📌 위쪽 경계 스크롤 시도, 이미지 슬라이더로 이동`);
@@ -220,11 +243,15 @@ function MainPage() {
     nextRef.current.scrollIntoView({
       behavior: 'smooth',
       block: 'start',
-      duration: 1500
     });
     setTimeout(() => {
       isScrolling = false;
-    }, 1500);
+    }, 300);
+  }
+
+  if(currentSection === 'recommendations' && event.deltaY > 0) {
+    event.preventDefault();
+    return;
   }
 };
 
@@ -279,7 +306,7 @@ return ()=>{
       const observerOptions = {
         root: null,
         rootMargin: '0px',
-        threshold: 0.1 // 10% 이상 보이면 활성화로 변경 (기존 0.6)
+        threshold: 0.1 
       };
       
       const sectionObserver = new IntersectionObserver((entries) => {
@@ -300,71 +327,6 @@ return ()=>{
         sectionObserver.disconnect();
       };
     }, []);
-  
-  // // checkScroll 함수 수정
-  // const checkScroll = useCallback(() => {
-  //   if (cardsRef.current) {
-  //     const { scrollLeft, scrollWidth, clientWidth } = cardsRef.current;
-  //     // 스크롤 위치 디버깅
-  //     console.log('Scroll position:', {
-  //       scrollLeft,
-  //       scrollWidth,
-  //       clientWidth,
-  //       canScrollLeft: scrollLeft > 0,
-  //       canScrollRight: scrollLeft < (scrollWidth - clientWidth)
-  //     });
-      
-  //     setCanScrollLeft(scrollLeft > 0);
-  //     setCanScrollRight(scrollLeft < (scrollWidth - clientWidth));
-  //   }
-  // }, []);
-  // // 스크롤 이벤트 리스너
-  // useEffect(() => {
-  //   const currentRef = cardsRef.current;
-  //   if (currentRef) {
-  //     currentRef.addEventListener('scroll', checkScroll);
-  //     // 초기 상태 체크
-  //     checkScroll();
-  //   }
-  //   return () => {
-  //     if (currentRef) {
-  //       currentRef.removeEventListener('scroll', checkScroll);
-  //     }
-  //   };
-  // }, [checkScroll]);
-
-  // // 이전/다음 버튼 핸들러 수정
-  // const prevCars = useCallback(() => {
-  //   if (cardsRef.current) {
-  //     const cardWidth = cardsRef.current.children[0].offsetWidth;
-  //     const gap = 32; // gap: 2rem = 32px
-  //     const scrollAmount = -(cardWidth + gap);
-      
-  //     cardsRef.current.scrollBy({
-  //       left: scrollAmount,
-  //       behavior: 'smooth'
-  //     });
-
-  //     // 스크롤 후 상태 업데이트를 위한 setTimeout
-  //     setTimeout(checkScroll, 500); // 스크롤 애니메이션 완료 후 체크
-  //   }
-  // }, [checkScroll]);
-
-  // const nextCars = useCallback(() => {
-  //   if (cardsRef.current) {
-  //     const cardWidth = cardsRef.current.children[0].offsetWidth;
-  //     const gap = 32;
-  //     const scrollAmount = cardWidth + gap;
-      
-  //     cardsRef.current.scrollBy({
-  //       left: scrollAmount,
-  //       behavior: 'smooth'
-  //     });
-
-  //     setTimeout(checkScroll, 500);
-  //   }
-  // }, [checkScroll]);
-
   const movetoDescription = (carId) => {
     console.log("Moving to description with carId:", carId); // 디버깅용
     navigate('/description', { 
@@ -375,7 +337,7 @@ return ()=>{
   };
 
   useEffect(() => {
-    fetchCar(0, 5, setResponse, setError, setLoading, null, null).then((data) => {
+    fetchCar(0, 20, setResponse, setError, setLoading, null, null).then((data) => {
       console.log('Car description:', data);
     })
       .catch((error) => {
@@ -383,126 +345,6 @@ return ()=>{
       });
   }, []);
   
-  // const handleScroll = () => {
-  //   console.log("Scroll event fired");
-      
-  //     console.log("scrollY", window.scrollY);
-    
-  //     if (window.scrollY > 0) {
-  //       setScroll(true)
-  //       console.log("Added scrolled class");
-  //     } else {
-  //       setScroll(false);
-  //       console.log("Removed scrolled class");
-  //     }
-  // };
-
-  // useEffect(() => {
-  //   console.log("Effect mounted");
-  //   // 초기 상태 체크
-  //   console.log("Adding scroll listener");
-  //   window.addEventListener('scroll', handleScroll);
-    
-  //   return () => {
-  //     console.log("Removing scroll listener");
-  //     window.removeEventListener('scroll', handleScroll);
-  //   };
-  // }, [handleScroll]);
-
-  // useEffect(() => {
-  //   const observer = new IntersectionObserver((entries) => {
-      
-  //     entries.forEach((entry, index) => {
-  //       // 이미 visible 클래스가 있으면 스킵
-  //       if (entry.target.classList.contains('visible')) return;
-        
-  //       if (entry.isIntersecting) {
-  //         setTimeout(() => {
-  //           entry.target.classList.add('visible');
-  //         }, index * 200);
-  //       }
-  //     });
-  //   }, {
-  //     threshold: 0.7,
-  //     // 한 번만 관찰하도록 설정
-  //     once: true
-  //   });
-
-  //   const elements = document.querySelectorAll('.feature-item');
-    
-  //   // 이미 observe 중인 요소는 다시 observe하지 않음
-  //   elements.forEach(item => {
-  //     if (!item.classList.contains('visible')) {
-  //       observer.observe(item);
-  //     }
-  //   });
-
-  //   // 클린업 함수
-  //   return () => {
-  //     observer.disconnect();
-  //   };
-  // }, []); // 빈 의존성 배열
-
-  // // MainPage 함수 내에 wheel 이벤트 리스너 추가
-  // useEffect(() => {
-  //   const container = document.querySelector('.container');
-  //   let isScrolling = false;
-    
-  //   const handleWheel = (event) => {
-  //     // 스크롤 중복 방지
-  //     if (isScrolling) return;
-      
-  //     // 현재 보이는 섹션 확인
-  //     const currentSection = activeSection;
-      
-  //     // 스크롤 방향 감지 (양수: 아래로, 음수: 위로)
-  //     const direction = event.deltaY > 0 ? 1 : -1;
-      
-  //     // 다음 섹션 결정
-  //     let nextRef;
-  //     if (direction > 0) {
-  //       // 아래로 스크롤
-  //       if (currentSection === 'image-slider') {
-  //         nextRef = sliderSectionRef;
-  //       } else if (currentSection === 'slider-section') {
-  //         nextRef = recommendationsRef;
-  //       }
-  //     } else {
-  //       // 위로 스크롤
-  //       if (currentSection === 'recommendations') {
-  //         nextRef = sliderSectionRef;
-  //       } else if (currentSection === 'slider-section') {
-  //         nextRef = imageSliderRef;
-  //       }
-  //     }
-      
-  //     // 다음 섹션이 있으면 이동
-  //     if (nextRef) {
-  //       event.preventDefault(); // 기본 스크롤 방지
-  //       isScrolling = true;
-        
-  //       // 부드러운 스크롤 이동
-  //       nextRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        
-  //       // 스크롤 중복 방지를 위한 타이머
-  //       setTimeout(() => {
-  //         isScrolling = false;
-  //       }, 800); // 스크롤 애니메이션 시간보다 약간 길게
-  //     }
-  //   };
-    
-  //   if (container) {
-  //     container.addEventListener('wheel', handleWheel, { passive: false });
-  //   }
-    
-  //   return () => {
-  //     if (container) {
-  //       container.removeEventListener('wheel', handleWheel);
-  //     }
-  //   };
-  // }, [activeSection]); // activeSection이 변경될 때마다 이벤트 리스너 업데이트
-
-  // 슬라이더 섹션의 dot을 세 부분으로 나누기
   const getSliderDotClass = (position) => {
     if (activeSection !== 'slider-section') return '';
     
@@ -594,6 +436,7 @@ return ()=>{
                     </div>
                     </div>
                 ) : response.content.length > 0 ? (
+                  <div className='card-slider-container'>
                     <div className="cards-grid">
                         {response.content.map((car, i) => (
                             <div 
@@ -617,6 +460,7 @@ return ()=>{
                                 </div>
                             </div>
                         ))}
+                    </div>
                     </div>
                 ) : (
                     <div className="empty-state">추천 차량이 없습니다.</div>
