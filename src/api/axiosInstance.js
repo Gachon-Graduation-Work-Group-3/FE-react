@@ -48,29 +48,29 @@ api.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
         return api(originalRequest);
       } catch (refreshError) {
-        // setTimeout(() => {
-        // // 리프레시 토큰도 만료되었으면 로그아웃
-        // localStorage.removeItem('token');
-        // localStorage.removeItem('refreshToken');
-        // localStorage.removeItem('userData');
-        // localStorage.setItem('isAuthenticated', 'false');
+        setTimeout(() => {
+        // 리프레시 토큰도 만료되었으면 로그아웃
+        localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('userData');
+        localStorage.setItem('isAuthenticated', 'false');
         
-        // // // 로그인 페이지로 리다이렉트
-        // // window.location.href = '/login';
-        // }, 100);
+        // 로그인 페이지로 리다이렉트
+        window.location.href = '/login';
+        }, 100);
         return Promise.reject(refreshError);
       }
     }else{
         // 10초 후 로그아웃 및 리다이렉트
-      //   setTimeout(() => {
-      //   localStorage.removeItem('token');
-      //   localStorage.removeItem('refreshToken');
-      //   localStorage.removeItem('userData');
-      //   localStorage.setItem('isAuthenticated', 'false');
+        setTimeout(() => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('userData');
+        localStorage.setItem('isAuthenticated', 'false');
         
-      //   // // 로그인 페이지로 리다이렉트
-      //   // window.location.href = '/login';
-      // }, 100);
+        // 로그인 페이지로 리다이렉트
+        window.location.href = '/login';
+      }, 100);
       return Promise.reject(error);
     }
     

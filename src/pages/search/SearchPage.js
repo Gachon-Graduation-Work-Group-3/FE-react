@@ -1,9 +1,9 @@
 import React, { useState, useEffec,useContext } from 'react';  
 import './SearchPage.css';
 import { Link, useNavigate } from 'react-router-dom';
-import carDataJson from './data/transformed_carData.json';
-import { UserContext } from './context/UserContext';
-import Header from './components/Header.js';
+import carDataJson from '../../data/transformed_carData.json';
+import { UserContext } from '../../context/UserContext.js';
+import Header from '../../components/Header.js';
 function SearchPage() {
   const { logout } = useContext(UserContext);
   const [selectedManufacturer, setSelectedManufacturer] = useState(null);
@@ -98,7 +98,9 @@ function SearchPage() {
 
   return (
     <div className="container">
-      <Header theme={headerState.theme} isScrolled={headerState.isScrolled}  />
+      <div className="header-container">
+        <Header theme={headerState.theme} isScrolled={headerState.isScrolled}  />
+      </div>
 
 
 

@@ -1,19 +1,19 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import MainPage from './pages/main/MainPage';
-import BuyingPage from './BuyingPage';
-import SellingPage from './SellingPage';
-import SearchPage from './SearchPage';
-import PriceSearchPage from './PriceSearchPage';
-import Description from './Description';
-import LoginPage from './LoginPage';
+import BuyingPage from './pages/buying/BuyingPage';
+import SellingPage from './pages/selling/SellingPage';
+import SearchPage from './pages/search/SearchPage';
+import PriceSearchPage from './pages/search/PriceSearchPage';
+import Description from './pages/description/Description';
+import LoginPage from './pages/user/LoginPage';
 import { UserProvider } from './context/UserContext';
-import UserProfile from './UserProfile';
-import ChatRooms from './chatRoomPage';
-import LikePage from './LikePage';
-import MySaleListPage from './MySaleListPage';
-import LoginSuccess from './LoginsSuccess';
-import UserContextPage from './UserContextPage';
+import UserProfile from './pages/user/UserProfile';
+import ChatRooms from './pages/user/chatRoomPage';
+import LikePage from './pages/user/LikePage';
+import MySaleListPage from './pages/user/MySaleListPage';
+import LoginSuccess from './pages/user/LoginsSuccess';
+import ApiTestPage from './ApiTest';
 import './App.css';
 
 
@@ -36,7 +36,7 @@ function App() {
             <Route path="/userProfile" element={<UserProfile />} />
             <Route path="/like" element={<LikePage />} />
             <Route path="/my-sale-list" element={<MySaleListPage />} />
-            <Route path="/user-context" element={<UserContextPage />} />
+            <Route path="/api-test" element={<ApiTestPage />} />
           </Routes>
       </div>
     </UserProvider>

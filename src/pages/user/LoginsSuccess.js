@@ -1,6 +1,6 @@
 import { useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { UserContext } from './context/UserContext';
+import { UserContext } from '../../context/UserContext';
 import './LoginSuccess.css';  // CSS 파일 생성 필요
 
 function LoginSuccess() {

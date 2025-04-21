@@ -1,10 +1,10 @@
 import React,{memo, useCallback, useState,useEffect,useRef, useContext} from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
-import {fetchCarDescription} from './remote/SearchCarDescription';
-import ChatWidget from './components/ChatWidget';
+import {fetchCarDescription} from '../../remote/SearchCarDescription';
+import ChatWidget from '../../components/ChatWidget';
 import './PriceResultPage.css';
 import './Description.css';
-import { UserContext } from './context/UserContext';
+import { UserContext } from '../../context/UserContext';
 import {
   LineChart,
   Line,
@@ -14,8 +14,8 @@ import {
   Tooltip,
   ResponsiveContainer
 } from 'recharts';
-import { fetchCarPrediction } from './remote/SearchCarprediction';
-import Header from './components/Header';
+import { fetchCarPrediction } from '../../remote/SearchCarprediction';
+import Header from '../../components/Header';
 
 
 
