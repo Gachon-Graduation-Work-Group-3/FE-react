@@ -6,7 +6,7 @@ import Header from '../../components/Header';
 import api from '../../api/axiosInstance';
 function LikePage() {
   const [likedCars, setLikedCars] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -19,21 +19,24 @@ function LikePage() {
     theme: 'light',
     isScrolled: false
   });
+  useEffect(() => {
+    fetchLikedCars();
+  }, []);
   const fetchLikedCars = async (page = 0) => {
     try {
+      console.log("fetchLikedCars 호출");
       setLoading(true);
       const response = await api.get(`/api/user/like?page=${page}&size=5`);
-      
+      console.log(response);
+      const data = response.data;
+      console.log(data);
       if (response.status !== 200) {
         throw new Error('좋아요 목록을 불러오는데 실패했습니다.');
       }
-      
-      const data = response.data;
-      
       if (response.status === 200) {
-        setLikedCars(data.result.searchCarsQueries.content);
-        setTotalPages(data.result.searchCarsQueries.totalPages);
-        setCurrentPage(data.result.searchCarsQueries.number);
+        setLikedCars(data.result.userLikeCars.content);
+        setTotalPages(data.result.userLikeCars.totalPages);
+        setCurrentPage(data.result.userLikeCars.number);
       } else {
         throw new Error(data.message || '좋아요 목록을 불러오는데 실패했습니다.');
       }

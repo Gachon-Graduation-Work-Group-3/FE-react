@@ -160,54 +160,6 @@ function SellingPage() {
       });
       console.log(`licensePlate 값: "${formData.licensePlate}", 타입: ${typeof formData.licensePlate}`);
       // carSaleRequest JSON 생성 (현재 입력 필드 매핑)
-      const carSaleRequest1 = {
-        // 기존 입력 필드 매핑
-        // number: formData.licensePlate,
-        // model: formData.model,
-        // submodel: formData.subModel,
-        // grade: formData.grade,
-        // name: `${formData.manufacturer} ${formData.model} ${formData.subModel} ${formData.grade}`,
-        // price: parseInt(formData.price) || 0,
-        // mileage: parseInt(formData.mileage) || 0,
-        // description: formData.description,    
-        // // 날짜 형식 변환
-        // age: "2025-04-13",
-        // firstReg: "2025-04-13",
-        // // 기본값 설정
-        // cc: 0,
-        // engine: "gasoline",
-        // color: "wh",
-        // brand: formData.manufacturer,
-        // maxOut: 0,
-        // fuelEfficient: 0,
-        // fuel: "gasoline",
-        // weight: 0,
-        // torque: 0,
-        // newPrice: 0,
-        // images: formData.images.map(file => file.name).join(','),
-        cc: 0,
-        engine: "string",
-        color: "wh",
-        firstReg: "2025-04-13",
-        brand: "string",
-        submodel: "string",
-        price: 0,
-        model: "string",
-        number: "string",
-        newPrice: 0,
-        mileage: 0,
-        torque: 0,
-        maxOut: 0,
-        name: "string",
-        fuelEfficient: 0,
-        manufacturer: "string",
-        fuel: "string",
-        grade: "string",
-        weight: 0,
-        description: "string",
-        age: "2025-04-13",
-        images: "string",
-      };
       const carSaleRequest = {
         // 기존 입력 필드 매핑
         number: formData.licensePlate,
@@ -360,9 +312,9 @@ function SellingPage() {
         <h2 className="form-title">내차 판매하기</h2>
         
         <div className="steps-container">
-          <div className="steps-wrapper" style={{ transform: `translateX(-${currentStep * 25}%)` }}>
+          <div className="steps-wrapper">
             {/* 1단계: 차량번호 */}
-            <div className="car-selling-section step">
+            <div className={`car-selling-section step first-step ${currentStep === 0 ? 'active-step' : 'hidden-step'}`}>
               <div className="car-selling-section-wrapper">
                 <h3 className="section-title">차량번호 입력</h3>
                 <div className="form-group">
@@ -384,7 +336,7 @@ function SellingPage() {
             </div>
 
             {/* 2단계: 차량 기본 정보 */}
-            <div className="car-selling-section step">
+            <div className={`car-selling-section step ${currentStep === 1 ? 'active-step' : 'hidden-step'}`}>
               <div className="car-selling-section-wrapper basic-info-wrapper">
                 <h3 className="section-title">차량 기본 정보</h3>
                 <div className="info-grid">
@@ -467,7 +419,7 @@ function SellingPage() {
             </div>
 
             {/* 3단계: 차량 상세 정보 */}
-            <div className="car-selling-section step">
+            <div className={`car-selling-section step ${currentStep === 2 ? 'active-step' : 'hidden-step'}`}>
               <div className="car-selling-section-wrapper basic-info-wrapper2">
                 <h3 className="section-title">차량 상세 정보</h3>
                 <div className="info-grid">
@@ -515,7 +467,7 @@ function SellingPage() {
             </div>
 
             {/* 4단계: 차량 사진 */}
-            <div className="car-selling-section step">
+            <div className={`car-selling-section step last-step ${currentStep === 3 ? 'active-step' : 'hidden-step'}`}>
               <div className="car-selling-section-wrapper">
                 <h3 className="section-title">차량 사진</h3>
                 <div className="image-upload">

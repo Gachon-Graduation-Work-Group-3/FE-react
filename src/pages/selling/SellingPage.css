@@ -124,7 +124,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  max-width: 1500px;
   margin-bottom: 40px;
   padding: 30px;
   background: #ffffff;
@@ -209,6 +208,8 @@
 .steps-container {
   overflow: hidden;
   width: 100%;
+  display: flex;
+  justify-content: flex-start;
 }
 
 .steps-wrapper {
@@ -300,6 +301,7 @@
 
 .car-selling-section-wrapper {
   width: 50%;
+  min-width: 500px;
 
 }
 .car-selling-section-wrapper.basic-info-wrapper {
@@ -312,4 +314,32 @@
 
 .car-selling-section-wrapper.basic-info-wrapper2 {
   width: 30%;
+}
+/* .car-selling-section.first-step {
+  padding: 20px 500px 20px 100px;
+}
+.car-selling-section.last-step {
+  padding: 20px 100px 20px 500px;
+} */
+.step-wrapper {
+  padding: 20px 100px 20px 100px;
+}
+.active-step {
+  display: block;
+  opacity: 1;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.hidden-step {
+  display: none;
+  opacity: 0;
+}
+
+.steps-wrapper {
+  width: 100%;
+  position: relative;
+}
+
+.car-selling-section {
+  width: 100%;
 }

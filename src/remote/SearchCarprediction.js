@@ -31,10 +31,12 @@ export const fetchCarPrediction = async (carData, setPredictionData, setError, s
         });
         console.log(processedData);
         
-        const response = await fetch('http://158.179.168.250:8000/docs', {
+        const response = await fetch('http://158.179.195.175/price/prediction', {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Access-Control-Request-Headers': 'authorization,content-type'
             },
             body: processedData
         });
