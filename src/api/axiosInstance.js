@@ -40,9 +40,11 @@ api.interceptors.response.use(
       }); 
       console.log(response);  
         // 새 토큰 저장
-        const newToken = refreshToken;
+        const newToken = response.result.accesstoken;
+        const newRefreshToken = response.result.refreshtoken;
+      ;
         localStorage.setItem('token', newToken);
-       
+        localStorage.setItem('refreshToken', newRefreshToken);
         
         // 새 토큰으로 원래 요청 재시도
         originalRequest.headers.Authorization = `Bearer ${newToken}`;

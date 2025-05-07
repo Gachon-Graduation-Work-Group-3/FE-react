@@ -2,11 +2,12 @@ import React, { useState, useEffect,useContext } from 'react';
 import './BuyingPage.css';
 import { Link, useNavigate } from 'react-router-dom';
 import carDataJson from '../../data/transformed_carData.json';
-import { fetchCar } from '../../remote/searchcar';
+import { fetchCar, fetchCarByInfo, fetchCarByModel } from '../../remote/searchcar';
 import { formatDateToYearMonth } from '../../util/formatDateToYearMonth';
 import { handlePageChange } from '../../event/changevalue';
 import { UserContext } from '../../context/UserContext';
 import Header from '../../components/Header';
+import api from '../../api/axiosInstance';
 function BuyingPage() {
   const [filteredCars, setFilteredCars] = useState([]);
   const [filters, setFilters] = useState({
@@ -40,8 +41,6 @@ const [carData] = useState(initialCarData);
 
 const isAuthenticated = localStorage.getItem('isAuthenticated');
 const user = localStorage.getItem('userData');
-console.log('인증 상태:', isAuthenticated);
-console.log('사용자 정보:', user);
 const [showDropdown, setShowDropdown] = useState(false);
 const [headerState, setHeaderState] = useState({
   theme: 'light',
@@ -123,6 +122,48 @@ const handleFilterChange = (category, type, value) => {
     }
   }));
 };
+useEffect(() => {
+  console.log(selectedManufacturer);
+  console.log(selectedModel);
+  console.log(selectedSubModel);
+  console.log(selectedGrade);
+}, [selectedManufacturer, selectedModel, selectedSubModel, selectedGrade]);
+
+const handleInfoSearch = async () => {
+  fetchCarByInfo(
+    currentPage - 1,
+    12,
+    filters,
+    setResponse,
+    setError,
+    setLoading,
+    setTotalPages,
+    false
+  );
+};
+
+const handleModelSearch = async () => {
+  const modelParams = {
+    manufacturer: selectedManufacturer,
+    model: selectedModel,
+    subModel: selectedSubModel,
+    grade: selectedGrade
+  };
+
+  fetchCarByModel(
+    currentPage - 1,
+    12,
+    modelParams,
+    setResponse,
+    setError,
+    setLoading,
+    setTotalPages,
+    false
+  );
+};
+useEffect(() => {
+  console.log(filters);
+}, [filters]);
 const handleCarClick = (carId) => {
   console.log("Moving to description with carId:", carId); // 디버깅용
   navigate('/description', { 
@@ -144,7 +185,8 @@ useEffect(() => {
     mileageRange,
     selectedColors,
     setCurrentPage,
-    setTotalPages
+    setTotalPages,
+    false
 );
 
 
@@ -248,7 +290,7 @@ const getSelectedPath = () => {
               </select>
             </div>
           </div>
-          <button className="filter-search-button" >
+          <button className="filter-search-button" onClick={() => handleInfoSearch()}>
             검색하기
           </button>
         </div>
@@ -324,6 +366,9 @@ const getSelectedPath = () => {
                 </div>
               </div>
             </div>
+            <button className="filter-search-button" onClick={() => handleModelSearch()}>
+              검색하기
+            </button>
           </div>
         ) : (
           <div className="selected-path-container">
