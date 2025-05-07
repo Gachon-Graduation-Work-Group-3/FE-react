@@ -240,6 +240,7 @@ export const fetchCar = async (page, size, setResponse, setError, setLoading,
         if (setTotalPages != null) {
             setTotalPages(data.result.totalPages)
         }
+        console.log(data.result);
         setResponse(data.result);
     } catch (err) {
         if (err.name === 'AbortError') {

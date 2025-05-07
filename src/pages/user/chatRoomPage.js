@@ -277,19 +277,22 @@ function ChatRooms() {
                             </div>
                             {room.info && (
                    <div className="chat-car-info">
-                   <img 
-                       src={room.image || '/default-car.png'} 
-                       alt="차량 이미지"
-                       className="car-thumbnail" 
-                   />
+                   
                    <div className="car-details">
                        <p className="car-name">{room.info.name}</p>
                        <p className="car-price">{room.info.price.toLocaleString()}원</p>
                        <p className="car-sub-details">{room.info.age.substring(0, 4)}년식 • {room.info.mileage.toLocaleString()}km</p>
                    </div>
+                   
                    {room.info.saleStatus && <span className="sold-badge">판매완료</span>}
                </div>
+               
                 )}
+                <img 
+                       src={room.picture || '/default-car.png'} 
+                       alt="차량 이미지"
+                       className="car-thumbnail" 
+                   />
                         </div>
                     ))
                 )}

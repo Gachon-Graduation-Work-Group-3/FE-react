@@ -123,7 +123,14 @@ const handleFilterChange = (category, type, value) => {
     }
   }));
 };
-
+const handleCarClick = (carId) => {
+  console.log("Moving to description with carId:", carId); // 디버깅용
+  navigate('/description', { 
+    state: { 
+      carId: carId 
+    } 
+  });
+};
 // 컴포넌트 마운트 시 초기 데이터 로드
 useEffect(() => {
 
@@ -343,7 +350,7 @@ const getSelectedPath = () => {
             ) : response.content.length > 0 ? (
                 <div className="search-cards-grid">
                     {response.content.map((car, i) => (
-                        <div key={i} className="search-card">
+                        <div key={i} className="search-card" onClick={() => handleCarClick(car.carId)}>
                             <div className="card-image-wrapper">
                                 <img
                                     src={car.image}
@@ -376,7 +383,7 @@ const getSelectedPath = () => {
           <div className="pagination">
           <button
                     className="page-button-prev-next"
-                    onClick={() => handlePageChange(currentPage - 1, totalPages, currentPage - 1)}
+                    onClick={() => handlePageChange(setCurrentPage, totalPages, currentPage - 1)}
                     disabled={currentPage <= 1}
                 >
                     Prev

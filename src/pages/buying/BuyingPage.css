@@ -3,9 +3,11 @@
 .content-wrapper {
   display: flex;
   justify-content: center;
+  margin: 0 10rem 0 10rem;
 }
 
 .filter-sidebar {
+  box-sizing: border-box;
   width: 300px;
   background: #fff;
   padding: 20px;
@@ -101,6 +103,7 @@
 
 .main-content {
   flex: 1;
+  box-sizing: border-box;
 }
 
 .search-header {
@@ -157,7 +160,6 @@
 
 .car-info {
   padding: 15px;
-  background: #f8f9fa;
 }
 
 .car-info h3 {
@@ -170,7 +172,6 @@
 .car-info p {
   margin: 0;
   font-size: 14px;
-  color: #666;
   line-height: 1.4;
 }
 
@@ -428,6 +429,12 @@
 }
 
 .buying-nav-bar {
-
+  height: 100px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   z-index: 1000;
+
+  transition: all 0.3s ease;  /* 스크롤 시 애니메이션 효과 */
 }

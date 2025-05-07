@@ -28,6 +28,7 @@
     flex-direction: row;
     align-items: center;
     gap: 10px;
+    justify-content: space-between;
 }
 
 .chat-room-item:hover {
@@ -41,6 +42,7 @@
 }
 
 .chat-room-info {
+    width: 30%;
     display: flex;
     justify-content: space-between;
     align-items: center;

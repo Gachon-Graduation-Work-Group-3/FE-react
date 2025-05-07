@@ -98,7 +98,7 @@ function SearchPage() {
 
   return (
     <div className="container">
-      <div className="header-container">
+      <div className="buying-nav-bar">
         <Header theme={headerState.theme} isScrolled={headerState.isScrolled}  />
       </div>
 

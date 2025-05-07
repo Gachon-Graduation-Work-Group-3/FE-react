@@ -166,19 +166,42 @@ function MainPage() {
     }
     console.log(`📌 휠 이벤트 감지: ${event.deltaY}`);
     const currentSection = activeSection;
-    if(currentSection==='recommendations' &&event.deltaY<0){
-      event.preventDefault();
-      isScrolling=true;
-      lastSectionChange=Date.now();
-
-      sliderSectionRef.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      });
-      setTimeout(() => {
-        isScrolling=false;
-      }, 1500);
-      return;
+    if(currentSection==='recommendations'){
+      const recommendationsElement = recommendationsRef.current;
+      // 섹션의 스크롤 정보 확인
+      const { scrollTop, scrollHeight, clientHeight } = recommendationsElement;
+      const isAtTop = scrollTop === 0;
+      const isAtBottom = scrollTop + clientHeight >= scrollHeight - 10; // 약간의 여유 추가
+      
+      // 위로 스크롤하려고 할 때(deltaY < 0)이고 이미 맨 위에 있을 경우에만 이전 섹션으로 이동
+      if(event.deltaY < 0 && isAtTop) {
+        event.preventDefault();
+        // 이전 섹션(slider-section)으로 스크롤 처리 코드 실행
+        setHeaderState({
+          theme: 'dark',
+          isScrolled: true
+        });
+        sliderSectionRef.current.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        });
+        lastSectionChange = Date.now();
+        isScrolling = true;
+        setTimeout(() => {
+          isScrolling = false;
+        }, 1500);
+      } 
+      // 내부 스크롤이 가능한 경우 기본 스크롤 동작 허용(preventDefault 호출 없음)
+      else if (!isAtBottom || event.deltaY < 0) {
+        // 여기서 return만 하고 preventDefault를 호출하지 않음
+        return;
+      }
+      // 이미 맨 아래에 있고 더 아래로 스크롤하려고 할 때
+      else if (isAtBottom && event.deltaY > 0) {
+        // 여기에 맨 아래에서 더 아래로 스크롤할 때 동작 (필요시)
+        event.preventDefault();
+        return;
+      }
     }
     
 
@@ -198,6 +221,10 @@ function MainPage() {
         return
       }else if(sliderAtBoundary==='bottom'&& event.deltaY>0){
         console.log(`📌 아래쪽 경계 스크롤 시도, 추천 차량으로 이동`);
+        setHeaderState({
+          theme: 'light',
+          isScrolled: false
+        });
         event.preventDefault();
         isScrolling=true;
         recommendationsRef.current.scrollIntoView({
@@ -313,6 +340,24 @@ return ()=>{
         entries.forEach(entry => {
           if (entry.isIntersecting) {
             console.log(`📌 섹션 관찰: ${entry.target.id}`);
+            if(entry.target.id==='image-slider'){
+              setHeaderState({
+                theme: 'dark',
+                isScrolled: false
+              });
+            }
+            if(entry.target.id==='slider-section'){
+              setHeaderState({
+                theme: 'dark',
+                isScrolled: true
+              });
+            }
+            if(entry.target.id==='recommendations'){
+              setHeaderState({
+                theme: 'light',
+                isScrolled: true
+              });
+            }
             setActiveSection(entry.target.id);
           }
         });
@@ -458,8 +503,12 @@ return ()=>{
                                         <strong>{car.price}만원</strong>
                                     </p>
                                 </div>
+                                
                             </div>
                         ))}
+                        <button className='button'>
+                                  <IoIosArrowForward />
+                                </button>
                     </div>
                     </div>
                 ) : (

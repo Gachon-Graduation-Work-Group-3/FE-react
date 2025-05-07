@@ -234,7 +234,9 @@ function Description() {
 
     return (
       <div className="container">
-        <Header theme={headerState.theme} isScrolled={headerState.isScrolled}  />
+        <div className="buying-nav-bar">
+          <Header theme={headerState.theme} isScrolled={headerState.isScrolled}  />
+        </div>
 
         <div className="result-content">
           <div className="search-summary">

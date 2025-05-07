@@ -57,13 +57,14 @@ const Header = ({ theme = 'light', isScrolled = false }) => {
           
           <div className="user-icon">
           {isAuthenticated == 'true' ? (
-              <div className="user-menu-container">
-                <div 
+              <div 
                   className="user-menu-trigger"
                   onMouseEnter={() => setShowDropdown(true)}
                   onMouseLeave={() => setShowDropdown(false)}
                 >
+                  <div className="welcome-text-container">
                   <span className={`welcome-text ${theme}`}>{user && user.name ? user.name : ''}님</span>
+                  </div>
                   {showDropdown && (
                     <div className="user-dropdown">
                       
@@ -93,7 +94,7 @@ const Header = ({ theme = 'light', isScrolled = false }) => {
                       </button>
                     </div>
                   )}
-                </div>
+                
               </div>
                 ) : (   
                   <button 
