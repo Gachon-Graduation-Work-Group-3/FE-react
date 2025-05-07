@@ -13,6 +13,7 @@ import ChatRooms from './pages/user/chatRoomPage';
 import LikePage from './pages/user/LikePage';
 import MySaleListPage from './pages/user/MySaleListPage';
 import LoginSuccess from './pages/user/LoginsSuccess';
+import SaleBuyingPage from './pages/sale/SaleBuyingPage';
 import ApiTestPage from './ApiTest';
 import './App.css';
 
@@ -37,6 +38,7 @@ function App() {
             <Route path="/like" element={<LikePage />} />
             <Route path="/my-sale-list" element={<MySaleListPage />} />
             <Route path="/api-test" element={<ApiTestPage />} />
+            <Route path="/sale-buying" element={<SaleBuyingPage />} />
           </Routes>
       </div>
     </UserProvider>

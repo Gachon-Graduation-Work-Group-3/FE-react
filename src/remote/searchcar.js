@@ -198,3 +198,56 @@ export const fetchCarByInfo = async (
       setLoading(false);
     }
   };
+  export const fetchCarByTag = async (
+    page,
+    size,
+    setResponse,
+    setError,
+    setLoading,
+    setTotalPages,
+    isSale,
+    tag
+  ) => {
+    try {
+      setLoading(true);
+      const params = {
+        page,
+        size,
+        tag
+      };
+      console.log(params);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+  
+      const queryString = Object.entries(params)
+        .filter(([_, value]) => value !== undefined)
+        .map(([key, value]) => `${key}=${value}`)
+        .join('&');
+
+      const url = `${getBaseUrlPath(isSale)}/tags?${queryString}`;
+      const res = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        credentials: 'include',
+        signal: controller.signal
+      });
+
+      if (!res.ok) {
+        throw new Error('서버에서 데이터를 가져오는데 실패했습니다.');
+      }
+      const data = await res.json();
+      setResponse(data.result);
+      if (setTotalPages) {
+        setTotalPages(data.result.totalPages);
+      }
+    } catch (err) {
+      if (err.name === 'AbortError') {
+        setError('서버 연결 시간이 초과되었습니다.');
+      } else {
+        setError(err.message);
+      }
+    }
+  }

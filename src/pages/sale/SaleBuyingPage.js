@@ -2,7 +2,7 @@ import React, { useState, useEffect,useContext } from 'react';
 import './SaleBuyingPage.css';
 import { Link, useNavigate } from 'react-router-dom';
 import carDataJson from '../../data/transformed_carData.json';
-import { fetchCar, fetchCarByInfo, fetchCarByModel } from '../../remote/searchcar';
+import { fetchCar, fetchCarByInfo, fetchCarByModel, fetchCarByTag } from '../../remote/searchcar';
 import { formatDateToYearMonth } from '../../util/formatDateToYearMonth';
 import { handlePageChange } from '../../event/changevalue';
 import { UserContext } from '../../context/UserContext';
@@ -38,7 +38,9 @@ const [cars, setCars] = useState([]);
 const navigate = useNavigate();
 const initialCarData = carDataJson;
 const [carData] = useState(initialCarData);
-
+const [tag, setTag] = useState('');
+const [hoveredCategory, setHoveredCategory] = useState(null);
+const [expandedCategory, setExpandedCategory] = useState(null);
 const isAuthenticated = localStorage.getItem('isAuthenticated');
 const user = localStorage.getItem('userData');
 const [showDropdown, setShowDropdown] = useState(false);
@@ -47,15 +49,17 @@ const [headerState, setHeaderState] = useState({
   isScrolled: false
 });
 
-const handleLogout = async () => {
-  try {
-    await logout();
-    navigate('/');
-  } catch (error) {
-    console.error('로그아웃 실패:', error);
-  }
+// 마우스가 카테고리에 진입할 때 확장
+const handleMouseEnter = (category) => {
+  setHoveredCategory(category);
+  setExpandedCategory(category);
 };
 
+// 마우스가 카테고리에서 벗어날 때 축소
+const handleMouseLeave = () => {
+  setHoveredCategory(null);
+  setExpandedCategory(null);
+};
 
 
 // 제조사 선택 핸들러
@@ -128,7 +132,17 @@ useEffect(() => {
   console.log(selectedSubModel);
   console.log(selectedGrade);
 }, [selectedManufacturer, selectedModel, selectedSubModel, selectedGrade]);
-
+const handleSearchTag = async () => {
+  fetchCarByTag(
+    currentPage - 1,
+    12,
+    setResponse,
+    setError,
+    setLoading,
+    false,
+    tag
+  );
+};
 const handleInfoSearch = async () => {
   fetchCarByInfo(
     currentPage - 1,
@@ -210,6 +224,131 @@ const getSelectedPath = () => {
 
       <div className="content-wrapper">
         <div className="filter-sidebar">
+        <div className="search-tag-container">
+            <h3 className="search-tag-name">
+              검색 태그
+            </h3>
+            <input type="text" className="filter-input" placeholder="검색 태그를 입력하세요" onChange={(e) => setTag(e.target.value)} />
+            <button className="filter-search-button" onClick={() => handleSearchTag()}>
+              검색
+            </button>
+          </div>
+        <div className="search-tabs">
+            
+            <div className="buying-search-content"
+              onMouseEnter={() => setIsSearchContentHovered(true)}
+              onMouseLeave={() => setIsSearchContentHovered(true)}
+            >
+              {isSearchContentHovered ? (
+                <div className="buying-search-box">
+                  <div className="filter-section"
+                        onMouseEnter={() => handleMouseEnter('manufacturer')}
+                        onMouseLeave={handleMouseLeave}>
+                    <h3 className="filter-title">제조사</h3>
+                    {expandedCategory === 'manufacturer' ? (
+                    <div className="filter-options">
+                      {carData.map(manufacturer => (
+                        <div
+                          key={manufacturer.id}
+                          className={`filter-option ${selectedManufacturer?.id === manufacturer.id ? 'selected' : ''}`}
+                          onClick={() => handleManufacturerSelect(manufacturer)}
+                        >
+                          {manufacturer.name}
+                        </div>
+                      ))}
+                    </div>
+                    ):selectedManufacturer && (
+                      <div className="filter-option">
+                        {selectedManufacturer.name}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="filter-section"
+                  onMouseEnter={() => handleMouseEnter('model')}
+                  onMouseLeave={handleMouseLeave}>
+                    <h3 className="filter-title">모델</h3>
+                    {expandedCategory === 'model' ? (
+                    <div className="filter-options">
+                      {selectedManufacturer?.models.map(model => (
+                        <div
+                          key={model.id}
+                          className={`filter-option ${selectedModel?.id === model.id ? 'selected' : ''}`}
+                          onClick={() => handleModelSelect(model)}
+                        >
+                          {model.name}
+                        </div>
+                      ))}
+                    </div>
+                    ):selectedModel && (
+                      <div className="filter-option">
+                        {selectedModel.name}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="filter-section"
+                  onMouseEnter={() => handleMouseEnter('subModel')}
+                  onMouseLeave={handleMouseLeave}>
+                    <h3 className="filter-title">세부모델</h3>
+                    {expandedCategory === 'subModel' ? (
+                    <div className="filter-options">
+                      {selectedModel?.subModels.map(subModel => (
+                        <div
+                          key={subModel.id}
+                          className={`filter-option ${selectedSubModel?.id === subModel.id ? 'selected' : ''}`}
+                          onClick={() => handleSubModelSelect(subModel)}
+                        >
+                          {subModel.name}
+                        </div>
+                      ))}
+                    </div>
+                    ):selectedSubModel && (
+                      <div className="filter-option">
+                        {selectedSubModel.name}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="filter-section"
+                  onMouseEnter={() => handleMouseEnter('grade')}
+                  onMouseLeave={handleMouseLeave}>
+                    <h3 className="filter-title">등급</h3>
+                    {expandedCategory === 'grade' ? (
+                    <div className="filter-options">
+                      {selectedSubModel?.grades.map(grade => (
+                        <div
+                          key={grade.id}
+                          className={`filter-option ${selectedGrade?.id === grade.id ? 'selected' : ''}`}
+                          onClick={() => handleGradeSelect(grade)}
+                        >
+                          {grade.name}
+                        </div>
+                      ))}
+                    </div>
+                    ):selectedGrade && (
+                      <div className="filter-option">
+                        {selectedGrade.name}
+                      </div>
+                    )}
+                  </div>
+
+                  <button className="filter-search-button" onClick={() => handleModelSearch()}>
+                    검색하기
+                  </button>
+                </div>
+              ) : (
+                <div className="selected-path-container">
+                  <div className="selected-path-content">
+                    <span className="selected-path-text">
+                      {getSelectedPath() || '차량을 선택하세요'}
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+                  
+                </div>
           <div className="filter-section">
             <h3>연식</h3>
             <div className="filter-inputs">
@@ -297,91 +436,7 @@ const getSelectedPath = () => {
 
         <div className="main-content">
           <div className="search-header">
-            <div className="search-tabs">
             
-      <div className="buying-search-content"
-        onMouseEnter={() => setIsSearchContentHovered(true)}
-        onMouseLeave={() => setIsSearchContentHovered(false)}
-      >
-        {isSearchContentHovered ? (
-          <div className="buying-search-box">
-            <div className="filter-grid">
-              <div className="filter-column">
-                <h3 className="filter-title">제조사</h3>
-                <div className="filter-options">
-                  {carData.map(manufacturer => (
-                    <div
-                      key={manufacturer.id}
-                      className={`filter-option ${selectedManufacturer?.id === manufacturer.id ? 'selected' : ''}`}
-                      onClick={() => handleManufacturerSelect(manufacturer)}
-                    >
-                      {manufacturer.name}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="filter-column">
-                <h3 className="filter-title">모델</h3>
-                <div className="filter-options">
-                  {selectedManufacturer?.models.map(model => (
-                    <div
-                      key={model.id}
-                      className={`filter-option ${selectedModel?.id === model.id ? 'selected' : ''}`}
-                      onClick={() => handleModelSelect(model)}
-                    >
-                      {model.name}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="filter-column">
-                <h3 className="filter-title">세부모델</h3>
-                <div className="filter-options">
-                  {selectedModel?.subModels.map(subModel => (
-                    <div
-                      key={subModel.id}
-                      className={`filter-option ${selectedSubModel?.id === subModel.id ? 'selected' : ''}`}
-                      onClick={() => handleSubModelSelect(subModel)}
-                    >
-                      {subModel.name}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="filter-column">
-                <h3 className="filter-title">등급</h3>
-                <div className="filter-options">
-                  {selectedSubModel?.grades.map(grade => (
-                    <div
-                      key={grade.id}
-                      className={`filter-option ${selectedGrade?.id === grade.id ? 'selected' : ''}`}
-                      onClick={() => handleGradeSelect(grade)}
-                    >
-                      {grade.name}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-            <button className="filter-search-button" onClick={() => handleModelSearch()}>
-              검색하기
-            </button>
-          </div>
-        ) : (
-          <div className="selected-path-container">
-            <div className="selected-path-content">
-              <span className="selected-path-text">
-                {getSelectedPath() || '차량을 선택하세요'}
-              </span>
-            </div>
-          </div>
-        )}
-      </div>
-            
-          </div>
 
           <div className="search-cards-container">
             {loading ? (

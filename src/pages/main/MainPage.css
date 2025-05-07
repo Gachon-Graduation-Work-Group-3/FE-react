@@ -309,7 +309,6 @@ body {
   .buying-search-content {
     flex: 1;
     overflow-y: auto;
-    min-width: 1000px ;
   }
   .buying-search-box {
     background: white;

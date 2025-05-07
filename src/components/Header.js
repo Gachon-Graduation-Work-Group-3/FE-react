@@ -40,17 +40,14 @@ const Header = ({ theme = 'light', isScrolled = false }) => {
         <Link to="/" className={`logo ${theme}`}>얼마일카</Link>
         </div>
         <div className="menu-items">
-          <div className="menu-item-container"onClick={()=> navigate('/search')}>
-          <Link  className={`menu-item ${theme}`}>모델 검색</Link>
-          </div>
           <div className="menu-item-container"onClick={()=> navigate('/Selling')}>
           <Link className={`menu-item ${theme}`}>내차 팔기</Link>
           </div>
           <div className="menu-item-container"onClick={()=> navigate('/Buying')}>
-          <Link  className={`menu-item ${theme}`}>내차 사기</Link>
+          <Link  className={`menu-item ${theme}`}>중고차 정보</Link>
           </div>
-          <div className="menu-item-container"onClick={()=> navigate('/price-search')}>
-          <Link  className={`menu-item ${theme}`}>시세 검색</Link>
+          <div className="menu-item-container"onClick={()=> navigate('/sale-buying')}>
+          <Link  className={`menu-item ${theme}`}>사용자 판매</Link>
           </div>
         </div>
         <div className="icon-container">

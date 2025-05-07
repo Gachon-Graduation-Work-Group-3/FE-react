@@ -58,47 +58,18 @@ function Description() {
     }
   });
   const [loading, setLoading] = useState(true);
+  const [allLoading, setAllLoading] = useState(null);
   const [error, setError] = useState(null);
   const [predictionData, setPredictionData] = useState(0,);
   const [predictionLoading, setPredictionLoading] = useState(false);
   const [predictionError, setPredictionError] = useState(null);
-  const { logout } = useContext(UserContext);
 
   const isAuthenticated = localStorage.getItem('isAuthenticated');
   const user = localStorage.getItem('userData');
   const [isLiked, setIsLiked] = useState(false);
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [allLoading, setAllLoading] = useState(null);
   const componentMountCount = useRef(0);
-  useEffect(() => {
-    // 마운트 카운트 증가
-    componentMountCount.current += 1;
-    console.log(`description 마운트 횟수: ${componentMountCount.current}`);
-    console.log('인스턴스 ID:', Math.random());
-    
-    
-    // 컴포넌트 언마운트 시 정리
-    return () => {
-        console.log('ChatWidget 언마운트');
-    };
-}, []);
 
-  // ChatWidget props를 저장할 상태
   const [chatWidgetProps, setChatWidgetProps] = useState(null);
-  
-   // carData 로딩 완료 후 한 번만 ChatWidget props 설정
-  //  useEffect(() => {
-  //   console.log("chatwidgetProps")
-  //   if (!loading && carData.result?.car && !chatWidgetProps && allLoading && !chatWidgetInitialized) {
-  //     setChatWidgetProps({
-  //       initialMessage: `${carData.result.car.name || '차량'} 관련 문의사항이 있으신가요?`,
-  //       otherUserId: "temp",
-  //       source: carData.result.car.source,
-  //       carId: carId
-  //     });
-  //     setChatWidgetInitialized(true);
-  //   }
-  // }, [loading, carData, carId, allLoading]);
   const handleLikeClick = async () => {
     if (!isAuthenticated) {
       // 로그인 안 된 경우 로그인 페이지로 이동
@@ -135,17 +106,8 @@ function Description() {
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigate('/');
-    } catch (error) {
-      console.error('로그아웃 실패:', error);
-    }
-  };
   useEffect(() => {
     if (loading) {
-      console.log('초기 cardata 설정');
       setChatWidgetProps({
         initialMessage: `${carData.result?.car?.name || '차량'} 관련 문의사항이 있으신가요?`,
         otherUserId: "temp",
@@ -191,7 +153,6 @@ function Description() {
         new_price: carData.result.car.newPrice,
         brand: carData.result.car.brand
       };
-      console.log(carData.result);
       fetchCarPrediction(
         predictionRequestData,
         setPredictionData,
@@ -249,13 +210,14 @@ useEffect(() => {
                     alt={carData.result?.car?.name} 
                     className="car-image"
                   />
-                  <button 
-                  className={`like-button ${isLiked ? 'active' : ''}`}
-                  onClick={handleLikeClick}>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                    </svg>
-                  </button>
+                    <button 
+                      className={`like-button ${isLiked ? 'active' : ''}`}
+                      onClick={handleLikeClick}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                        </svg>
+                    </button>
+                  
                 </div>
               </div>
 
@@ -347,6 +309,14 @@ useEffect(() => {
                 </div>
               ))}
             </div>
+            
+            {!carData.result?.car?.user && (
+              <div className="car-link">
+                <a href={carData.result?.car?.link} target="_blank" rel="noopener noreferrer">
+                  차량 상세 정보 보기
+                </a>
+              </div>
+            )}
           </div>
           
 
@@ -425,7 +395,9 @@ useEffect(() => {
               </div>
             </div>
           </div>
-    
+          {carData.result?.car?.user && (
+
+          <>
           {chatWidgetProps ? (
             <>
               {/* {console.log('ChatWidget 렌더링 직전 props:', chatWidgetProps)} */}
@@ -437,6 +409,8 @@ useEffect(() => {
           ) : (
             <div style={{display: 'none'}}>chatWidgetProps가 없음</div>
           )}
+          </>
+        )}
 
         <Link to="/price-search" className="back-button">
           다시 검색하기

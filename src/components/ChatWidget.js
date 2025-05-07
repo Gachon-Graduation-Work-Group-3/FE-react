@@ -28,25 +28,6 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
     const chatWidgetRef = useRef(null);
     const stompClinet = useRef(null);
     //마운트 카운트
-    useEffect(() => {
-        setIsComponentMounted(true);
-        // 마운트 카운트 증가
-        componentMountCount.current += 1;
-        console.log(`ChatWidget 마운트 횟수: ${componentMountCount.current}`);
-        console.log('인스턴스 ID:', Math.random());
-        
-        // messagesRef 초기화 (이전 값이 남아있을 수 있으므로)
-        messagesRef.current = [];
-        
-        
-        // 컴포넌트 언마운트 시 정리
-        return () => {
-            disconnectStomp();
-            setIsComponentMounted(false);
-            console.log('component트 언마운트시 '+isComponentMounted)
-            console.log('ChatWidget 언마운트');
-        };
-    }, []);
       // 스크롤 함수
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
