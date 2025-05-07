@@ -19,14 +19,14 @@ export const fetchCarPrediction = async (carData, setPredictionData, setError, s
             return date ? date.substring(0, 7) : new Date().toISOString().substring(0, 7);
         };
         const processedData = JSON.stringify({
-            age: String(carData.age).substring(0, 7),
-            km: (carData.mileage) ,
-            cc: parseInt(carData.cc) ,
-            fuel_eff: parseInt(String(carData.fuel_eff).slice(0,-5)),
-            high_out: parseInt(String(carData.high_out)),
+            age: String(carData.age).substring(0, 7),   
+            km: (carData.mileage) || 0,
+            cc: parseInt(carData.cc) || 0,
+            fuel_eff: parseInt(String(carData.fuel_eff).slice(0,-5)) || 0,
+            high_out: parseInt(String(carData.high_out)) || 0,
             date: carData.date.substring(2, 4)+'/'+carData.date.substring(5, 7) || new Date().toISOString(),
-            view: carData.view ,
-            new_price: parseInt(carData.new_price) ,
+            view: carData.view || 0,
+            new_price: parseInt(carData.new_price) || 0,
             brand: 0
         });
         console.log(processedData);

@@ -155,63 +155,56 @@ function Description() {
     }
   }, [loading]);
 
-  useEffect(() => {
-    console.log("Description useEffect - carId:", carId);  // 디버깅
-    if (!carId) {
-      setError('유효하지 않은 차량 ID입니다.');
-      setLoading(false);
-      return;
-    }
-
-    const initializeChat = async () =>{
-      try{
-        setLoading(true);
-        const carResponse = await fetchCarDescription(carId, setCarData, setError, setLoading);
-            // carData가 설정된 후에 allLoading 설정
-        setTimeout(() => {
-          if(carResponse) {
-            console.log('carResponse가 존재함, allLoading을 true로 설정');
-            setAllLoading(true);
-          }
-        }, 0);
-        if(carData){
-          if (carData?.result?.car) {
-            const predictionRequestData = {
-              age: carData.result.car.age,
-              mileage: carData.result.car.mileage,
-              cc: carData.result.car.cc,
-              fuel_eff: carData.result.car.fuelEff,
-              high_out: carData.result.car.maxOut,
-              date: new Date().toISOString(),
-              view: carData.result.car.view,
-              new_price: carData.result.car.newPrice,
-              brand: carData.result.car.brand
-            };
-            console.log(carData.result);
-            fetchCarPrediction(
-              predictionRequestData,
-              setPredictionData,
-              setPredictionError,
-              setPredictionLoading
-            );
-            
-          }
+  const initializeChat = async () =>{
+    try{
+      setLoading(true);
+      const carResponse = await fetchCarDescription(carId, setCarData, setError, setLoading);
+          // carData가 설정된 후에 allLoading 설정
+      setTimeout(() => {
+        if(carResponse) {
+          console.log('carResponse가 존재함, allLoading을 true로 설정');
+          setAllLoading(true);
         }
-        
-        
-    }
-    catch(error){
-      console.error('데이터 로딩 오류:', error);
-      setLoading(false);
-    }
-  };
-    initializeChat();
-  }, [carId]);
+      }, 0);
+      
+      
+  }
+  catch(error){
+    console.error('데이터 로딩 오류:', error);
+    setLoading(false);
+  }
+};
 
   // if (loading) return <div>로딩 중...</div>;
   // if (error) return <div>에러: {error}</div>;
   // if (!carData) return <div>차량 정보를 찾을 수 없습니다.</div>;
-
+  useEffect(() => {
+    if (carData?.result?.car) {
+      const predictionRequestData = {
+        age: carData.result.car.age,
+        mileage: carData.result.car.mileage,
+        cc: carData.result.car.cc,
+        fuel_eff: carData.result.car.fuelEff,
+        high_out: carData.result.car.maxOut,
+        date: new Date().toISOString(),
+        view: carData.result.car.view,
+        new_price: carData.result.car.newPrice,
+        brand: carData.result.car.brand
+      };
+      console.log(carData.result);
+      fetchCarPrediction(
+        predictionRequestData,
+        setPredictionData,
+        setPredictionError,
+        setPredictionLoading
+      );
+      
+    }
+  }, [carData]);
+  
+useEffect(() => {
+  initializeChat();
+}, [carId]);
   // 샘플 시세 데이터
   const priceData = [
     { month: '2023.06', price: 3200 },
