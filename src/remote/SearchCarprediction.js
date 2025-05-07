@@ -20,18 +20,18 @@ export const fetchCarPrediction = async (carData, setPredictionData, setError, s
         };
         const processedData = JSON.stringify({
             age: String(carData.age).substring(0, 7),
-            km: (carData.mileage) || 0,
-            cc: parseInt(carData.cc) || 0,
-            fuel_eff: parseInt(String(carData.fuel_eff).slice(0,-5)) || 0,
-            high_out: parseInt(String(carData.high_out)) || 0,
+            km: (carData.mileage) ,
+            cc: parseInt(carData.cc) ,
+            fuel_eff: parseInt(String(carData.fuel_eff).slice(0,-5)),
+            high_out: parseInt(String(carData.high_out)),
             date: carData.date.substring(2, 4)+'/'+carData.date.substring(5, 7) || new Date().toISOString(),
-            view: carData.view || 0,
-            new_price: parseInt(carData.new_price) || 0,
+            view: carData.view ,
+            new_price: parseInt(carData.new_price) ,
             brand: 0
         });
         console.log(processedData);
         
-        const response = await fetch('http://158.179.195.175/price/prediction', {
+        const response = await fetch('http://158.179.195.175:8000/price/prediction', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

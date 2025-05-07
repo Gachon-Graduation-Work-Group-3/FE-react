@@ -187,7 +187,7 @@ function Description() {
               new_price: carData.result.car.newPrice,
               brand: carData.result.car.brand
             };
-      
+            console.log(carData.result);
             fetchCarPrediction(
               predictionRequestData,
               setPredictionData,

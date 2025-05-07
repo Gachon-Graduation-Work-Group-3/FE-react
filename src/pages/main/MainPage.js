@@ -191,15 +191,18 @@ function MainPage() {
           isScrolling = false;
         }, 1500);
       } 
-      // 내부 스크롤이 가능한 경우 기본 스크롤 동작 허용(preventDefault 호출 없음)
-      else if (!isAtBottom || event.deltaY < 0) {
-        // 여기서 return만 하고 preventDefault를 호출하지 않음
-        return;
-      }
-      // 이미 맨 아래에 있고 더 아래로 스크롤하려고 할 때
-      else if (isAtBottom && event.deltaY > 0) {
-        // 여기에 맨 아래에서 더 아래로 스크롤할 때 동작 (필요시)
-        event.preventDefault();
+      // // 내부 스크롤이 가능한 경우 기본 스크롤 동작 허용(preventDefault 호출 없음)
+      // else if (!isAtBottom || event.deltaY < 0) {
+      //   // 여기서 return만 하고 preventDefault를 호출하지 않음
+      //   return;
+      // }
+      // // 이미 맨 아래에 있고 더 아래로 스크롤하려고 할 때
+      // else if (isAtBottom && event.deltaY > 0) {
+      //   // 여기에 맨 아래에서 더 아래로 스크롤할 때 동작 (필요시)
+      //   event.preventDefault();
+      //   return;
+      // }
+      else{
         return;
       }
     }
@@ -481,6 +484,7 @@ return ()=>{
                     </div>
                     </div>
                 ) : response.content.length > 0 ? (
+                  
                   <div className='card-slider-container'>
                     <div className="cards-grid">
                         {response.content.map((car, i) => (
