@@ -8,6 +8,7 @@ import { handlePageChange } from '../../event/changevalue';
 import { UserContext } from '../../context/UserContext';
 import Header from '../../components/Header';
 import api from '../../api/axiosInstance';
+import { IoIosShareAlt } from 'react-icons/io';
 function SaleBuyingPage() {
   const [filteredCars, setFilteredCars] = useState([]);
   const [filters, setFilters] = useState({
@@ -180,9 +181,10 @@ useEffect(() => {
 }, [filters]);
 const handleCarClick = (carId) => {
   console.log("Moving to description with carId:", carId); // 디버깅용
-  navigate('/description', { 
+  navigate('/sale-description', { 
     state: { 
-      carId: carId 
+      carId: carId,
+      isSale: true
     } 
   });
 };

@@ -1,31 +1,5 @@
-export const fetchCarDescription = async (carId, setCarData, setError, setLoading) => {
-    const mockData = {
-        result: {
-            car: {
-                carId: carId,
-                name: "현대 그랜저 하이브리드",
-                price: 45000000,
-                mileage: 20000,
-                color: "WHITE",
-                brand: "현대",
-                description: "2023년식 그랜저 하이브리드 완전무사고 차량입니다.",
-                year: 2023,
-                transmission: "자동",
-                fuelType: "하이브리드",
-                age: "2023-01-01",
-                cc: 2999,
-                fuelEff: 12.5,
-                maxOut: 230,
-                view: 100,
-                newPrice: 50000000,
-                fuel: "하이브리드",
-                number: "123가4567",
-                manufacturer: "현대",
-                image: "car-image-url",
-                source: "얼마일카",
-            }
-        }
-    };
+export const fetchCarDescription = async (carId, setCarData, setError, setLoading, isSale) => {
+    const url = isSale ? `https://rakunko.store/api/car/sale/search/description?carId=${carId}` : `https://rakunko.store/api/car/search/description?carId=${carId}`;
 
     try {
         console.log("fetchCarDescription 시작 - carId:", carId);  // 디버깅
@@ -33,8 +7,8 @@ export const fetchCarDescription = async (carId, setCarData, setError, setLoadin
         
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000);
-
-        const res = await fetch(`https://rakunko.store/api/car/search/description?carId=${carId}`, {
+        console.log("url:", url);
+        const res = await fetch(url, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -48,8 +22,6 @@ export const fetchCarDescription = async (carId, setCarData, setError, setLoadin
         console.log("API 응답:", res);  // 디버깅
 
         if (!res.ok) {
-            console.log("API 실패, mock 데이터 사용:", mockData);  // 디버깅
-            setCarData(mockData);
             return;
         }
 
@@ -60,8 +32,6 @@ export const fetchCarDescription = async (carId, setCarData, setError, setLoadin
 
     } catch (error) {
         console.error("API 에러 발생:", error);  // 디버깅
-        console.log("에러로 인한 mock 데이터 사용:", mockData);  // 디버깅
-        setCarData(mockData);  // 에러 발생 시에도 mock 데이터 설정
         setError(error.message);
     } finally {
         setLoading(false);

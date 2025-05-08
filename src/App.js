@@ -15,6 +15,7 @@ import MySaleListPage from './pages/user/MySaleListPage';
 import LoginSuccess from './pages/user/LoginsSuccess';
 import SaleBuyingPage from './pages/sale/SaleBuyingPage';
 import ApiTestPage from './ApiTest';
+import SaleDescription from './pages/description/SaleDescription';
 import './App.css';
 
 
@@ -39,6 +40,7 @@ function App() {
             <Route path="/my-sale-list" element={<MySaleListPage />} />
             <Route path="/api-test" element={<ApiTestPage />} />
             <Route path="/sale-buying" element={<SaleBuyingPage />} />
+            <Route path="/sale-description" element={<SaleDescription />} />
           </Routes>
       </div>
     </UserProvider>

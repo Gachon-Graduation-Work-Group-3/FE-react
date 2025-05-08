@@ -26,14 +26,40 @@ import Header from '../../components/Header';
 function Description() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { carId } = location.state || {};
+  const { carId, isSale } = location.state || {};
   const [headerState, setHeaderState] = useState({
     theme: 'light',
     isScrolled: false
   });
   
   // 1. 초기 상태에 기본값 설정
-  const [carData, setCarData] = useState({
+  const [carData, setCarData] = useState(isSale ?   {
+    result: {
+      carSale: {
+        carId: '',
+        name: '',
+        price: 0,
+        mileage: 0,
+        color: '',
+        brand: '',
+        description: '',
+        age: '2024-01-01',
+        cc: 0,
+        fuelEff: 0,
+        maxOut: 0,
+        view: 0,
+        newPrice: 0,
+        fuel: '',
+        transmission: '',
+        number: '',
+        manufacturer: '',
+        image: '',
+        user:{
+          id:'',
+        }
+      }
+    }
+  } : {
     result: {
       car: {
         carId: '',
@@ -120,8 +146,9 @@ function Description() {
   const initializeChat = async () =>{
     try{
       setLoading(true);
-      const carResponse = await fetchCarDescription(carId, setCarData, setError, setLoading);
+      const carResponse = await fetchCarDescription(carId, setCarData, setError, setLoading, isSale);
           // carData가 설정된 후에 allLoading 설정
+      
       setTimeout(() => {
         if(carResponse) {
           console.log('carResponse가 존재함, allLoading을 true로 설정');
