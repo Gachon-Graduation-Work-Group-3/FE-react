@@ -39,7 +39,9 @@ const [cars, setCars] = useState([]);
 const navigate = useNavigate();
 const initialCarData = carDataJson;
 const [carData] = useState(initialCarData);
-const [tag, setTag] = useState('');
+const [tag, setTag] = useState(() => {
+  return localStorage.getItem('searchTag') || '';
+});
 const [hoveredCategory, setHoveredCategory] = useState(null);
 const [expandedCategory, setExpandedCategory] = useState(null);
 const isAuthenticated = localStorage.getItem('isAuthenticated');
@@ -49,7 +51,9 @@ const [headerState, setHeaderState] = useState({
   theme: 'light',
   isScrolled: false
 });
-
+useEffect(() => {
+  window.scrollTo(0, 0);
+}, []);
 // 마우스가 카테고리에 진입할 때 확장
 const handleMouseEnter = (category) => {
   setHoveredCategory(category);
@@ -134,15 +138,39 @@ useEffect(() => {
   console.log(selectedGrade);
 }, [selectedManufacturer, selectedModel, selectedSubModel, selectedGrade]);
 const handleSearchTag = async () => {
-  fetchCarByTag(
-    currentPage - 1,
-    12,
-    setResponse,
-    setError,
-    setLoading,
-    false,
-    tag
-  );
+  if (!tag.trim()) {
+    alert('검색할 태그를 입력해주세요');
+    return;
+  }
+
+  try {
+    setLoading(true);
+    setError(null);
+    setResponse({ content: [] });
+
+    // 태그 저장
+    localStorage.setItem('searchTag', tag);
+
+    await fetchCarByTag(
+      currentPage - 1,
+      12,
+      (result) => {
+        setResponse(result);
+        // 검색 결과 저장
+        localStorage.setItem('searchResponse', JSON.stringify(result));
+      },
+      setError,
+      setLoading,
+      setTotalPages,
+      true,
+      tag
+    );
+  } catch (error) {
+    console.error('태그 검색 중 오류 발생:', error);
+    setError('검색 중 오류가 발생했습니다.');
+  } finally {
+    setLoading(false);
+  }
 };
 const handleInfoSearch = async () => {
   fetchCarByInfo(
@@ -175,6 +203,19 @@ const handleModelSearch = async () => {
     setTotalPages,
     true
   );
+};
+const parseTags = (tagString) => {
+  if (!tagString) return [];
+  try {
+    // JSON 문자열을 파싱하고 필요없는 문자 제거
+    const cleanString = tagString.replace(/^"|"$/g, '');
+    // JSON 파싱 후 각 태그에서 이스케이프된 큰따옴표(\") 제거
+    const tags = JSON.parse(cleanString).map(tag => tag.replace(/\\"/g, ''));
+    return tags;
+  } catch (e) {
+    console.error('태그 파싱 에러:', e);
+    return [];
+  }
 };
 useEffect(() => {
   console.log(filters);
@@ -230,8 +271,10 @@ const getSelectedPath = () => {
             <h3 className="search-tag-name">
               검색 태그
             </h3>
-            <input type="text" className="filter-input" placeholder="검색 태그를 입력하세요" onChange={(e) => setTag(e.target.value)} />
-            <button className="filter-search-button" onClick={() => handleSearchTag()}>
+            <input type="text" className="filter-input" placeholder="검색 태그를 입력하세요" value={tag} onChange={(e) => {
+              setTag(e.target.value);
+              console.log("입력된 태그:", e.target.value);
+            }} /><button className="filter-search-button" onClick={() => handleSearchTag()}>
               검색
             </button>
           </div>
@@ -462,6 +505,13 @@ const getSelectedPath = () => {
                             </div>
                             <div className="card-content">
                                 <h3 className="car-title">{car.name}</h3>
+                                {car.tag && (
+                                        <div className="car-tags">
+                                            {parseTags(car.tag).map((tag, index) => (
+                                                <span key={index} className="car-tag">#{tag} </span>
+                                            ))}
+                                        </div>
+                                    )}
                                 <div className="car-specs">
                                     <span className="car-year">{formatDateToYearMonth(car.age) || '날짜 정보 없음'}</span>
                                     <span className="separator">•</span>

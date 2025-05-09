@@ -157,7 +157,7 @@ function MainPage() {
     const container = document.querySelector('.container');
     let isScrolling = false;
     let lastSectionChange = Date.now();
-    const sectionCooldown = 800;
+    const sectionCooldown = 500;
 
     const handleWheel = (event) => {
     if(isScrolling || Date.now()-lastSectionChange< sectionCooldown){
@@ -375,6 +375,9 @@ return ()=>{
         sectionObserver.disconnect();
       };
     }, []);
+  const movetoSaleBuying = () => {
+    navigate('/sale-buying');
+  }
   const movetoDescription = (carId) => {
     console.log("Moving to description with carId:", carId); // 디버깅용
     navigate('/description', { 
@@ -385,7 +388,7 @@ return ()=>{
   };
 
   useEffect(() => {
-    fetchCar(0, 20, setResponse, setError, setLoading, null, null).then((data) => {
+    fetchCar(0, 12, setResponse, setError, setLoading, null, null).then((data) => {
       console.log('Car description:', data);
     })
       .catch((error) => {
@@ -510,10 +513,11 @@ return ()=>{
                                 
                             </div>
                         ))}
-                        <button className='button'>
-                                  <IoIosArrowForward />
-                                </button>
+                       
                     </div>
+                    <button className='move-salebuying-button' onClick={movetoSaleBuying}>
+                                  <h1> 더 많은 차 보러가기 </h1>
+                                </button>
                     </div>
                 ) : (
                     <div className="empty-state">추천 차량이 없습니다.</div>

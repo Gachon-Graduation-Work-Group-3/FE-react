@@ -17,7 +17,7 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
     const messagesRef= useRef([]);
     const [newMessage, setNewMessage] = useState('');
     const [roomId, setRoomId] = useState(null);
-    const [otherUserId, setOtherUserId] = useState(initialOtherUserId);
+    const [otherUserId, setOtherUserId] = useState(null);
     const stompClient = useRef(null);
     const [connected, setConnected] = useState(false);
     const messagesEndRef = useRef(null);
@@ -279,7 +279,7 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
             if (response.status === 200) {
                 console.log('room get 요청 성공: '+JSON.stringify(response.data.result));
                 //user2(판매자)가 현재 유저가 구독한 방중에 같은 사람이 있으면 existroom에 넣는다.
-                const existRoom = response.data.result.content.find(room => room.user2Id === user2Id);
+                const existRoom = response.data.result.content.find(room => room.user2Id === otherUserId);
                 
                 if (existRoom) {
                     console.log("채팅방 존재")
@@ -288,11 +288,11 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
                     await loadChatHistory(existRoom.roomId);
                 } else {
                     console.log("채팅방 없음")
-                    console.log('user2Id: '+user2Id);
+                    console.log('user2Id: '+otherUserId);
                     console.log('carId: '+carId);
                     // 채팅방이 없는 경우, 새로운 채팅방 생성
                     //현재는 고정된 사용자 사용
-                    const createResponse = await api.post(`/api/chat/room/?user2Id=${user2Id}`, {body: JSON.stringify({ carId: 2})});
+                    const createResponse = await api.post(`/api/chat/room/?user2Id=${otherUserId}`, {body: JSON.stringify({ carId: carId})});
                     
                 if(createResponse.status === 401){
                     await refreshUserToken();
@@ -313,7 +313,7 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
                     }
                     console.log(roomListResponse.data);
                     if(roomListResponse.data.code === "COMMON200"){
-                        const newRoom = roomListResponse.data.result.content.find(room => room.user2Id === user2Id);
+                        const newRoom = roomListResponse.data.result.content.find(room => room.user2Id === otherUserId);
                         if(newRoom){
                             setRoomId(newRoom.roomId);
                             setOtherUserId(newRoom.user2Id);

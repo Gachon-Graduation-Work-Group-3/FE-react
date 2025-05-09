@@ -3,7 +3,7 @@
 .content-wrapper {
   display: flex;
   justify-content: center;
-  margin: 0 10rem 0 10rem;
+  margin: 3rem 10rem 0 10rem;
 }
 
 .filter-sidebar {
@@ -438,4 +438,20 @@
   z-index: 1000;
 
   transition: all 0.3s ease;  /* 스크롤 시 애니메이션 효과 */
+}
+.car-tags {
+  margin: 4px 0;
+  font-size: 12px;
+  color: #666;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.car-tag {
+  color: #0066cc;
+  background-color: #f5f5f5;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 500;
 }

@@ -149,6 +149,7 @@ function SellingPage() {
     e.preventDefault();
     // 여기에 서버로 데이터를 전송하는 로직 추가
     console.log('제출된 차량 정보:', formData);
+    
 
     try {
       // FormData 객체 생성
@@ -168,8 +169,8 @@ function SellingPage() {
         submodel: formData.subModel,
         grade: formData.grade,
         name: `${formData.manufacturer} ${formData.model} ${formData.subModel} ${formData.grade}`,
-        price: parseInt(formData.price) || 0,
-        mileage: parseInt(formData.mileage) || 0,
+        price: parseInt(formData.price)||0,
+        mileage: parseInt(formData.mileage)||0,
         description: formData.description,    
         // 날짜 형식 변환
         age: "2025-04-13",
@@ -210,7 +211,7 @@ function SellingPage() {
         // images: "string",
       };
       formDataToSend.append('carSaleRequest', JSON.stringify(carSaleRequest));
-
+      console.log(carSaleRequest);
 
 
       const response = await api.post('api/car/sale/article', formDataToSend);
@@ -224,7 +225,9 @@ function SellingPage() {
       
       if (response.status === 200) {
         console.log('차량 등록 성공');
-        // 3초 후 메인 페이지로 이동
+        // const complete = await api.patch(`api/car/sale/completed?carId=55`, {
+        // });
+        // console.log(complete);
         setTimeout(() => {
           navigate('/');
         }, 1000);

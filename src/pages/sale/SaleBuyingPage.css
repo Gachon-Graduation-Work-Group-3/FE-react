@@ -1,0 +1,20 @@
+.tag-search-wrapper {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.filter-input {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.filter-search-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+.filter-sidebar{
+    min-width: 240px;
+}

@@ -332,7 +332,12 @@ body {
     overflow: visible; /* overflow를 visible로 변경 */
 
 }
-
+.card-slider-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
 .cards-container {
     height: auto;
     padding: 0 40px;
@@ -732,6 +737,44 @@ body {
   border: none;
   cursor: pointer;
   margin-top: 10px;
+}
+.move-salebuying-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;  /* 좌우 여백 늘림 */
+  min-width: 120px;    /* 최소 너비 설정 */
+  height: 45px;        /* 높이 살짝 늘림 */
+  border-radius: 25px; /* 둥근 모서리 */
+  background-color: #ff6b00;
+  border: none;
+  color: white;
+  font-size: 16px;    /* 글자 크기 조정 */
+  font-weight: 600;    /* 글자 두께 */
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(255, 107, 0, 0.3); /* 오렌지 계열 그림자 */
+  right: 20px;        /* 위치 살짝 조정 */
+  top: 50%;
+  transform: translateY(-50%);
+  letter-spacing: 0.5px; /* 자간 살짝 늘림 */
+}
+
+.move-salebuying-button:hover {
+  background-color: #ff8533;
+  transform: translateY(-50%) scale(1.05);
+  box-shadow: 0 4px 15px rgba(255, 107, 0, 0.4);
+}
+
+.move-salebuying-button:active {
+  transform: translateY(-50%) scale(0.98);
+}
+
+/* 버튼 내부에 화살표 아이콘이 있다면 */
+.move-salebuying-button svg {
+  margin-left: 8px;  /* 텍스트와 아이콘 사이 간격 */
+  width: 18px;
+  height: 18px;
 }
 
 /* 반응형 그리드 조정 */

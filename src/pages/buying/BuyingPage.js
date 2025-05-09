@@ -49,7 +49,9 @@ const [headerState, setHeaderState] = useState({
   isScrolled: false
 });
 
-
+useEffect(() => {
+  window.scrollTo(0, 0);
+}, []);
 // 마우스가 카테고리에 진입할 때 확장
 const handleMouseEnter = (category) => {
   setHoveredCategory(category);
@@ -135,6 +137,9 @@ useEffect(() => {
 }, [selectedManufacturer, selectedModel, selectedSubModel, selectedGrade]);
 
 const handleSearchTag = async () => {
+  setLoading(true);
+  setError(null);
+  setResponse({ content: [] });
   fetchCarByTag(
     currentPage - 1,
     12,
@@ -148,6 +153,9 @@ const handleSearchTag = async () => {
   );
 };
 const handleInfoSearch = async () => {
+  setLoading(true);
+  setError(null);
+  setResponse({ content: [] });
   fetchCarByInfo(
     currentPage - 1,
     12,
@@ -161,6 +169,9 @@ const handleInfoSearch = async () => {
 };
 
 const handleModelSearch = async () => {
+  setLoading(true);
+  setError(null);
+  setResponse({ content: [] });
   const modelParams = {
     manufacturer: selectedManufacturer,
     model: selectedModel,
@@ -169,6 +180,7 @@ const handleModelSearch = async () => {
   };
 
   fetchCarByModel(
+    
     currentPage - 1,
     12,
     modelParams,
@@ -190,9 +202,24 @@ const handleCarClick = (carId) => {
     } 
   });
 };
+const parseTags = (tagString) => {
+  if (!tagString) return [];
+  try {
+    // JSON 문자열을 파싱하고 필요없는 문자 제거
+    const cleanString = tagString.replace(/^"|"$/g, '');
+    // JSON 파싱 후 각 태그에서 이스케이프된 큰따옴표(\") 제거
+    const tags = JSON.parse(cleanString).map(tag => tag.replace(/\\"/g, ''));
+    return tags;
+  } catch (e) {
+    console.error('태그 파싱 에러:', e);
+    return [];
+  }
+};
 // 컴포넌트 마운트 시 초기 데이터 로드
 useEffect(() => {
-
+  setLoading(true);
+  setError(null);
+  setResponse({ content: [] });
   fetchCar(
     currentPage - 1,
     12,
@@ -470,6 +497,13 @@ const getSelectedPath = () => {
                             </div>
                             <div className="card-content">
                                 <h3 className="car-title">{car.name}</h3>
+                                    {car.tag && (
+                                        <div className="car-tags">
+                                            {parseTags(car.tag).map((tag, index) => (
+                                                <span key={index} className="car-tag">#{tag} </span>
+                                            ))}
+                                        </div>
+                                    )}
                                 <div className="car-specs">
                                     <span className="car-year">{formatDateToYearMonth(car.age) || '날짜 정보 없음'}</span>
                                     <span className="separator">•</span>

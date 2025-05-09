@@ -31,7 +31,7 @@ function Description() {
     theme: 'light',
     isScrolled: false
   });
-  
+  const [otherUserId, setOtherUserId] = useState(null);
   // 1. 초기 상태에 기본값 설정
   const [carData, setCarData] = useState(isSale ?   {
     result: {
@@ -136,9 +136,9 @@ function Description() {
   useEffect(() => {
     if (loading) {
       setChatWidgetProps({
-        initialMessage: `${carData.result?.car?.name || '차량'} 관련 문의사항이 있으신가요?`,
-        otherUserId: "temp",
-        source: carData.result?.car?.source,
+        initialMessage: `${carData.result?.carSale?.name || '차량'} 관련 문의사항이 있으신가요?`,
+        otherUserId: carData.result?.carSale?.user?.id,
+        source: carData.result?.carSale?.source,
         carId: carId
       });
     }
@@ -149,7 +149,6 @@ function Description() {
       setLoading(true);
       const carResponse = await fetchCarDescription(carId, setCarData, setError, setLoading, isSale);
           // carData가 설정된 후에 allLoading 설정
-      
       setTimeout(() => {
         if(carResponse) {
           console.log('carResponse가 존재함, allLoading을 true로 설정');
@@ -164,22 +163,25 @@ function Description() {
     setLoading(false);
   }
 };
+    useEffect(() => {
+        console.log(carData);
+    }, [carData]);
 
   // if (loading) return <div>로딩 중...</div>;
   // if (error) return <div>에러: {error}</div>;
   // if (!carData) return <div>차량 정보를 찾을 수 없습니다.</div>;
   useEffect(() => {
-    if (carData?.result?.car) {
+    if (carData?.result?.carSale) {
       const predictionRequestData = {
-        age: carData.result.car.age,
-        mileage: carData.result.car.mileage,
-        cc: carData.result.car.cc,
-        fuel_eff: carData.result.car.fuelEff,
-        high_out: carData.result.car.maxOut,
+        age: carData.result.carSale.age,
+        mileage: carData.result.carSale.mileage,
+        cc: carData.result.carSale.cc,
+        fuel_eff: carData.result.carSale.fuelEff,
+        high_out: carData.result.carSale.maxOut,
         date: new Date().toISOString(),
-        view: carData.result.car.view,
-        new_price: carData.result.car.newPrice,
-        brand: carData.result.car.brand
+        view: carData.result.carSale.view,
+        new_price: carData.result.carSale.newPrice,
+        brand: carData.result.carSale.brand
       };
       fetchCarPrediction(
         predictionRequestData,
@@ -214,6 +216,10 @@ useEffect(() => {
     totalListings: 156
   };
 
+  const handleBackClick = () => {
+    navigate(-1); // 브라우저의 뒤로 가기와 동일한 효과
+  };
+
     return (
       <div className="container">
         <div className="buying-nav-bar">
@@ -227,15 +233,15 @@ useEffect(() => {
 
           <div className="detail-content">
             <div className="car-header">
-              <h1>{carData.result?.car?.name || '차량명 없음'}</h1>
+              <h1>{carData.result?.carSale?.name || '차량명 없음'}</h1>
             </div>
 
             <div className="car-main-info">
               <div className="car-image-section">
                 <div className="main-image-container">
                   <img 
-                    src={carData.result?.car?.image} 
-                    alt={carData.result?.car?.name} 
+                    src={carData.result?.carSale?.image} 
+                    alt={carData.result?.carSale?.name} 
                     className="car-image"
                   />
                     <button 
@@ -256,21 +262,21 @@ useEffect(() => {
                   <div className="price-card prediction">
                     <h1>예측가격</h1>
                     <h2 className={
-                      parseInt(predictionData.predicted_price) > parseInt(carData.result?.car?.price) 
+                      parseInt(predictionData.predicted_price) > parseInt(carData.result?.carSale?.price) 
                         ? "price-higher" 
                         : "price-lower"
                     }>
                       {parseInt(predictionData.predicted_price)}만원
                     </h2>
-                    {carData.result?.car?.price && (
+                    {carData.result?.carSale?.price && (
                       <div className={`price-difference ${
-                        parseInt(predictionData.predicted_price) > parseInt(carData.result?.car?.price) 
+                        parseInt(predictionData.predicted_price) > parseInt(carData.result?.carSale?.price) 
                           ? "difference-positive" 
                           : "difference-negative"
                       }`}>
                         {(() => {
                           const predictedPrice = parseInt(predictionData.predicted_price);
-                          const actualPrice = parseInt(carData.result?.car?.price);
+                          const actualPrice = parseInt(carData.result?.carSale?.price);
                           const difference = predictedPrice - actualPrice;
                           const percentDiff = ((difference / actualPrice) * 100).toFixed(1);
                           
@@ -290,29 +296,29 @@ useEffect(() => {
                   </div>
                   <div className="price-card actual">
                     <h1>실제가격</h1>
-                    <h2>{carData.result?.car?.price}만원</h2>
+                    <h2>{carData.result?.carSale?.price}만원</h2>
                   </div>
                 </div>
                   <div className="spec-row">
                     <div className="spec-cell">
                       <div className="spec-label">연식</div>
                       <div className="spec-value">
-                        {carData.result?.car?.age ? carData.result.car.age.slice(0, 10) : '-'}
+                        {carData.result?.carSale?.age ? carData.result.carSale.age.slice(0, 10) : '-'}
                       </div>
                     </div>
                     <div className="spec-cell">
                       <div className="spec-label">주행거리</div>
-                      <div className="spec-value">{carData.result?.car?.mileage}km</div>
+                      <div className="spec-value">{carData.result?.carSale?.mileage}km</div>
                     </div>
                   </div>
                   <div className="spec-row">
                     <div className="spec-cell">
                       <div className="spec-label">연료</div>
-                      <div className="spec-value">{carData.result?.car?.fuel}</div>
+                      <div className="spec-value">{carData.result?.carSale?.fuel}</div>
                     </div>
                     <div className="spec-cell">
                       <div className="spec-label">배기량</div>
-                      <div className="spec-value">{carData.result?.car?.cc}</div>
+                      <div className="spec-value">{carData.result?.carSale?.cc}</div>
                     </div>
                   </div>
                   {/* 추가 스펙 정보... */}
@@ -321,15 +327,15 @@ useEffect(() => {
             </div>
 
             <div className="car-details-grid">
-              {carData.result?.car && Object.entries({
-                "연식": carData.result.car.age.slice(0, 10),
-                "주행거리": `${carData.result.car.mileage}km`,
-                "연료": carData.result.car.fuel,
-                "배기량": carData.result.car.cc,
-                "색상": carData.result.car.color,
-                "변속기": carData.result.car.transmission,
-                "차량번호": carData.result.car.number,
-                "제조사": carData.result.car.manufacturer
+              {carData.result?.carSale && Object.entries({
+                "연식": carData.result.carSale.age.slice(0, 10),
+                "주행거리": `${carData.result.carSale.mileage}km`,
+                "연료": carData.result.carSale.fuel,
+                "배기량": carData.result.carSale.cc,
+                "색상": carData.result.carSale.color,
+                "변속기": carData.result.carSale.transmission,
+                "차량번호": carData.result.carSale.number,
+                "제조사": carData.result.carSale.manufacturer
               }).map(([key, value]) => (
                 <div key={key} className="detail-item">
                   <label>{key}</label>
@@ -338,9 +344,9 @@ useEffect(() => {
               ))}
             </div>
             
-            {!carData.result?.car?.user && (
+            {!carData.result?.carSale?.user && (
               <div className="car-link">
-                <a href={carData.result?.car?.link} target="_blank" rel="noopener noreferrer">
+                <a href={carData.result?.carSale?.link} target="_blank" rel="noopener noreferrer">
                   차량 상세 정보 보기
                 </a>
               </div>
@@ -423,7 +429,7 @@ useEffect(() => {
               </div>
             </div>
           </div>
-          {carData.result?.car?.user && (
+          {carData.result?.carSale?.user && (
 
           <>
           {chatWidgetProps ? (
@@ -440,7 +446,7 @@ useEffect(() => {
           </>
         )}
 
-        <Link to="/price-search" className="back-button">
+        <Link to="/sale-buying" className="back-button">
           다시 검색하기
         </Link>
       </div>

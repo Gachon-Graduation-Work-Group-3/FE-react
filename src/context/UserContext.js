@@ -93,7 +93,7 @@ export function UserProvider({ children }) {
         } finally {
             setLoading(false);
         }
-    };
+    }; 
     // 토큰 갱신 함수
     const refreshUserToken = useCallback(async () => {
         try {

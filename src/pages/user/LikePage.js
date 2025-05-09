@@ -29,6 +29,7 @@ function LikePage() {
       const response = await api.get(`/api/user/like?page=${page}&size=5`);
       console.log(response);
       const data = response.data;
+      
       console.log(data);
       if (response.status !== 200) {
         throw new Error('좋아요 목록을 불러오는데 실패했습니다.');
@@ -56,7 +57,7 @@ function LikePage() {
       if (response.status !== 200) {
         throw new Error('좋아요 삭제 중 오류가 발생했습니다.');
       }
-      
+      console.log(response);
       console.log("좋아요 삭제 완료");
       
       // 좋아요 목록 다시 불러오기
@@ -92,8 +93,8 @@ function LikePage() {
           </div>
         ) : (
           <div className="liked-cars-grid">
-            {likedCars.map(car => (
-              <div key={car.carId} className="car-card">
+            {likedCars.map((car, index) => (
+              <div key={`car-${car.carId}-${index}`} className="car-card">
                 <div className="car-image-container">
                   <Link to={`/car/${car.carId}`} className="car-link">
                     <img 
@@ -133,13 +134,13 @@ function LikePage() {
               이전
             </button>
             
-            {[...Array(totalPages)].map((_, index) => (
+            {Array.from({ length: totalPages }, (_, i) => (
               <button
-                key={index}
-                onClick={() => handlePageChange(index)}
-                className={`page-number ${currentPage === index ? 'active' : ''}`}
+                key={`page-${i}`}
+                onClick={() => handlePageChange(i)}
+                className={`page-number ${currentPage === i ? 'active' : ''}`}
               >
-                {index + 1}
+                {i + 1}
               </button>
             ))}
             

@@ -13,16 +13,17 @@ import ChatRooms from './pages/user/chatRoomPage';
 import LikePage from './pages/user/LikePage';
 import MySaleListPage from './pages/user/MySaleListPage';
 import LoginSuccess from './pages/user/LoginsSuccess';
-import SaleBuyingPage from './pages/sale/SaleBuyingPage';
+import SaleBuyingPage from './pages/sale/SaleBuyingPage'; 
 import ApiTestPage from './ApiTest';
 import SaleDescription from './pages/description/SaleDescription';
 import './App.css';
-
+import { default as ScrollToTop } from './components/ScrollToTop';
 
 function App() {
   return (
   <Router>
     <UserProvider>
+      <ScrollToTop />
       <div>   
           <Routes>
             <Route path="/" element={<MainPage />} />
