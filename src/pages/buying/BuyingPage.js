@@ -1,15 +1,13 @@
-import React, { useState, useEffect,useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import './BuyingPage.css';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import carDataJson from '../../data/transformed_carData.json';
-import { fetchCar, fetchCarByInfo, fetchCarByModel, fetchCarByTag } from '../../remote/searchcar';
+import { fetchCar, fetchCarByInfo, fetchCarByModel } from '../../remote/searchcar';
 import { formatDateToYearMonth } from '../../util/formatDateToYearMonth';
 import { handlePageChange } from '../../event/changevalue';
-import { UserContext } from '../../context/UserContext';
 import Header from '../../components/Header';
-import api from '../../api/axiosInstance';
+
 function BuyingPage() {
-  const [filteredCars, setFilteredCars] = useState([]);
   const [filters, setFilters] = useState({
   year: { min: '', max: '' },
   mileage: { min: '', max: '' },
@@ -23,9 +21,6 @@ function BuyingPage() {
 const [response, setResponse] = useState({ data: [] }); // 초기값을 빈 배열로 설정
 const [error, setError] = useState(null); // 에러 메시지 저장
 const [loading, setLoading] = useState(true); // 로딩 상태 추가
-const [priceRange, setPriceRange] = useState([0, 10000]); // 가격 범위 상태
-const [mileageRange, setMileageRange] = useState([0, 300000]); // 주행 거리 범위 상태
-const [selectedColors, setSelectedColors] = useState([]); // 선택된 색상 상태
 const [currentPage, setCurrentPage] = useState(1); // 현재 페이지 상태
 const [totalPages, setTotalPages] = useState(1); // 전체 페이지 수
 const [selectedManufacturer, setSelectedManufacturer] = useState(null);
@@ -33,17 +28,11 @@ const [selectedModel, setSelectedModel] = useState(null);
 const [selectedSubModel, setSelectedSubModel] = useState(null);
 const [selectedGrade, setSelectedGrade] = useState(null);
 const [isSearchContentHovered, setIsSearchContentHovered] = useState(false);
-const [tag, setTag] = useState('');
-const { logout } = useContext(UserContext);
-const [cars, setCars] = useState([]);
 const navigate = useNavigate();
 const initialCarData = carDataJson;
 const [carData] = useState(initialCarData);
 const [hoveredCategory, setHoveredCategory] = useState(null);
 const [expandedCategory, setExpandedCategory] = useState(null);
-const isAuthenticated = localStorage.getItem('isAuthenticated');
-const user = localStorage.getItem('userData');
-const [showDropdown, setShowDropdown] = useState(false);
 const [headerState, setHeaderState] = useState({
   theme: 'light',
   isScrolled: false
@@ -134,19 +123,7 @@ useEffect(() => {
   console.log(selectedGrade);
 }, [selectedManufacturer, selectedModel, selectedSubModel, selectedGrade]);
 
-const handleSearchTag = async () => {
-  fetchCarByTag(
-    currentPage - 1,
-    12,
-    setResponse,
-    setError,
-    setLoading,
-    setTotalPages,
-    false,
-    tag
 
-  );
-};
 const handleInfoSearch = async () => {
   fetchCarByInfo(
     currentPage - 1,
@@ -200,9 +177,6 @@ useEffect(() => {
     setResponse,
     setError,
     setLoading,
-    priceRange,
-    mileageRange,
-    selectedColors,
     setCurrentPage,
     setTotalPages,
     false
