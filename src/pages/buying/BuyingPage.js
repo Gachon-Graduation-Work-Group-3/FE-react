@@ -31,7 +31,6 @@ const [isSearchContentHovered, setIsSearchContentHovered] = useState(false);
 const navigate = useNavigate();
 const initialCarData = carDataJson;
 const [carData] = useState(initialCarData);
-const [hoveredCategory, setHoveredCategory] = useState(null);
 const [expandedCategory, setExpandedCategory] = useState(null);
 const [headerState, setHeaderState] = useState({
   theme: 'light',
@@ -41,16 +40,19 @@ const [headerState, setHeaderState] = useState({
 
 // 마우스가 카테고리에 진입할 때 확장
 const handleMouseEnter = (category) => {
-  setHoveredCategory(category);
   setExpandedCategory(category);
 };
 
 // 마우스가 카테고리에서 벗어날 때 축소
 const handleMouseLeave = () => {
-  setHoveredCategory(null);
   setExpandedCategory(null);
 };
-
+useEffect(() => {
+  setHeaderState({
+    theme: 'light',
+    isScrolled: false
+  });
+}, []);
 
 // 제조사 선택 핸들러
 const handleManufacturerSelect = async (manufacturer) => {
