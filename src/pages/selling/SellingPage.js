@@ -165,6 +165,7 @@ function SellingPage() {
         // 기존 입력 필드 매핑
         number: formData.licensePlate,
         manufacturer: formData.manufacturer,
+        brand: formData.manufacturer,
         model: formData.model,
         submodel: formData.subModel,
         grade: formData.grade,
@@ -178,8 +179,7 @@ function SellingPage() {
         // 기본값 설정
         cc: 0,
         engine: "gasoline",
-        color: "wh",
-        brand: formData.manufacturer,
+        color: "흰색",
         maxOut: 0,
         fuelEfficient: 0,
         fuel: "gasoline",
