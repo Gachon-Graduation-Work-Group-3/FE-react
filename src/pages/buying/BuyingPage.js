@@ -1,15 +1,13 @@
-import React, { useState, useEffect,useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import './BuyingPage.css';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import carDataJson from '../../data/transformed_carData.json';
-import { fetchCar, fetchCarByInfo, fetchCarByModel, fetchCarByTag } from '../../remote/searchcar';
+import { fetchCar, fetchCarByInfo, fetchCarByModel } from '../../remote/searchcar';
 import { formatDateToYearMonth } from '../../util/formatDateToYearMonth';
 import { handlePageChange } from '../../event/changevalue';
-import { UserContext } from '../../context/UserContext';
 import Header from '../../components/Header';
-import api from '../../api/axiosInstance';
+
 function BuyingPage() {
-  const [filteredCars, setFilteredCars] = useState([]);
   const [filters, setFilters] = useState({
   year: { min: '', max: '' },
   mileage: { min: '', max: '' },
@@ -23,9 +21,6 @@ function BuyingPage() {
 const [response, setResponse] = useState({ data: [] }); // 초기값을 빈 배열로 설정
 const [error, setError] = useState(null); // 에러 메시지 저장
 const [loading, setLoading] = useState(true); // 로딩 상태 추가
-const [priceRange, setPriceRange] = useState([0, 10000]); // 가격 범위 상태
-const [mileageRange, setMileageRange] = useState([0, 300000]); // 주행 거리 범위 상태
-const [selectedColors, setSelectedColors] = useState([]); // 선택된 색상 상태
 const [currentPage, setCurrentPage] = useState(1); // 현재 페이지 상태
 const [totalPages, setTotalPages] = useState(1); // 전체 페이지 수
 const [selectedManufacturer, setSelectedManufacturer] = useState(null);
@@ -33,37 +28,31 @@ const [selectedModel, setSelectedModel] = useState(null);
 const [selectedSubModel, setSelectedSubModel] = useState(null);
 const [selectedGrade, setSelectedGrade] = useState(null);
 const [isSearchContentHovered, setIsSearchContentHovered] = useState(false);
-const [tag, setTag] = useState('');
-const { logout } = useContext(UserContext);
-const [cars, setCars] = useState([]);
 const navigate = useNavigate();
 const initialCarData = carDataJson;
 const [carData] = useState(initialCarData);
-const [hoveredCategory, setHoveredCategory] = useState(null);
 const [expandedCategory, setExpandedCategory] = useState(null);
-const isAuthenticated = localStorage.getItem('isAuthenticated');
-const user = localStorage.getItem('userData');
-const [showDropdown, setShowDropdown] = useState(false);
 const [headerState, setHeaderState] = useState({
   theme: 'light',
   isScrolled: false
 });
 
-useEffect(() => {
-  window.scrollTo(0, 0);
-}, []);
+
 // 마우스가 카테고리에 진입할 때 확장
 const handleMouseEnter = (category) => {
-  setHoveredCategory(category);
   setExpandedCategory(category);
 };
 
 // 마우스가 카테고리에서 벗어날 때 축소
 const handleMouseLeave = () => {
-  setHoveredCategory(null);
   setExpandedCategory(null);
 };
-
+useEffect(() => {
+  setHeaderState({
+    theme: 'light',
+    isScrolled: false
+  });
+}, []);
 
 // 제조사 선택 핸들러
 const handleManufacturerSelect = async (manufacturer) => {
@@ -136,26 +125,8 @@ useEffect(() => {
   console.log(selectedGrade);
 }, [selectedManufacturer, selectedModel, selectedSubModel, selectedGrade]);
 
-const handleSearchTag = async () => {
-  setLoading(true);
-  setError(null);
-  setResponse({ content: [] });
-  fetchCarByTag(
-    currentPage - 1,
-    12,
-    setResponse,
-    setError,
-    setLoading,
-    setTotalPages,
-    false,
-    tag
 
-  );
-};
 const handleInfoSearch = async () => {
-  setLoading(true);
-  setError(null);
-  setResponse({ content: [] });
   fetchCarByInfo(
     currentPage - 1,
     12,
@@ -169,9 +140,6 @@ const handleInfoSearch = async () => {
 };
 
 const handleModelSearch = async () => {
-  setLoading(true);
-  setError(null);
-  setResponse({ content: [] });
   const modelParams = {
     manufacturer: selectedManufacturer,
     model: selectedModel,
@@ -180,7 +148,6 @@ const handleModelSearch = async () => {
   };
 
   fetchCarByModel(
-    
     currentPage - 1,
     12,
     modelParams,
@@ -198,37 +165,20 @@ const handleCarClick = (carId) => {
   console.log("Moving to description with carId:", carId); // 디버깅용
   navigate('/description', { 
     state: { 
-      carId: carId 
+      carId: carId,
+      isSale: false
     } 
   });
 };
-const parseTags = (tagString) => {
-  if (!tagString) return [];
-  try {
-    // JSON 문자열을 파싱하고 필요없는 문자 제거
-    const cleanString = tagString.replace(/^"|"$/g, '');
-    // JSON 파싱 후 각 태그에서 이스케이프된 큰따옴표(\") 제거
-    const tags = JSON.parse(cleanString).map(tag => tag.replace(/\\"/g, ''));
-    return tags;
-  } catch (e) {
-    console.error('태그 파싱 에러:', e);
-    return [];
-  }
-};
 // 컴포넌트 마운트 시 초기 데이터 로드
 useEffect(() => {
-  setLoading(true);
-  setError(null);
-  setResponse({ content: [] });
+
   fetchCar(
     currentPage - 1,
     12,
     setResponse,
     setError,
     setLoading,
-    priceRange,
-    mileageRange,
-    selectedColors,
     setCurrentPage,
     setTotalPages,
     false
@@ -255,7 +205,7 @@ const getSelectedPath = () => {
 
       <div className="content-wrapper">
         <div className="filter-sidebar">
-          <div className="search-tag-container">
+          {/* <div className="search-tag-container">
             <h3 className="search-tag-name">
               검색 태그
             </h3>
@@ -269,7 +219,7 @@ const getSelectedPath = () => {
             }}>
               검색
             </button>
-          </div>
+          </div> */}
         <div className="search-tabs">
             
             <div className="buying-search-content"
@@ -497,13 +447,6 @@ const getSelectedPath = () => {
                             </div>
                             <div className="card-content">
                                 <h3 className="car-title">{car.name}</h3>
-                                    {car.tag && (
-                                        <div className="car-tags">
-                                            {parseTags(car.tag).map((tag, index) => (
-                                                <span key={index} className="car-tag">#{tag} </span>
-                                            ))}
-                                        </div>
-                                    )}
                                 <div className="car-specs">
                                     <span className="car-year">{formatDateToYearMonth(car.age) || '날짜 정보 없음'}</span>
                                     <span className="separator">•</span>
