@@ -316,11 +316,7 @@ useEffect(() => {
                       <div className="spec-value">{carData.result?.car?.cc}</div>
                     </div>
                   </div> */}
-                </div>
-              </div>
-            </div>
-
-            <div className="car-details-grid">
+                  <div className="car-details-grid">
               {carData.result?.car && Object.entries({
                 "연식": carData.result.car.age.slice(0, 10),
                 "주행거리": `${carData.result.car.mileage}km`,
@@ -337,6 +333,11 @@ useEffect(() => {
                 </div>
               ))}
             </div>
+                </div>
+              </div>
+            </div>
+
+            
             
             {!carData.result?.car?.user && (
               <div className="car-link">

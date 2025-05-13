@@ -300,7 +300,7 @@ useEffect(() => {
                     <h2>{carData.result?.carSale?.price}만원</h2>
                   </div>
                 </div>
-                  <div className="spec-row">
+                  {/* <div className="spec-row">
                     <div className="spec-cell">
                       <div className="spec-label">연식</div>
                       <div className="spec-value">
@@ -321,13 +321,8 @@ useEffect(() => {
                       <div className="spec-label">배기량</div>
                       <div className="spec-value">{carData.result?.carSale?.cc}</div>
                     </div>
-                  </div>
-                  {/* 추가 스펙 정보... */}
-                </div>
-              </div>
-            </div>
-
-            <div className="car-details-grid">
+                  </div> */}
+                  <div className="car-details-grid">
               {carData.result?.carSale && Object.entries({
                 "연식": carData.result.carSale.age.slice(0, 10),
                 "주행거리": `${carData.result.carSale.mileage}km`,
@@ -344,6 +339,11 @@ useEffect(() => {
                 </div>
               ))}
             </div>
+                </div>
+              </div>
+            </div>
+
+
             
             {!carData.result?.carSale?.user && (
               <div className="car-link">
@@ -356,7 +356,7 @@ useEffect(() => {
           
 
           <div className="result-grid">
-            <div className="price-chart-section">
+            {/* <div className="price-chart-section">
               <h2>감가 예상 시세</h2>
               <div className="chart-container">
                 <ResponsiveContainer width="100%" height={400}>
@@ -374,7 +374,7 @@ useEffect(() => {
                   </LineChart>
                 </ResponsiveContainer>
               </div>
-            </div>
+            </div> */}
 
             <div className="price-stats-section">
               <h2>시세 통계</h2>
