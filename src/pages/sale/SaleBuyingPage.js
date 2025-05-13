@@ -52,7 +52,13 @@ const [headerState, setHeaderState] = useState({
   isScrolled: false
 });
 useEffect(() => {
-  window.scrollTo(0, 0);
+  const headerElement = document.querySelector('.buying-nav-bar');
+  if (headerElement) {
+    headerElement.scrollIntoView({ 
+      behavior: 'smooth',
+      block: 'start'
+    });
+  }
 }, []);
 // 마우스가 카테고리에 진입할 때 확장
 const handleMouseEnter = (category) => {

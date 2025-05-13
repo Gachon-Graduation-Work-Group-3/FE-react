@@ -111,28 +111,20 @@ export function UserProvider({ children }) {
 
     const logout = useCallback(async () => {
         try {
-            const token = localStorage.getItem('token');
             setIsLoggingOut(true);
-            
+            await api.post('/logout');
             // 로컬 상태 초기화를 먼저 수행
-            localStorage.removeItem('token');          // 토큰 제거
-            localStorage.removeItem('refreshToken');   // 리프레시 토큰 제거
-            localStorage.removeItem('userData');       // 유저 데이터 제거
-            localStorage.setItem('isAuthenticated', 'false');
+            localStorage.clear();
             
             setUser(null);
-            setIsAuthenticated(false);
-
-    
-            // 서버 로그아웃 요청은 마지막에 수행
-            await api.post('/logout');
+            setIsAuthenticated(false);          
     
             // 로그인 페이지로 리다이렉트
             navigate('/login', { replace: true });
             
         } catch (error) {
             console.error('로그아웃 에러:', error);
-            // 에러가 발생해도 로컬 상태는 초기화된 상태 유지
+            
         } finally {
             setIsLoggingOut(false);
         }
@@ -149,7 +141,8 @@ export function UserProvider({ children }) {
             const currentTime = Date.now();
             const timeDiff = currentTime - timestamp;
             if (timeDiff > 1000 * 60 * 60 ) {
-                logout();
+                localStorage.clear();
+                window.location.href = '/login';
             }
         }
     }, []);

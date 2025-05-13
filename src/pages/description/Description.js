@@ -293,7 +293,7 @@ useEffect(() => {
                     <h2>{carData.result?.car?.price}만원</h2>
                   </div>
                 </div>
-                  <div className="spec-row">
+                  {/* <div className="spec-row">
                     <div className="spec-cell">
                       <div className="spec-label">연식</div>
                       <div className="spec-value">
@@ -314,8 +314,7 @@ useEffect(() => {
                       <div className="spec-label">배기량</div>
                       <div className="spec-value">{carData.result?.car?.cc}</div>
                     </div>
-                  </div>
-                  {/* 추가 스펙 정보... */}
+                  </div> */}
                 </div>
               </div>
             </div>
