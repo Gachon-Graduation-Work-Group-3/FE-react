@@ -11,9 +11,6 @@ function LikePage() {
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [showDropdown, setShowDropdown] = useState(false);
-  const { logout } = useContext(UserContext);
-  const isAuthenticated = localStorage.getItem('isAuthenticated');
-  const user = localStorage.getItem('userData');
   const navigate = useNavigate();
   const [headerState, setHeaderState] = useState({
     theme: 'light',
@@ -22,6 +19,11 @@ function LikePage() {
   useEffect(() => {
     fetchLikedCars();
   }, []);
+  const handleClick = (carId) => {
+    navigate('/description',{
+      state:{carId:carId}
+    });
+  };
   const fetchLikedCars = async (page = 0) => {
     try {
       console.log("fetchLikedCars 호출");
@@ -96,13 +98,13 @@ function LikePage() {
             {likedCars.map((car, index) => (
               <div key={`car-${car.carId}-${index}`} className="car-card">
                 <div className="car-image-container">
-                  <Link to={`/car/${car.carId}`} className="car-link">
+                  <div  className="car-link" onClick={() => handleClick(car.carId)}>
                     <img 
                       src={car.image} 
                       alt={car.name} 
                       className="car-image"
                     />
-                  </Link>
+                  </div>
                   <button 
                     className="like-button active"
                     onClick={() => handleLikeClick(car.likeId)}
