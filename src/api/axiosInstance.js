@@ -36,7 +36,7 @@ api.interceptors.response.use(
           console.log('리프레시 토큰 요청');
           // 리프레시 토큰으로 새 액세스 토큰 요청
           const refreshToken = localStorage.getItem('refreshToken');
-          
+          console.log('refreshToken', refreshToken);
           const response = await fetch(`https://rakunko.store/api/token/renew`, {
             method: 'GET',
             headers: {

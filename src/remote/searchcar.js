@@ -158,7 +158,7 @@ export const fetchCarByInfo = async (
         submodel: selectedModel.subModel?.name || undefined,
         grade: selectedModel.grade?.name || undefined
       };
-  
+      console.log(params);
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000);
   

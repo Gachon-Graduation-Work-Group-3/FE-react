@@ -115,14 +115,26 @@ a:hover {
   transition: color 0.3s ease;
 }
 .nav-bar .menu-item-container:hover,
-.nav-bar .user-icon:hover{
-  background-color: #eb1400;
-  transition: transform 0.3s ease;
-  
+.nav-bar .user-icon:hover {
+  background-color: transparent; /* 주황색 배경 제거 */
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4); /* 그림자 효과 추가 */
+  transform: translateY(-2px);
+  transition: all 0.3s ease;
 }
 .nav-bar .menu-item-container:hover .menu-item,
 .nav-bar .icon-container:hover .login{
   transition: transform 0.3s ease;
+}
+/* 밝은 테마에서는 약간 다른 그림자 효과 */
+.nav-bar.light .menu-item-container:hover,
+.nav-bar.light .user-icon:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+}
+
+/* 어두운 테마에서는 더 진한 그림자 효과 */
+.nav-bar.dark .menu-item-container:hover,
+.nav-bar.dark .user-icon:hover {
+  box-shadow: 0 8px 20px rgba(255, 255, 255, 0.25);
 }
 
 .nav-bar .logo.dark,
