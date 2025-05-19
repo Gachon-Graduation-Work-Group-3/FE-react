@@ -342,7 +342,7 @@ useEffect(() => {
             {!carData.result?.car?.user && (
               <div className="car-link">
                 <a href={carData.result?.car?.link} target="_blank" rel="noopener noreferrer">
-                  차량 상세 정보 보기
+                실제 매물 보러가기
                 </a>
               </div>
             )}

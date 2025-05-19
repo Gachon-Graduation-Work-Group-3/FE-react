@@ -45,7 +45,7 @@ const Slider = ({ onBoundaryScroll }) => {
     const sections = [
         {
         img: car_price_comparison,
-        text: '최고의 가격',
+        text: '최적의 가격',
         title: '요소 분석 & 비교',
         description: '다양한 요소를 분석하고 다른 차량들과 비교합니다.',
         bulletPoints: [
@@ -65,12 +65,12 @@ const Slider = ({ onBoundaryScroll }) => {
         },
         {
         img: various_information,
-        text: '다양한 정보',
-        title: '세밀한 가격 예측',
-        description: '다양한 변수를 고려하여 보다 정교한 가격 예측을 제공합니다.',
+        text: '사용자 장터',
+        title: '직접 올리고 비교하는 거래 공간',
+        description: '누구나 차량 정보를 등록하고 다양한 조건의 차량과 비교할 수 있습니다.',
         bulletPoints: [
-            '차량 상태, 주행 거리 등 반영',
-            '실시간 데이터 업데이트'
+            '사용자 등록 기반의 거래 정보 제공',
+            '자동 태깅과 유사 차량 추천 기능 탑재'
         ]
         },
         // 추가 섹션들...

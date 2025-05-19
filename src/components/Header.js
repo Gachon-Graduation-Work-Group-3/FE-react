@@ -37,7 +37,7 @@ const Header = ({ theme = 'light', isScrolled = false }) => {
     <div className='outer-nav-bar'>
     <nav className={headerClasses}>
         <div className="logo-container">
-        <Link to="/" className={`logo ${theme}`}>얼마일카</Link>
+        <Link to="/" className={`logo ${theme}`}>얼마카</Link>
         </div>
         <div className="menu-items">
           <div className="menu-item-container"onClick={()=> navigate('/Selling')}>
@@ -47,7 +47,7 @@ const Header = ({ theme = 'light', isScrolled = false }) => {
           <Link  className={`menu-item ${theme}`}>중고차 정보</Link>
           </div>
           <div className="menu-item-container"onClick={()=> navigate('/sale-buying')}>
-          <Link  className={`menu-item ${theme}`}>사용자 판매</Link>
+          <Link  className={`menu-item ${theme}`}>사용자 장터</Link>
           </div>
         </div>
         <div className="icon-container">
