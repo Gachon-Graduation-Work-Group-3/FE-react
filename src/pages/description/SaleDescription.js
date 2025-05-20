@@ -93,7 +93,6 @@ function Description() {
   const isAuthenticated = localStorage.getItem('isAuthenticated');
   const user = localStorage.getItem('userData');
   const [isLiked, setIsLiked] = useState(false);
-  const componentMountCount = useRef(0);
 
   const [chatWidgetProps, setChatWidgetProps] = useState(null);
   const handleLikeClick = async () => {
@@ -132,7 +131,19 @@ function Description() {
       alert(error.message);
     }
   };
-
+  // Header.js에 태그 파싱 함수 추가
+  const parseTags = (tagString) => {
+    console.log(tagString);
+    if (!tagString) return [];
+    try {
+      const cleanString = tagString.replace(/^"|"$/g, '');
+      const tags = JSON.parse(cleanString).map(tag => tag.replace(/\\"/g, ''));
+      return tags;
+    } catch (e) {
+      console.error('태그 파싱 에러:', e);
+      return [];
+    }
+  };
   useEffect(() => {
     if (loading) {
       setChatWidgetProps({
@@ -252,7 +263,13 @@ useEffect(() => {
                           <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                         </svg>
                     </button>)}
-                  
+                    {carData.result?.carSale?.tags && (
+                    <div className="header-tags">
+                      {parseTags(carData.result?.carSale?.tags).map((tag, index) => (
+                        <span key={index} className="header-tag">#{tag}</span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 
