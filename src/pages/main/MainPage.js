@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback, useLayoutEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './MainPage.css';
 import car1 from '../../img/car1.jpg';
 import car2 from '../../img/car2.jpg';
@@ -6,9 +6,6 @@ import car5 from '../../img/car5.jpg';
 import { Link, useNavigate } from 'react-router-dom';
 import { fetchCar } from '../../remote/searchcar';
 import { formatDateToYearMonth } from '../../util/formatDateToYearMonth';
-import { IoIosArrowBack, IoIosArrowForward } from 'react-icons/io';
-import { useUser } from '../../context/UserContext';
-import { useLocation } from 'react-router-dom';
 import Header from '../../components/Header';
 import Slider from './Slider';  // Slider 컴포넌트 import
 // 슬라이더에 사용할 이미지 배열

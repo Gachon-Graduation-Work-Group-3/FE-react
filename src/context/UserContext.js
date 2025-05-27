@@ -112,10 +112,12 @@ export function UserProvider({ children }) {
     const logout = useCallback(async () => {
         try {
             setIsLoggingOut(true);
+            localStorage.setItem('isAuthenticated', 'false');
             await api.post('/logout');
             // 로컬 상태 초기화를 먼저 수행
-            localStorage.clear();
-            
+            localStorage.setItem('userData', null);
+            localStorage.setItem('token', null);
+            localStorage.setItem('refreshToken', null);
             setUser(null);
             setIsAuthenticated(false);          
     

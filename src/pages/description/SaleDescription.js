@@ -4,26 +4,14 @@ import {fetchCarDescription} from '../../remote/SearchCarDescription';
 import ChatWidget from '../../components/ChatWidget';
 import './PriceResultPage.css';
 import './Description.css';
-import { UserContext } from '../../context/UserContext';
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer
-} from 'recharts';
 import { fetchCarPrediction } from '../../remote/SearchCarprediction';
 import Header from '../../components/Header';
+import {fetchCarByInfo, fetchCarByModel} from '../../remote/searchcar';
 
 
 
 
-
-
-
-function Description() {
+function SaleDescription() {
   const navigate = useNavigate();
   const location = useLocation();
   const { carId, isSale } = location.state || {};
@@ -31,10 +19,10 @@ function Description() {
     theme: 'light',
     isScrolled: false
   });
-  const [otherUserId, setOtherUserId] = useState(null);
+  const chatWidgetPropsRef = useRef(null);
   // 1. 초기 상태에 기본값 설정
-  const [carData, setCarData] = useState(isSale ?   {
-    result: {
+  const [carData, setCarData] = useState(
+    {
       carSale: {
         carId: '',
         name: '',
@@ -59,34 +47,25 @@ function Description() {
         }
       }
     }
-  } : {
-    result: {
-      car: {
-        carId: '',
-        name: '',
-        price: 0,
-        mileage: 0,
-        color: '',
-        brand: '',
-        description: '',
-        age: '2024-01-01',
-        cc: 0,
-        fuelEff: 0,
-        maxOut: 0,
-        view: 0,
-        newPrice: 0,
-        fuel: '',
-        transmission: '',
-        number: '',
-        manufacturer: '',
-        image: ''
-      }
-    }
-  });
-  const [loading, setLoading] = useState(true);
+  );
+  const [loading, setLoading] = useState(false);
   const [allLoading, setAllLoading] = useState(null);
   const [error, setError] = useState(null);
-  const [predictionData, setPredictionData] = useState(0,);
+  // 통계 데이터 상태 관리 추가
+  const [modelStatistics, setModelStatistics] = useState({
+    averagePrice: "0만원",
+    maxPrice: "0만원",
+    minPrice: "0만원",
+    totalListings: 0
+  });
+  const [statisticsLoading, setStatisticsLoading] = useState(false);
+  const [statisticsError, setStatisticsError] = useState(null);
+
+  // 유사 차량 상태 관리 추가
+  const [similarCars, setSimilarCars] = useState([]);
+  const [similarCarsLoading, setSimilarCarsLoading] = useState(false);
+  const [similarCarsError, setSimilarCarsError] = useState(null);
+    const [predictionData, setPredictionData] = useState(0,);
   const [predictionLoading, setPredictionLoading] = useState(false);
   const [predictionError, setPredictionError] = useState(null);
 
@@ -131,6 +110,102 @@ function Description() {
       alert(error.message);
     }
   };
+    // 유사 차량 가져오기 함수 추가
+  const fetchSimilarCars = async () => {
+    if(!carData.result?.carSale?.price) return;
+    const carPrice = parseInt(carData.result?.carSale?.price);
+
+    const minPrice = Math.max(0, carPrice - 300);
+    const maxPrice = carPrice + 300;
+
+    const similarCarFetchParams = {
+      year: { min: '', max: '' },
+      mileage: { min: '', max: '' },
+      price: { min: minPrice, max: maxPrice },
+      color: { min: '', max: '' },
+      manufacturer: null,
+      model: null,
+      subModel: null,
+      grade: null
+    };
+    setSimilarCarsLoading(true);
+    try{
+      fetchCarByInfo(
+        0,
+        6,
+        similarCarFetchParams,
+        setSimilarCars,
+        setSimilarCarsError,
+        setSimilarCarsLoading,
+        null,
+        true
+      );
+    }catch(error){
+      console.error('유사 차량 로딩 오류:', error);
+      setSimilarCarsError(error.message);
+    }finally{
+      setSimilarCarsLoading(false);
+    }
+  };
+
+  // 시세 통계 가져오기 함수 추가
+  const fetchModelStatistics = async () => {
+    if(!carData.result?.carSale) return;
+    setStatisticsLoading(true);
+
+    try{
+      // 모델 파라미터 설정
+      const modelParams = {
+        manufacturer: { name: carData.result.carSale.manufacturer },
+        model: { name: carData.result.carSale.name.split(' ')[1] || carData.result.carSale.name },
+        subModel: null,
+        grade: null
+      };
+      // 임시 응답 저장 변수
+      let tempResponse = { content: [] };
+
+      // 모델 검색
+      await fetchCarByModel(
+        0,
+        100, // 충분한 수의 데이터를 가져옴
+        modelParams,
+        (response) => { tempResponse = response; },
+        setStatisticsError,
+        setStatisticsLoading,
+        null,
+        true
+      );
+      // 검색 결과가 있으면 통계 계산
+      if (tempResponse.content && tempResponse.content.length > 0) {
+        const prices = tempResponse.content
+          .map(car => parseInt(car.price))
+          .filter(price => !isNaN(price) && price > 0);
+        if (prices.length > 0) {
+          // 통계 계산
+          const sum = prices.reduce((a, b) => a + b, 0);
+          const avg = Math.round(sum / prices.length);
+          const max = Math.max(...prices);
+          const min = Math.min(...prices);
+          
+          setModelStatistics({
+            averagePrice: `${avg}만원`,
+            maxPrice: `${max}만원`,
+            minPrice: `${min}만원`,
+            totalListings: prices.length
+          });
+        }
+      }
+    } catch (error) {
+      setStatisticsError(error.message);
+    } finally {
+      setStatisticsLoading(false);
+    }
+  };
+
+  // 차량 상세 정보로 이동 함수
+  const handleCarClick = (carId) => {
+    navigate(`/description`, { state: { carId: carId, isSale: false } });
+  };
   // Header.js에 태그 파싱 함수 추가
   const parseTags = (tagString) => {
     console.log(tagString);
@@ -144,28 +219,38 @@ function Description() {
       return [];
     }
   };
+  // 차량 데이터가 로드된 후 통계 계산
   useEffect(() => {
-    if (loading) {
-      setChatWidgetProps({
-        initialMessage: `${carData.result?.carSale?.name || '차량'} 관련 문의사항이 있으신가요?`,
-        otherUserId: carData.result?.carSale?.user?.id,
-        source: carData.result?.carSale?.source,
-        carId: carId
-      });
+    if (carData?.result?.carSale) {
+      fetchModelStatistics();
     }
-  }, [loading]);
+  }, [carData]);
+
+  // 차량 데이터가 로드된 후 유사 차량 가져오기
+  useEffect(() => {
+    if (carData?.result?.carSale && !similarCarsLoading && similarCars.length === 0) {
+      fetchSimilarCars();
+    }
+  }, [carData]);
 
   const initializeChat = async () =>{
     try{
       setLoading(true);
-      const carResponse = await fetchCarDescription(carId, setCarData, setError, setLoading, isSale);
+      const responseData = await fetchCarDescription(carId, setCarData, setError, setLoading, isSale);
           // carData가 설정된 후에 allLoading 설정
-      setTimeout(() => {
-        if(carResponse) {
-          console.log('carResponse가 존재함, allLoading을 true로 설정');
-          setAllLoading(true);
+      if(responseData) {
+        console.log('responseData', responseData);
+        if (responseData.result?.carSale && !chatWidgetPropsRef.current) {
+          chatWidgetPropsRef.current = {
+            initialMessage: `${responseData.result.carSale.name || '차량'} 관련 문의사항이 있으신가요?`,
+            sellerId: responseData.result.carSale.user?.id,
+            source: responseData.result.carSale.link,
+            carId: carId
+          };
+          setChatWidgetProps(chatWidgetPropsRef.current);
         }
-      }, 0);
+        setLoading(false);
+      }
       
       
   }
@@ -207,16 +292,6 @@ function Description() {
 useEffect(() => {
   initializeChat();
 }, [carId]);
-  // 샘플 시세 데이터
-  const priceData = [
-    { month: '2023.06', price: 3200 },
-    { month: '2023.07', price: 3150 },
-    { month: '2023.08', price: 3000 },
-    { month: '2023.09', price: 2900 },
-    { month: '2023.10', price: 2850 },
-    { month: '2023.11', price: 2780 },
-    { month: '2023.12', price: 2600 }
-  ];
   
   // 시세 통계 데이터
   const statistics = {
@@ -263,13 +338,20 @@ useEffect(() => {
                           <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                         </svg>
                     </button>)}
+                    <div className="view-count">
                     {carData.result?.carSale?.tags && (
                     <div className="header-tags">
                       {parseTags(carData.result?.carSale?.tags).map((tag, index) => (
                         <span key={index} className="header-tag">#{tag}</span>
                       ))}
+                      <div className="view">
+                        <span>조회수 : </span>
+                        <span>{carData.result?.carSale?.view}</span>
+                      </div>
                     </div>
                   )}
+                    </div>
+                    
                 </div>
               </div>
 
@@ -317,28 +399,6 @@ useEffect(() => {
                     <h2>{carData.result?.carSale?.price}만원</h2>
                   </div>
                 </div>
-                  {/* <div className="spec-row">
-                    <div className="spec-cell">
-                      <div className="spec-label">연식</div>
-                      <div className="spec-value">
-                        {carData.result?.carSale?.age ? carData.result.carSale.age.slice(0, 10) : '-'}
-                      </div>
-                    </div>
-                    <div className="spec-cell">
-                      <div className="spec-label">주행거리</div>
-                      <div className="spec-value">{carData.result?.carSale?.mileage}km</div>
-                    </div>
-                  </div>
-                  <div className="spec-row">
-                    <div className="spec-cell">
-                      <div className="spec-label">연료</div>
-                      <div className="spec-value">{carData.result?.carSale?.fuel}</div>
-                    </div>
-                    <div className="spec-cell">
-                      <div className="spec-label">배기량</div>
-                      <div className="spec-value">{carData.result?.carSale?.cc}</div>
-                    </div>
-                  </div> */}
                   <div className="car-details-grid">
               {carData.result?.carSale && Object.entries({
                 "연식": carData.result.carSale.age.slice(0, 10),
@@ -346,9 +406,9 @@ useEffect(() => {
                 "연료": carData.result.carSale.fuel,
                 "배기량": carData.result.carSale.cc,
                 "색상": carData.result.carSale.color,
-                "변속기": carData.result.carSale.transmission,
                 "차량번호": carData.result.carSale.number,
-                "제조사": carData.result.carSale.manufacturer
+                "제조사": carData.result.carSale.manufacturer,
+                "무게": carData.result.carSale.weight,
               }).map(([key, value]) => (
                 <div key={key} className="detail-item">
                   <label>{key}</label>
@@ -396,11 +456,11 @@ useEffect(() => {
             <div className="price-stats-section">
               <h2>시세 통계</h2>
               <div className="stats-grid">
-                {predictionLoading ? (
-                  <div>예측 중...</div>
-                ) : predictionError ? (
-                  <div>예측 오류: {predictionError}</div>
-                ) : predictionData ? (
+                {statisticsLoading ? (
+                  <div>통계 로딩 중...</div>
+                ) : statisticsError ? (
+                  <div>통계 로딩 오류: {statisticsError}</div>
+                ) : (
                   <>
                     <div className="stat-item">
                       <label>예측 가격</label>
@@ -408,62 +468,62 @@ useEffect(() => {
                     </div>
                     <div className="stat-item">
                       <label>평균 시세</label>
-                      <value>{statistics.averagePrice}</value>
+                      <value>{modelStatistics.averagePrice}</value>
                     </div>
                     <div className="stat-item">
                       <label>최고가</label>
-                      <value>{statistics.maxPrice}</value>
+                      <value>{modelStatistics.maxPrice}</value>
                     </div>
                     <div className="stat-item">
                       <label>최저가</label>
-                      <value>{statistics.minPrice}</value>
-                    </div>
-                    <div className="stat-item">
-                      <label>시세 범위</label>
-                      <value>{statistics.priceRange}</value>
+                      <value>{modelStatistics.minPrice}</value>
                     </div>
                     <div className="stat-item">
                       <label>매물 수</label>
-                      <value>{statistics.totalListings}대</value>
+                      <value>{modelStatistics.totalListings}대</value>
                     </div>
                   </>
-                ) : null}
+                )}
               </div>
             </div>
-
             <div className="similar-cars-section">
               <h2>유사 매물</h2>
               <div className="similar-cars-grid">
-                {[1, 2, 3].map((item) => (
-                  <div key={item} className="car-item">
-                    <div className="car-image-placeholder"></div>
-                    <div className="car-details">
-                      <h3>제네시스 G70 2.0T</h3>
-                      <p>2021년 | 30,000km</p>
-                      <p className="price">3,100만원</p>
+                {similarCarsLoading ? (
+                  <div>유사 매물 로딩 중...</div>
+                ) : similarCarsError ? (
+                  <div>유사 매물 로딩 오류: {similarCarsError}</div>
+                ) : similarCars.content && similarCars.content.length > 0 ? (
+                  similarCars.content.map((car) => (
+                    <div key={car.carId} className="car-item" onClick={() => handleCarClick(car.carId)}>
+                      <div className="car-image-container">
+                        <img 
+                          src={car.image} 
+                          alt={car.name} 
+                          className="car-image"
+                        />
+                      </div>
+                      <div className="car-details">
+                        <h3>{car.name}</h3>
+                        <p>{car.age ? car.age.slice(0, 7) : '날짜 정보 없음'} | {car.mileage || '정보 없음'}km</p>
+                        <p className="price">{car.price || '정보 없음'}만원</p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <div>유사한 가격대의 차량이 없습니다.</div>
+                )}
               </div>
             </div>
           </div>
-          {carData.result?.carSale?.user && (
-
-          <>
-          {chatWidgetProps ? (
-            <>
-              {/* {console.log('ChatWidget 렌더링 직전 props:', chatWidgetProps)} */}
-              <ChatWidget 
-                key="fixed-chat-widget" 
-                {...chatWidgetProps} 
-              />
-            </>
-          ) : (
-            <div style={{display: 'none'}}>chatWidgetProps가 없음</div>
-          )}
-          </>
-        )}
-
+          <div>
+              {chatWidgetPropsRef.current && (
+                <ChatWidget 
+                  key="fixed-chat-widget" 
+                  {...chatWidgetPropsRef.current}
+                />
+              )}
+            </div>
         <Link to="/sale-buying" className="back-button">
           다시 검색하기
         </Link>
@@ -472,4 +532,4 @@ useEffect(() => {
   );
 }
 
-export default Description;
+export default SaleDescription;

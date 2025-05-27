@@ -364,7 +364,6 @@
     display: flex;
     gap: 5px;
     justify-content: center;
-    padding-right: 30px;
   }
   
   .header-tag {

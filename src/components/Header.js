@@ -22,8 +22,11 @@ const Header = ({ theme = 'light', isScrolled = false }) => {
     try {
       console.log('로그아웃 시도...');
       await logout();
+      console.log('isAuthenticated', isAuthenticated);
+      console.log('isAuthenticated', localStorage.getItem('isAuthenticated'));
       console.log('로그아웃 성공!');
       navigate('/');
+
     } catch (error) {
       console.error('로그아웃 실패:', error);
     }

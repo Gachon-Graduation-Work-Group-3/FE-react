@@ -312,7 +312,7 @@ useEffect(() => {
 }, [carData]);
 
     return (
-      <div className="container">
+      <div className="buying-container">
         <div className="buying-nav-bar">
           <Header theme={headerState.theme} isScrolled={headerState.isScrolled}  />
         </div>
@@ -343,6 +343,10 @@ useEffect(() => {
                           <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                         </svg>
                     </button>)}
+                    <div className="view-count">
+                      <span>조회수 : </span>
+                      <span>{carData.result?.car?.view}</span>
+                    </div>
                   
                 </div>
               </div>
@@ -420,9 +424,10 @@ useEffect(() => {
                 "연료": carData.result.car.fuel,
                 "배기량": carData.result.car.cc,
                 "색상": carData.result.car.color,
-                "변속기": carData.result.car.transmission,
                 "차량번호": carData.result.car.number,
-                "제조사": carData.result.car.manufacturer
+                "제조사": carData.result.car.manufacturer,
+                "무게": carData.result.car.weight,
+
               }).map(([key, value]) => (
                 <div key={key} className="detail-item">
                   <label>{key}</label>

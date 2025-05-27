@@ -4,10 +4,8 @@ import { Client } from '@stomp/stompjs';
 import { UserContext } from '../context/UserContext';
 import './ChatWidget.css';
 import api from '../api/axiosInstance';
-
 const BASE_URL = 'https://rakunko.store';
-const user2Id = 4;
-function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, carId }) {
+function ChatWidget({ initialMessage, sellerId, source, carId }) {
     const isAuthenticated = localStorage.getItem('isAuthenticated');
     const user = JSON.parse(localStorage.getItem('userData'));
     const token = localStorage.getItem('token');
@@ -17,16 +15,19 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
     const messagesRef= useRef([]);
     const [newMessage, setNewMessage] = useState('');
     const [roomId, setRoomId] = useState(null);
-    const [otherUserId, setOtherUserId] = useState(null);
+    const [otherUserId, setOtherUserId] = useState(sellerId);
     const stompClient = useRef(null);
     const [connected, setConnected] = useState(false);
     const messagesEndRef = useRef(null);
     const [isComponentMounted, setIsComponentMounted] = useState(true);
     const initialMessageApplied = useRef(false);
-    const componentMountCount = useRef(0);
+    const hasConnected = useRef(false);
 
+    const componentMountCount = useRef(0);
+    let connectionCount = 0;
     const chatWidgetRef = useRef(null);
     const stompClinet = useRef(null);
+    const stompAttempted = useRef(false);
     //마운트 카운트
       // 스크롤 함수
     const scrollToBottom = () => {
@@ -37,7 +38,12 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
         scrollToBottom();
       }, [messages]); // messages 배열이 변경될 때마다 실행
 
-
+      useEffect(() => {
+        if (sellerId) {
+          console.log('sellerId 변경됨:', sellerId);
+          setOtherUserId(sellerId);
+        }
+      }, [sellerId]);
     // STOMP 연결 끊는 함수
     const disconnectStomp = () => {
         if (stompClient.current) {
@@ -73,11 +79,15 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
 
     // 웹소켓 연결 함수
     const connectWebSocket = useCallback(() => {
-        console.log(isComponentMounted);
-        if (!isComponentMounted) return;
+        if (stompAttempted.current) {
+            console.log('이미 STOMP 연결 시도함, 중복 연결 방지');
+            return;
+        }
+        
         console.log('웹소켓 연결 시도');
-        console.log('connectWebSocket 실행시 메시지 배열:', [...messagesRef.current]);
-        if (isAuthenticated && !connected && user?.userId && !stompClient.current) {
+        if (isAuthenticated && user?.userId) {
+            stompAttempted.current = true; // 연결 시도 표시
+            
             const socket = new SockJS(`${BASE_URL}/ws/chat`);
             stompClient.current = new Client({
                 webSocketFactory: () => socket,
@@ -136,47 +146,30 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
                 }
                 
             };
-
-            // stompClient.current.onWebSocketClose = (event) => {
-            //     console.log('WebSocket 연결 끊김:', event);
-            //     setConnected(false);
-                
-            //     // 토큰 갱신 후 재연결 시도
-            //     refreshUserToken().then(() => {
-            //         // 토큰 갱신 성공 후 바로 재연결 시도
-            //         if (!connected) {
-            //             connectWebSocket();
-            //         }
-            //     }).catch(error => {
-            //         console.error('토큰 갱신 실패:', error);
-            //         // 실패시 5초 후 재시도
-            //         setTimeout(() => {
-            //             if (!connected) {
-            //                 connectWebSocket();
-            //             }
-            //         }, 5000);
-            //     });
-            // };
-
             stompClient.current.activate();
+        } else {
+            console.log('인증 정보 부족, STOMP 연결 불가');
         }
-    }, [isAuthenticated, user?.userId,connected]);
+    }, [isAuthenticated, user?.userId]);
 
     // 인증 상태 변경 시에만 웹소켓 연결
     useEffect(() => {
-        console.log('초기 useEffect 실행시 메시지 배열:', [...messagesRef.current]);
-        if (isAuthenticated && user?.userId) {
+        console.log('ChatWidget 마운트, 인증 상태:', isAuthenticated);
+        
+        // 마운트 시 그리고 인증 정보가 있을 때만 연결 시도
+        if (isAuthenticated && user?.userId && !stompClient.current) {
             connectWebSocket();
         }
         
         return () => {
+            console.log('ChatWidget 언마운트, STOMP 연결 종료');
             if (stompClient.current) {
                 stompClient.current.deactivate();
-                setConnected(false);
                 stompClient.current = null;
+                stompAttempted.current = false; // 언마운트 시 재설정
             }
         };
-    }, [isAuthenticated, user?.userId]);
+    }, [isAuthenticated, user?.userId, connectWebSocket]);
 
 
 
@@ -199,23 +192,27 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
             console.log('업데이트 전 메시지 배열:', [...messagesRef.current]);
             // 상태 업데이트 전에 메시지 형식 확인
             if (messageContent) {
-                const currentMessages=[...messagesRef.current];
-                const newMessage = {
-                    id: currentMessages.length + 1,
-                    text: messageContent,
-                    sender: receivedMessage.sender === user.userId ? "sent" : "received",
-                    timestamp: new Date() ? new Date().toLocaleString() : '시간 정보 없음'
-                };
-                console.log('새 메시지 추가:', newMessage);
-                currentMessages.push(newMessage);
-                messagesRef.current=currentMessages;
-                console.log(newMessage.sender);
-                setMessages(prev => {
-                    const updatedMessages = [...prev, newMessage];
-                    messagesRef.current = updatedMessages;
-                    return updatedMessages;
-                });
-                console.log('업데이트 후 메시지 배열:', [...messagesRef.current]);
+                // 중복 메시지인지 확인 (같은 내용, 같은 시간의 메시지 필터링)
+                const isDuplicate = messagesRef.current.some(msg => 
+                    msg.text === messageContent && 
+                    msg.timestamp === new Date().toLocaleString()
+                );
+                
+                if (!isDuplicate) {
+                    const newMessage = {
+                        id: Date.now() + Math.random(), // 유니크 ID 생성
+                        text: messageContent,
+                        sender: receivedMessage.sender === user.userId ? "sent" : "received",
+                        timestamp: new Date().toLocaleString()
+                    };
+                    
+                    // 한 번만 업데이트
+                    setMessages(prev => {
+                        const updatedMessages = [...prev, newMessage];
+                        messagesRef.current = updatedMessages;
+                        return updatedMessages;
+                    });
+                }
             }
         } catch (error) {
             console.error('메시지 처리 중 오류:', error);
@@ -269,8 +266,8 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
             // 1. 채팅방 존재 여부 확인
             const response = await api.get(`/api/chat/room/?page=0&size=5`);
             console.log("토글버튼 클릭 챗 초기화")
-
-
+            
+            
             if(response.status === 401){
                 logout();
                 return;
@@ -278,6 +275,7 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
             console.log(response.data);
             if (response.status === 200) {
                 console.log('room get 요청 성공: '+JSON.stringify(response.data.result));
+                console.log('otherUserId: '+otherUserId);
                 //user2(판매자)가 현재 유저가 구독한 방중에 같은 사람이 있으면 existroom에 넣는다.
                 const existRoom = response.data.result.content.find(room => room.user2Id === otherUserId);
                 
@@ -292,8 +290,8 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
                     console.log('carId: '+carId);
                     // 채팅방이 없는 경우, 새로운 채팅방 생성
                     //현재는 고정된 사용자 사용
-                    const createResponse = await api.post(`/api/chat/room/?user2Id=${otherUserId}`, {body: JSON.stringify({ carId: carId})});
-                    
+                    const createResponse = await api.post(`/api/chat/room/?user2Id=${otherUserId}&carId=${carId}`);
+                    console.log('createResponse: '+createResponse);
                 if(createResponse.status === 401){
                     await refreshUserToken();
                     initializeChat();
@@ -313,6 +311,7 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
                     }
                     console.log(roomListResponse.data);
                     if(roomListResponse.data.code === "COMMON200"){
+                        console.log('roomListResponse.data.result.content: '+roomListResponse.data.result.content);
                         const newRoom = roomListResponse.data.result.content.find(room => room.user2Id === otherUserId);
                         if(newRoom){
                             setRoomId(newRoom.roomId);
@@ -378,15 +377,15 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
     };
 
     //메시지 변경시  메시지 출력
-    useEffect(() => {
-        // 메시지 배열 변경 시 로그 출력
-        console.log('메시지 배열 변경시 [...messagesRef.current]:', [...messagesRef.current]);
+    // useEffect(() => {
+    //     // 메시지 배열 변경 시 로그 출력
+    //     console.log('메시지 배열 변경시 [...messagesRef.current]:', [...messagesRef.current]);
         
-        // 스크롤을 항상 최신 메시지로 이동
-        if (messagesEndRef.current) {
-            messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-        }
-    }, [messages]);
+    //     // 스크롤을 항상 최신 메시지로 이동
+    //     if (messagesEndRef.current) {
+    //         messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    //     }
+    // }, [messages]);
     return (
         <div className="chat-widget">
             {isOpen && (
@@ -425,4 +424,4 @@ function ChatWidget({ initialMessage, otherUserId: initialOtherUserId, source, c
     );
 }
 
-export default ChatWidget; 
+export default React.memo(ChatWidget);

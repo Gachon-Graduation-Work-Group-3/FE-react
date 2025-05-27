@@ -480,7 +480,7 @@ const getSelectedPath = () => {
                     (() => {
                         const startPage = Math.max(1, currentPage - 2);
                         const endPage = Math.min(totalPages, startPage + 4);
-
+                        console.log(totalPages);
                         const pages = [];
                         for (let page = startPage; page <= endPage; page++) {
                             pages.push(page);
